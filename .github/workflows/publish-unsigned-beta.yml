@@ -1,10 +1,10 @@
-name: Publish unsigned Windows beta
+name: Publish unsigned Windows release
 on:
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
-  publish-beta:
+  publish:
     runs-on: windows-2025
     timeout-minutes: 70
     steps:
@@ -41,19 +41,19 @@ jobs:
             "$($hash.Hash.ToLower())  $(Split-Path $file -Leaf)"
           }
           $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
-      - name: Publish public prerelease
+      - name: Publish public release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          $tag = "v4.5.10-beta.1"
+          $tag = "v1.0.0"
           $notes = @"
-          Tubeium 4.5.10 Windows beta.
+          Tubeium v1.0.0 for Windows.
 
-          **Unsigned beta:** Windows SmartScreen may display a warning. Only download from this official GitHub repository.
+          **Unsigned release:** Windows SmartScreen may display a warning. Only download from this official GitHub repository.
           Tested by the maintainer on Windows. Automated source tests and packaging checks run before publication.
           Sign-in imports are not guaranteed to be accepted by Google.
 
           Includes a Windows setup installer and a portable executable. SHA256SUMS.txt contains their checksums.
           "@
-          gh release create $tag "dist/Tubeium-4.5.10-Setup-x64.exe" "dist/Tubeium-4.5.10-Portable-x64.exe" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium 4.5.10 Beta 1 (unsigned)" --notes $notes --prerelease
+          gh release create $tag "dist/Tubeium-1.0.0-Setup-x64.exe" "dist/Tubeium-1.0.0-Portable-x64.exe" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium v1.0.0 (unsigned)" --notes $notes
