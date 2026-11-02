@@ -2,99 +2,221 @@
 
 # Tubeium
 
-### Your YouTube experience. Your desktop. Your way.
+**YouTube, reimagined for your Windows desktop.**
 
-A customizable, unofficial YouTube client built for **Windows**.
+A free, customizable, open-source desktop client with powerful playback controls, a distraction-free interface, local media tools, and deep personalization.
 
-[![Release](https://img.shields.io/github/v/release/Subaru771/Tubeium?label=latest%20release)](https://github.com/Subaru771/Tubeium/releases/latest)
-[![Windows CI](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
+[![Latest release](https://img.shields.io/github/v/release/Subaru771/Tubeium?label=release)](https://github.com/Subaru771/Tubeium/releases/latest)
+[![Windows build](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
 [![License](https://img.shields.io/github/license/Subaru771/Tubeium)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D4)](https://github.com/Subaru771/Tubeium/releases/latest)
 
-**[Download Tubeium](https://github.com/Subaru771/Tubeium/releases/latest)** · [Features](#what-you-can-do) · [Build from source](#build-from-source) · [Report an issue](https://github.com/Subaru771/Tubeium/issues)
+### [⬇ Download for Windows](https://github.com/Subaru771/Tubeium/releases/latest) · [Explore features](#features) · [Get started](#getting-started) · [Source code](https://github.com/Subaru771/Tubeium)
 
 </div>
 
 ---
 
-## A desktop-first way to watch
+## Why Tubeium?
 
-Tubeium brings YouTube into a dedicated Windows app, with a customizable interface and tools for organizing your viewing experience. Keep playlists and viewing profiles locally, manage downloads, and tailor playback without juggling browser tabs.
+Your video experience should fit **you**, not the other way around. Tubeium combines a dedicated Windows YouTube window with controls for how videos play, what appears on screen, how media is saved, and how your local library is organized.
 
-> [!IMPORTANT]
-> Tubeium is an **independent, unofficial** project and is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that depend on YouTube or Google may change without notice.
+- **Make YouTube yours:** themes, colors, layout tweaks, custom CSS, and extensive settings.
+- **Watch your way:** playback speed, volume memory, quality preferences, mini player, and audio presets.
+- **Cut distractions:** selectively hide Shorts, recommendations, comments, feeds, and other interface elements.
+- **Keep media organized:** local playlists, bookmarks, viewing progress, downloads, and offline playback.
+- **Stay in control:** privacy-oriented local tools, configurable shortcuts, and optional sign-in assistance.
 
-## Download
+> [!NOTE]
+> Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Latest stable release: v1.0.0** · Windows x64
+## Download Tubeium
 
-| Edition | Download | Choose this if… |
-| --- | --- | --- |
-| **Installer** | [Tubeium-1.0.0-Setup-x64.exe](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe) | You want a standard Windows installation |
-| **Portable** | [Tubeium-1.0.0-Portable-x64.exe](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe) | You prefer to launch an EXE without installing |
-| **Checksums** | [SHA256SUMS.txt](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | You want to verify your download |
+**v1.0.0 · Windows x64 · Free**
 
-[**See the full release**](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0)
+| Edition | Download | Recommended for |
+| :-- | :-- | :-- |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | Checking file integrity |
+
+[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned app:** Tubeium v1.0.0 is not code-signed. Windows SmartScreen may warn about an unknown publisher. Get the EXE only from the official GitHub Releases page, and verify its SHA-256 checksum if desired. Do not disable Windows security protections globally.
+> **Unsigned Windows executables:** Tubeium v1.0.0 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
-## What you can do
+## Features
 
-| Experience | Capabilities |
-| --- | --- |
-| **Make it yours** | Customizable settings, viewing profiles, and audio presets |
-| **Stay organized** | Local library, playlists, bookmarks, and playback progress tools |
-| **Manage media** | Download queue and offline media playback |
-| **Move between setups** | Local backups and migration tools |
-| **Use a dedicated desktop app** | Native Windows window and navigation controls |
-| **Get sign-in help** | Browser-based sign-in assistance and session-import options |
+### 🎨 Personalization & appearance
 
-**A note on sign-in and downloads:** Google may restrict embedded or third-party sign-in methods, and YouTube changes can affect playback or downloading. These features are best-effort, not guaranteed.
+- Light, dark, system-matched, and AMOLED-style page appearance options.
+- Custom accent colors, interface scaling, and separate YouTube text-size adjustments.
+- Adjustable feed density, grid columns, thumbnail corners, and sidebar behavior.
+- Hide visual clutter such as badges, channel avatars, and hover previews.
+- Optional custom CSS for advanced page styling.
 
-## Get started
+### 🎬 Playback & player controls
 
-1. Choose the **Installer** or **Portable** download above.
-2. Run the downloaded EXE.
-3. Open Tubeium, explore the settings, and personalize your experience.
+- Preferred playback quality, default speed, speed memory, and configurable speed increments.
+- Remember volume and mute state; set default volume and caption preferences.
+- Theater mode, fullscreen preferences, video looping, and autoplay controls.
+- Floating mini-player settings, including size, position, and Windows opacity.
+- Optional audio presets such as **Bass boost**, **Voice clarity**, **Cinema**, and **Music** (availability depends on the stream).
+- Configurable keyboard shortcuts and gamepad playback/seek controls.
 
-For sign-in help, use the guidance provided inside Tubeium. Never share account cookies, session files, or tokens in an issue, screenshot, or public discussion.
+### 🧘 Focus & cleaner browsing
+
+Choose exactly what you want to see. Tubeium includes settings to hide or reduce:
+
+- Shorts, homepage recommendations, related videos, and mixes.
+- Comments, live chat, end screens, and in-video cards.
+- Community posts, merchandise, promotional panels, and selected action buttons.
+- Navigation elements, topic chips, and other feed distractions.
+
+Changes to YouTube's interface can affect individual filters.
+
+### ⏭ Ads & SponsorBlock
+
+- Optional **best-effort** ad filtering and skip behavior for supported placements.
+- **SponsorBlock** integration with configurable segment categories, including sponsors, self-promotion, reminders, intros, and outros.
+- Optional notifications when segments are skipped.
+
+Ad filtering is not guaranteed and may be affected by YouTube changes. SponsorBlock relies on community-submitted segment data.
+
+### 📥 Downloads & offline playback
+
+- Video and audio download options with a configurable download queue.
+- Select a maximum video resolution, file naming format, and destination folder.
+- Supported container preferences include **MP4** and **MKV**; audio choices include **MP3**, **M4A**, and **Opus**.
+- Optional thumbnail, subtitle, and metadata handling.
+- Open supported downloaded media using Tubeium's offline player.
+
+Some formats and conversions require FFmpeg; availability also depends on the source video. Download only content you have permission to save.
+
+### 📚 Local library & playlists
+
+- Organize saved videos and local playlists.
+- Bookmarks and playback-progress tracking.
+- Local library browsing and sorting options.
+- Backup and migration tools for supported local app data.
+
+### 🔐 Privacy, sign-in & app behavior
+
+- Local viewing profiles and privacy-oriented backup controls.
+- Sign-in guidance using a browser and optional session-import workflows.
+- Startup preferences, tray behavior, window restoration, and launch-at-login options.
+- External-link handling and configurable cache behavior.
+
+**Important:** Google may block third-party or embedded sign-in. No sign-in method is guaranteed. Never share session cookies, exported sessions, or account tokens publicly.
+
+## Feature overview
+
+| Category | Highlights |
+| :-- | :-- |
+| Appearance | Themes, AMOLED option, accent colors, text scaling, custom CSS |
+| Playback | Quality preferences, speed and volume memory, captions, looping |
+| Player | Theater mode, fullscreen, mini player, audio presets |
+| Focus | Hide Shorts, comments, recommendations, and distracting sections |
+| Skipping | Best-effort ad handling, SponsorBlock categories |
+| Downloads | Queue, video/audio formats, file naming, offline playback |
+| Library | Local playlists, bookmarks, watch progress, backups |
+| Controls | Custom hotkeys, gamepad support, Windows tray behavior |
+| Account | Browser-based sign-in help and session-import options |
+
+## Getting started
+
+1. Download the **installer** or **portable EXE** from the links above.
+2. Launch Tubeium. The installer can create shortcuts; the portable edition runs directly.
+3. Open **Settings** to choose your theme, layout, playback preferences, and download location.
+4. Explore the local library, download manager, and optional sign-in guidance.
+
+> **Tip:** Start with the Appearance, Layout & Focus, and Playback sections to make the biggest difference immediately.
 
 ## Build from source
 
-**Requirements:** Windows, Node.js 24, npm, and Git.
+**Requirements:** Windows, Git, Node.js 24, and npm.
 
 ```powershell
 git clone https://github.com/Subaru771/Tubeium.git
 cd Tubeium
 npm ci
+npm start
+```
+
+To run the automated release checks and package both Windows editions:
+
+```powershell
 npm run verify:release
 npm run build:windows
 ```
 
-The packaged installer and portable EXE are generated in `dist/`.
+Build outputs are generated in `dist/`. Windows helper scripts are also available in the repository.
 
-To run Tubeium directly from source:
+## FAQ
 
-```powershell
-npm start
-```
+<details>
+<summary><b>Is Tubeium free?</b></summary>
 
-Windows helper scripts are also included for local building and verification.
+Yes. Tubeium is distributed through GitHub, and its source code is available under the repository's [license](LICENSE).
 
-## Contributing and support
+</details>
 
-Found a bug or have an idea? [Open an issue](https://github.com/Subaru771/Tubeium/issues) with the steps to reproduce it, your Windows version, and any relevant **non-sensitive** logs. Please check existing issues first.
+<details>
+<summary><b>Do I need a YouTube or Google account?</b></summary>
 
-Automated tests and Windows builds run through [GitHub Actions](https://github.com/Subaru771/Tubeium/actions). See the [release checklist](RELEASE_CHECKLIST.md) and [reproducible-build notes](REPRODUCIBLE_BUILDS.md) for technical details.
+You can use supported signed-out browsing features without an account. Account-dependent functionality may require sign-in, which Google can restrict in third-party applications.
 
-## Project information
+</details>
 
-[Privacy](PRIVACY.md) · [Security](SECURITY.md) · [License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+<details>
+<summary><b>Does Tubeium block every ad?</b></summary>
+
+No. Its ad filtering and skipping tools are best-effort. YouTube can change delivery methods at any time.
+
+</details>
+
+<details>
+<summary><b>Can Tubeium download every video?</b></summary>
+
+No. Download support varies with the video, format, availability, and upstream service behavior.
+
+</details>
+
+<details>
+<summary><b>Why does Windows warn about the download?</b></summary>
+
+The current EXEs are unsigned. Download only from the official release, verify checksums when appropriate, and keep your security protections enabled.
+
+</details>
+
+<details>
+<summary><b>Is Tubeium available on macOS or Linux?</b></summary>
+
+The currently published and tested release targets **Windows x64**. Other operating systems are not advertised as supported releases.
+
+</details>
+
+## Feedback & development
+
+Found a problem or have an idea? [**Open a GitHub issue**](https://github.com/Subaru771/Tubeium/issues). Include your Windows version, steps to reproduce, and non-sensitive logs. **Never attach cookies or account tokens.**
+
+- [Automated builds and tests](https://github.com/Subaru771/Tubeium/actions)
+- [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md)
+- [Reproducible build notes](REPRODUCIBLE_BUILDS.md)
+- [Release checklist](RELEASE_CHECKLIST.md)
+
+## Privacy, security & legal
+
+[Privacy policy](PRIVACY.md) · [Security policy](SECURITY.md) · [License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+
+Tubeium is an independent community project. **YouTube** and **Google** are trademarks of their respective owners.
+
+---
 
 <div align="center">
 
-**Built for people who want more control over their desktop viewing experience.**
+### Make YouTube feel like your desktop.
 
-[Download](https://github.com/Subaru771/Tubeium/releases/latest) · [Source code](https://github.com/Subaru771/Tubeium) · [Issues](https://github.com/Subaru771/Tubeium/issues)
+**[Download Tubeium](https://github.com/Subaru771/Tubeium/releases/latest)** · [Report a bug](https://github.com/Subaru771/Tubeium/issues) · [View source](https://github.com/Subaru771/Tubeium)
 
 </div>
