@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<title>Tubeium — Settings</title>
+<link rel="stylesheet" href="settings.css" />
+</head>
+<body data-theme="dark">
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">▶</div><div><strong>Tubeium</strong><small>PERSONALIZATION STUDIO</small></div></div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav id="navigation" aria-label="Settings categories"></nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-info"><div class="pulse"></div><div><b>Live customization</b><small>Changes save automatically</small></div></div>
+      <button id="go-player" class="outline-full">↗ Return to YouTube</button><button id="go-downloads" class="outline-full">↓ Download manager</button><button id="go-library" class="outline-full">▣ Local library</button><button id="backup-all" class="outline-full">↥ Backup data</button><button id="restore-all" class="outline-full">↧ Restore backup</button><button id="check-updates" class="outline-full">↻ Check updates</button>
+      <span class="version">Tubeium v4.5 · Stability & Features</span>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb">YOUR WORKSPACE <span> / </span> <b id="crumb-name">Overview</b></div>
+      <div class="top-actions"><div class="font-tools" role="group" aria-label="Settings text size"><button id="font-smaller" type="button" title="Smaller settings font (Ctrl+-)" aria-label="Smaller settings font">A−</button><output id="font-percent" aria-label="Settings font size">125%</output><button id="font-larger" type="button" title="Larger settings font (Ctrl++)" aria-label="Larger settings font">A+</button></div><button id="export" class="header-action" title="Export settings">⇧ <span>Export</span></button><button id="import" class="header-action" title="Import settings">⇩ <span>Import</span></button></div>
+    </header>
+    <div class="scroll-area" id="scroll-area">
+      <div class="content">
+        <div id="overview">
+          <div class="hero">
+            <div class="hero-text"><div class="eyebrow"><span class="star">✦</span> YOUR PLAYER. YOUR RULES.</div><h1>Make YouTube<br /><em>yours.</em></h1><p>Powerful customization for the desktop: player controls, downloads, Shorts, gestures and more.</p><button id="start-customizing" class="primary-button">Explore all options <span>↗</span></button></div>
+            <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="play-ring"><div class="play-shape">▶</div></div><div class="art-pill art-top"><span>◉</span> 4K CINEMA</div><div class="art-pill art-bottom"><span>⌘</span> FULL CONTROL</div></div>
+          </div>
+          <div class="section-head"><div><div class="eyebrow light">QUICK START</div><h2>Find your vibe</h2><p>Use a preset as a starting point. Your other preferences stay intact.</p></div></div>
+          <div class="presets" id="presets">
+            <button data-preset="balanced" class="preset"><div class="preset-icon purple">◈</div><b>Balanced</b><span>The familiar YouTube experience, refined.</span><small>APPLY PRESET ↗</small></button>
+            <button data-preset="focus" class="preset"><div class="preset-icon blue">◎</div><b>Deep Focus</b><span>Fewer distractions, more intentional watching.</span><small>APPLY PRESET ↗</small></button>
+            <button data-preset="cinema" class="preset"><div class="preset-icon pink">▣</div><b>Cinema</b><span>AMOLED dark, theater-first viewing.</span><small>APPLY PRESET ↗</small></button>
+            <button data-preset="music" class="preset"><div class="preset-icon gold">♫</div><b>Music Lounge</b><span>Put the music first. Loop on, noise off.</span><small>APPLY PRESET ↗</small></button>
+          </div>
+          <div class="overview-bottom"><div><b id="option-count">—</b><small>Customizable options</small></div><div><b id="category-count">—</b><small>Settings categories</small></div><div><b>∞</b><small>Possible combinations</small></div></div>
+        </div>
+        <div id="category-view" hidden>
+          <div class="category-title"><div class="eyebrow light">PERSONALIZATION / <span id="category-number">01</span></div><h1 id="category-heading">Appearance</h1><p id="category-description"></p></div>
+          <div class="category-tools"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search all settings..." autocomplete="off" aria-label="Search settings"/><kbd>/</kbd></label><button id="reset-section" class="secondary-button">↺ Reset section</button></div>
+          <div id="settings-list" class="settings-list"></div>
+          <div class="utilities" id="utilities" hidden>
+            <h3>Local browsing data</h3><p>These actions affect data stored on this computer. They do not stop YouTube or Google from recording activity while signed in. Clearing cookies will sign you out.</p>
+            <div class="utility-row"><div><b>Clear cached files</b><small>Delete cached website files. This does not remove Google watch history.</small></div><button id="clear-cache" class="secondary-button">Clear cache</button></div>
+            <div class="utility-row"><div><b>Clear cookies</b><small>Remove locally stored sign-in cookies, including Google and YouTube. You will be signed out.</small></div><button id="clear-cookies" class="danger-button">Clear cookies</button></div>
+          </div>
+          <div id="category-footer" class="category-footer"><span>Desktop controls apply live where possible. YouTube UI selectors are best-effort.</span><button id="reset-all" class="text-button">Restore all defaults ↗</button></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="settings-renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Tubeium \u2014 One-Time Sign-in Transfer",
+  "description": "One-time, explicitly approved transfer of your own YouTube session to the Tubeium Windows app, using its temporary local pairing code.",
+  "version": "1.1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Transfer sign-in to Tubeium"
+  },
+  "permissions": [
+    "cookies",
+    "clipboardRead"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": [
+    "https://*.youtube.com/*",
+    "https://*.google.com/*"
+  ]
+}

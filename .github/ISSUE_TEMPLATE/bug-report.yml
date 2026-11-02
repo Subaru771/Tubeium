@@ -1,0 +1,41 @@
+name: Report a Tubeium bug (no credentials)
+description: Reproducible application or Windows issue; do not include login tokens or cookies.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: "Never post Google credentials, cookies.txt exports, pairing codes or personal browsing history. Use private vulnerability reporting for security flaws."
+  - type: input
+    id: version
+    attributes:
+      label: Tubeium version
+      placeholder: 4.5.2
+    validations:
+      required: true
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Windows version
+      options: ['Windows 11','Windows 10','Other']
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include only non-sensitive steps.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Expected vs. observed result
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Sanitized error message (optional)
+      description: Remove account identifiers, cookies, tokens, pairing codes, personal paths and URLs.
+    validations:
+      required: false

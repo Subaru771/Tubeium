@@ -1,0 +1,52 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const source=read('main.js'),html=read('welcome.html'),preload=read('welcome-preload.js'),pkg=require('../package.json');
+assert.match(source,/WebContentsView/);
+assert.match(source,/view\.webContents\.loadFile\(path\.join\(__dirname,'welcome\.html'\)\)/);
+assert.match(source,/if \(!welcomeSender\(event\)\) throw/);
+assert.match(source,/Welcome \/ Sign-in Help tab/);
+assert.match(read('tab-strip.html'),/Sign-in Help/);
+for(const key of ['youtube','folder','open-browser','copy']){
+ assert.match(html,new RegExp('data-action="'+key+'"'));
+ assert.match(preload,new RegExp("'"+key+"'"));
+}
+// Plain, numbered instructions that mention each thing the user must click.
+for(const phrase of ['Extensions','Developer mode','Load unpacked','Open Extensions Folder','Open Browser','Transfer sign-in','Ctrl+V','restart automatically'])assert(html.includes(phrase),phrase);
+assert.equal((html.match(/<li>/g)||[]).length,3,'exactly three numbered steps');
+const steps = [...html.matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]);
+assert.equal(steps.length, 3);
+assert.match(steps[0], /data-action="open-browser"/, 'Open Browser must come first');
+assert.match(steps[0], /no account signed in/);
+assert.doesNotMatch(html, /data-action="extensions"/, 'Open Extensions button must be removed');
+assert.match(steps[1], /brave:\/\/extensions/, 'step 2 tells Brave users how to open Extensions');
+assert.match(steps[1], /data-action="folder"/);
+assert.match(steps[1], /Developer mode/);
+assert.match(steps[2], /sign in/);
+assert.match(steps[2], /Transfer sign-in/);
+
+assert.doesNotMatch(html,/data-action="google"|Continue with Google|Open in Chrome|Open in Edge/);
+assert.equal((html.match(/class="guide"/g)||[]).length,1);
+assert.match(html,/id="status"/);
+assert.match(source,/shell\.openPath\(folder\)/,'folder button opens the real extension directory');
+
+// Instructions are a tab, not a window; no auto-open unless the user opted in.
+assert.doesNotMatch(source,/new BrowserWindow\(\{\s*parent: win && !win\.isDestroyed\(\) \? win : undefined,\s*width: 700/);
+assert.match(source,/if \(showWelcomeOnStartup\(\)\) openWelcomeTab\(\)/);
+assert.doesNotMatch(html,/id="on-start"[^>]*checked/);
+assert.match(html,/Show this help tab when Tubeium starts/);
+const startup=source.slice(source.indexOf('const WELCOME_GUIDE_REVISION'),source.indexOf('function welcomeSender'));
+const run=(state)=>vm.runInNewContext(startup+'\nshowWelcomeOnStartup()',{readJson:()=>state,welcomeStatePath:()=>'x'});
+assert.equal(run({}),false,'fresh install opens on YouTube');
+assert.equal(run(null),false);
+assert.equal(run({showOnStartup:true}),false,'values saved by older versions are ignored');
+assert.equal(run({showOnStartup:true,lastShownRevision:456}),false);
+assert.equal(run({showOnStartup:false,optInRevision:458}),false);
+assert.equal(run({showOnStartup:true,optInRevision:458}),true,'explicit opt-in is honoured');
+
+assert.match(read('BUILD_WINDOWS_EXE.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
+assert.match(read('VERIFY_WINDOWS_BUILD.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
+for(const f of ['welcome.html','welcome.css','welcome-renderer.js','welcome-preload.js','default-browser.js'])assert(pkg.build.files.includes(f),f);
+for(const f of ['signin-guide.html','signin-guide.js','signin-preload.js'])assert(!pkg.build.files.includes(f),f+' removed');
+assert.equal(Object.keys(require('../settings-schema').DEFAULTS).length,201);
+console.log('PASS: simpler three-step sign-in guide, tab preserved, no settings change');

@@ -1,0 +1,19 @@
+"use strict";
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const main=read('main.js'),pkg=require('../package.json');
+assert.equal(pkg.version,'4.5.10');
+for(const f of ['tab-strip.html','tab-strip.css','tab-strip.js','tab-strip-preload.js']){assert(pkg.build.files.includes(f));assert(fs.existsSync(path.join(root,f)));}
+assert(main.includes('const TAB_STRIP_HEIGHT = 42'));
+assert(main.includes('openTubeiumTabBar();'));
+assert(main.includes("ipcMain.on('tubeium-tab-switch'"));
+assert(main.includes("welcomeView.setVisible(false)"));
+assert(main.includes("welcomeView.setVisible(true)"));
+assert(main.includes("brave: 'BraveSoftware/Brave-Browser/Application/brave.exe'"));
+assert(read('default-browser.js').includes("brave: 'brave://extensions'"));
+assert(main.includes('await openBrowserExecutable(target.exe, args)'));
+assert(main.includes('chromiumProfileArgs(target.profile, url)'));
+assert(pkg.build.files.includes('clean-signin-browser.js'));
+assert(pkg.build.files.includes('default-browser.js'));
+assert.equal(Object.keys(require('../settings-schema').DEFAULTS).length,201);
+console.log('PASS: Brave detection, extension route, persistent tab strip, 201 settings');

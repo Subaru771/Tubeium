@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');const {websitePermission,allowedHost}=require('../permission-policy');const {communityTitle}=require('../dearrow');
+const url='https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+assert.equal(allowedHost(url),true);assert.equal(allowedHost('https://youtube.com.evil.tld'),false);
+assert.equal(allowedHost('http://www.youtube.com'),false);
+assert.equal(websitePermission('geolocation',url,{}),false);
+assert.equal(websitePermission('geolocation',url,{allowLocation:true}),true);
+assert.equal(websitePermission('media','https://evil.example/',{allowMedia:true}),false);
+assert.equal(websitePermission('media',url,{allowMedia:true}),true);
+assert.equal(websitePermission('notifications',url,{}),false);
+assert.equal(websitePermission('notifications',url,{allowNotifications:true}),true);
+assert.equal(websitePermission('fullscreen',url,{}),true);
+assert.equal(websitePermission('serial',url,{}),false);
+assert.equal(communityTitle({titles:[{title:'clickbait!',votes:-2},{title:'Helpful real title',votes:1}]}),'Helpful real title');
+assert.equal(communityTitle({titles:[{title:'Original',original:true,votes:10}]}),null);
+assert.equal(communityTitle({titles:[{title:'Unconfirmed',votes:-1}]}),null);
+assert.equal(communityTitle({titles:[{title:'Locked editorial title',locked:true,votes:-1}]}),'Locked editorial title');
+console.log('PASS: restrictive permissions, origin validation, trusted community titles');

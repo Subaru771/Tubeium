@@ -1,0 +1,93 @@
+name: Tubeium signed Windows release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tubeium-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-2025
+    timeout-minutes: 70
+    environment: production-release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Require approval and signing credentials
+        env:
+          TUBEIUM_RELEASE_APPROVED: ${{ secrets.TUBEIUM_RELEASE_APPROVED }}
+          CSC_LINK: ${{ secrets.TUBEIUM_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.TUBEIUM_CSC_KEY_PASSWORD }}
+        shell: pwsh
+        run: |
+          if ($env:TUBEIUM_RELEASE_APPROVED -ne 'yes') { throw 'Release approval secret not set.' }
+          if ([string]::IsNullOrWhiteSpace($env:CSC_LINK) -or [string]::IsNullOrWhiteSpace($env:CSC_KEY_PASSWORD)) { throw 'Signing certificate credentials missing.' }
+      - name: Verify exact committed dependency tree
+        run: npm run verify:dependencies
+      - name: Install locked versions
+        run: npm ci --no-audit --no-fund
+      - name: Verify app and release metadata
+        run: npm run verify:release
+      - name: Audit all dependencies (including developer tooling)
+        run: npm audit --audit-level=high
+      - name: Verify matching tag and configure GitHub release feed
+        run: node scripts/prepare-release.js
+      - name: Build signed Windows installer locally (do not publish yet)
+        env:
+          CSC_LINK: ${{ secrets.TUBEIUM_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.TUBEIUM_CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:installer
+      - name: Build signed Windows portable executable locally
+        env:
+          CSC_LINK: ${{ secrets.TUBEIUM_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.TUBEIUM_CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:portable
+      - name: Verify signature and update metadata BEFORE upload
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $installer = "dist/Tubeium-$version-Setup-x64.exe"
+          $portable = "dist/Tubeium-$version-Portable-x64.exe"
+          foreach ($file in @($installer,$portable)) {
+            if (!(Test-Path $file)) { throw "Missing release artifact: $file" }
+            if ((Get-Item $file).Length -lt 10MB) { throw "Suspiciously small artifact: $file" }
+            $sig = Get-AuthenticodeSignature $file
+            if ($sig.Status -ne 'Valid') { throw "Invalid signing status for $file : $($sig.Status)" }
+          }
+          if (!(Test-Path 'dist/latest.yml')) { throw 'Updater metadata latest.yml missing' }
+          $metadata = Get-Content 'dist/latest.yml' -Raw
+          if ($metadata -notmatch [regex]::Escape("Tubeium-$version-Setup-x64.exe")) { throw 'Updater metadata installer mismatch' }
+          $files = @($installer,$portable)
+          $lines = foreach ($file in $files) {
+            $hash=Get-FileHash $file -Algorithm SHA256
+            "$($hash.Hash.ToLower())  $(Split-Path $file -Leaf)"
+          }
+          $lines | Set-Content 'dist/SHA256SUMS.txt' -Encoding ascii
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Tubeium-signed-${{ github.ref_name }}
+          path: |
+            dist/*.exe
+            dist/*.yml
+            dist/*.blockmap
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+      - name: Publish verified artifacts ONLY after all gates pass
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem dist -File | Where-Object { $_.Extension -in '.exe','.yml','.blockmap' -or $_.Name -eq 'SHA256SUMS.txt' } | ForEach-Object { $_.FullName })
+          if ($files.Count -lt 3) { throw 'Expected signed installer, update metadata and checksums.' }
+          gh release create "$env:GITHUB_REF_NAME" $files --repo "$env:GITHUB_REPOSITORY" --title "Tubeium $env:GITHUB_REF_NAME" --generate-notes --verify-tag

@@ -1,0 +1,60 @@
+name: Tubeium Windows beta build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+permissions:
+  contents: read
+concurrency:
+  group: tubeium-beta-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-beta:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verify committed dependency lockfile
+        run: npm run verify:dependencies
+      - name: Install exact locked versions
+        run: npm ci --no-audit --no-fund
+      - name: Test source and release safety
+        run: npm run verify:release
+      - name: Audit all dependencies (including Electron and build tools)
+        run: npm audit --audit-level=high
+      - name: Build Windows installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:installer
+      - name: Build Windows portable application
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:portable
+      - name: Check binaries and write SHA256SUMS
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $files = @("dist/Tubeium-$version-Setup-x64.exe", "dist/Tubeium-$version-Portable-x64.exe")
+          foreach ($file in $files) {
+            if (!(Test-Path $file)) { throw "Missing Windows binary: $file" }
+            if ((Get-Item $file).Length -lt 10MB) { throw "Unexpectedly small: $file" }
+          }
+          $lines = foreach ($file in $files) {
+            $hash = Get-FileHash $file -Algorithm SHA256
+            "$($hash.Hash.ToLower())  $(Split-Path $file -Leaf)"
+          }
+          $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Tubeium-Windows-BETA-unsigned
+          path: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30

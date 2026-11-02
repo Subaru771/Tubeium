@@ -1,0 +1,11 @@
+ 'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const main=fs.readFileSync(path.join(__dirname,'..','main.js'),'utf8');
+const menu=main.slice(main.indexOf('function buildMenu() {'),main.indexOf("label: 'Settings…'"));
+assert.match(menu,/Use browser extension to sign in…/);
+assert.match(menu,/Sign-in help \(browser extension\)…/);
+assert.doesNotMatch(menu,/Continue with Google|Having trouble\?|Import existing YouTube sign-in|Alternative: Sign in using Chrome/);
+assert.doesNotMatch(main,/async function openSignInOptions\(\)/);
+assert.match(main,/function openPreferredBrowserExtensions\(\)/);
+assert.match(main,/function openYouTubeInDefaultBrowser\(\)/);
+console.log('PASS: clean sign-in menu retains original player features and one browser extension recovery path');

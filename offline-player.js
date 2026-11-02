@@ -1,0 +1,2 @@
+'use strict';
+(async()=>{const api=window.tubeiumOffline;const $=id=>document.getElementById(id);try{const item=await api.init();$('title').textContent=item.title;const audio=/\.(mp3|m4a|opus|ogg|wav)$/i.test(item.extension);const media=$(audio?'audio':'video');if(audio){$('video').hidden=true;$('audio').hidden=false;}media.src=item.url;media.autoplay=!!item.autoplay;media.addEventListener('error',()=>{$('error').hidden=false;});$('external').onclick=()=>api.external();}catch(error){$('title').textContent='Offline media unavailable';$('error').hidden=false;}})();

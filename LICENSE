@@ -1,0 +1,15 @@
+Tubeium — provisional copyright notice
+Copyright (c) 2026 Tubeium project owner. All rights reserved.
+
+The Tubeium project's original source code and branding are not offered under
+an open-source license by this file. Do not assume permission to redistribute
+modified source or use the Tubeium branding. The project owner must select and
+publish an explicit license before representing Tubeium as open source.
+
+This notice does not supersede any applicable rights or licenses for third-party
+components, including Electron, Chromium, yt-dlp, FFmpeg, Node dependencies,
+YouTube, or external services. See THIRD_PARTY_NOTICES.md.
+
+NOTE TO PUBLISHER: This provisional notice is not a substitute for choosing
+an appropriate distribution license or verifying the provenance of all assets
+and code. Decide on open-source/proprietary licensing before public release.

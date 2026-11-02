@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Tubeium · Sign-in Help</title><link rel="stylesheet" href="welcome.css"></head>
+<body><div class="app">
+  <main>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> SIGN-IN HELP</div>
+    <h1>Sign in to Tubeium</h1>
+    <section class="try-first" aria-label="Try normal YouTube sign-in">
+      <div class="step-copy"><strong>First, try signing in normally</strong>
+        <p>Click <b>Go to YouTube</b> and try signing in. If Google blocks it, come back here and start with <b>Open Browser</b>.</p>
+      </div>
+      <button class="button secondary" data-action="youtube" type="button">Go to YouTube</button>
+    </section>
+
+    <section class="guide" aria-label="Browser-assisted sign-in instructions">
+      <div class="guide-head"><div class="glyph glyph-purple">↗</div><div>
+        <div class="label">IF THE NORMAL SIGN-IN FAILS</div>
+        <h2>Use the browser extension</h2>
+      </div></div>
+      <ol class="steps">
+        <li>
+          <div class="step-copy"><strong>Open a clean browser</strong>
+            <p>Click <b>Open Browser</b>. YouTube opens in a new browser window with no account signed in. <b>Keep that window open</b> for the next step.</p></div>
+          <button class="button primary" data-action="open-browser" type="button">Open Browser</button>
+        </li>
+        <li>
+          <div class="step-copy"><strong>Install the extension in that browser</strong>
+            <p>In the clean browser window, open the <b>Extensions</b> page (Brave: <b>brave://extensions</b>, Chrome: <b>chrome://extensions</b>, Edge: <b>edge://extensions</b>). Enable <b>Developer mode</b>, click <b>Load unpacked</b>, then click <b>Open Extensions Folder</b> below and select that folder.</p></div>
+          <div class="step-actions">
+            <button class="button secondary" data-action="folder" type="button" title="Open the Tubeium extension folder in File Explorer">Open Extensions Folder</button>
+          </div>
+        </li>
+        <li>
+          <div class="step-copy"><strong>Sign in and transfer</strong>
+            <p>Go back to the <b>YouTube tab</b> in that browser and sign in. Click the <b>Extensions</b> (puzzle-piece) icon, open <b>Tubeium</b>, then click <b>Transfer sign-in</b>. The code is copied automatically; press <b>Ctrl+V</b> if the code box is empty. Tubeium will <b>restart automatically</b> after a successful import.</p></div>
+          <button class="button secondary" data-action="copy" type="button">Copy Code Again</button>
+        </li>
+      </ol>
+    </section>
+
+    <div class="status" id="status" role="status" aria-live="polite" hidden></div>
+    <p class="after"><strong>Important:</strong> This uses a separate, temporary Chromium browser profile, not your usual signed-in browser. If your default browser cannot run the extension, Tubeium will explain which compatible browser it opened instead. Close the temporary browser when finished; importing cookies does not guarantee Google will accept your session.</p>
+    <div class="bottom"><label class="toggle"><input id="on-start" type="checkbox"> Show this help tab when Tubeium starts</label><span id="saved" role="status" aria-live="polite"></span></div>
+    <p class="privacy">Only transfer a session from your own account. Login cookies are sensitive and stay on this computer during the transfer. You can remove the extension after signing in.</p>
+  </main>
+</div><script src="welcome-renderer.js"></script></body></html>

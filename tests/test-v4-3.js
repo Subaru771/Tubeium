@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),os=require('node:os');
+const {expectedHash,verifyBinary}=require('../downloader-integrity');
+const {findOfflineMedia,playableFiles}=require('../offline-media');
+const {pressedActions}=require('../gamepad-controls');
+const {basicHealth}=require('../system-health');
+const {normalize,metadata}=require('../settings-schema');
+const data=Buffer.from('test file');const hash=crypto.createHash('sha256').update(data).digest('hex');
+assert.equal(expectedHash(`${hash}  yt-dlp.exe\n`,'yt-dlp.exe'),hash);assert.equal(verifyBinary(data,hash),true);
+assert.throws(()=>verifyBinary(data,'0'.repeat(64)));assert.throws(()=>expectedHash('garbage','yt-dlp.exe'));
+const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tubeium-offline-'));const good=path.join(temp,'sample.mp4');fs.writeFileSync(good,'fake');
+const job={id:crypto.randomUUID(),status:'completed',files:[good,path.join(temp,'broken.exe')]};assert.deepEqual(playableFiles(job),[good]);
+assert.equal(findOfflineMedia([job],job.id).file,good);assert.throws(()=>findOfflineMedia([job],job.id,3));
+assert.deepEqual(pressedActions([true,false,false,false,true],[false,false,false,false,false]),['toggle-play','seek-back']);assert.deepEqual(pressedActions([true],[true]),[]);
+const prefs=normalize({gamepadEnabled:true,gamepadSeekSeconds:'15'});assert.equal(prefs.gamepadEnabled,true);assert.equal(prefs.gamepadSeekSeconds,'15');assert.equal(normalize({gamepadSeekSeconds:'999'}).gamepadSeekSeconds,'10');
+for(const key of ['autoCheckUpdates','autoDownloadUpdates','autoPlayOffline','gamepadEnabled','gamepadSeekSeconds'])assert.ok(metadata[key]);
+const report=basicHealth({version:'4.3.0',settingsCount:191,jobs:[{status:'error'}],libraryCount:4,downloader:'available',ffmpeg:'available',updateConfigured:false});assert.equal(report.failedDownloads,1);assert.ok(!JSON.stringify(report).includes('cookie'));
+fs.rmSync(temp,{recursive:true,force:true});console.log('Tubeium v4.3 tests passed');

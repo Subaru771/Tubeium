@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Transfer sign-in — Tubeium</title>
+<style>
+  *{box-sizing:border-box}body{background:#14141b;color:#eeeaf8;font:15px/1.5 system-ui;margin:0;width:370px;padding:22px}
+  h1{font-size:20px;margin:0 0 8px}.muted{color:#b7b0ca;font-size:13px}label{display:block;margin:18px 0 8px;font-weight:650}
+  input[type=text]{width:100%;border:1px solid #50445f;border-radius:10px;background:#23212c;color:white;padding:12px;font-size:14px}
+  .check{display:flex;align-items:start;gap:8px;margin:14px 0;font-size:13px;font-weight:400}.check input{margin-top:4px}
+  button{background:#a58aff;color:#15111e;border:0;border-radius:10px;padding:11px 14px;font-weight:750;width:100%;cursor:pointer;font-size:14px}
+  button:disabled{opacity:.5;cursor:not-allowed}#status{margin-top:13px;white-space:pre-line;font-size:13px;min-height:24px}.warning{color:#f8d49b}
+</style></head><body>
+<h1>Sign in to Tubeium</h1>
+<p class="muted">Sign into YouTube in this browser. Tubeium has copied the pairing code automatically. Paste it below if needed, then click <b>Transfer sign-in</b>. The Windows app will restart after a successful import.</p>
+<label for="pair">Pairing code (paste with Ctrl+V if empty)</label>
+<input id="pair" type="text" placeholder="12345:64-character-code" autocomplete="off" spellcheck="false"/>
+<label class="check"><input id="google" type="checkbox"/><span>Include Google sign-in cookies (may be necessary for YouTube). Only enable if YouTube-only session transfer fails. These are sensitive credentials and will be sent <b>only to Tubeium on this PC</b>.</span></label>
+<p class="muted warning">Only use this extension for your own account. Remove it after transfer. Sign-in may fail if Google rejects browser-to-app sessions.</p>
+<button id="send">Transfer sign-in</button>
+<div id="status" role="status" aria-live="polite"></div>
+<script src="popup.js"></script>
+</body></html>
