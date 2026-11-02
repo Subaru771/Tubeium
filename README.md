@@ -201,9 +201,9 @@ The currently published and tested release targets **Windows x64**. Other operat
 Found a problem or have an idea? [**Open a GitHub issue**](https://github.com/Subaru771/Tubeium/issues). Include your Windows version, steps to reproduce, and non-sensitive logs. **Never attach cookies or account tokens.**
 
 - [Automated builds and tests](https://github.com/Subaru771/Tubeium/actions)
-- [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md)
-- [Reproducible build notes](REPRODUCIBLE_BUILDS.md)
-- [Release checklist](RELEASE_CHECKLIST.md)
+- [Windows acceptance tests](docs/WINDOWS_ACCEPTANCE_TESTS.md)
+- [Reproducible build notes](docs/REPRODUCIBLE_BUILDS.md)
+- [Release checklist](docs/RELEASE_CHECKLIST.md)
 
 ## Privacy, security & legal
 
