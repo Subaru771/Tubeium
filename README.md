@@ -7,7 +7,7 @@
 [![Latest release](https://img.shields.io/github/v/release/Subaru771/Tubeium?include_prereleases)](https://github.com/Subaru771/Tubeium/releases/latest)
 [![Windows build](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
 
-[**Download for Windows**](https://github.com/Subaru771/Tubeium/releases/latest) · [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md) · [Security](SECURITY.md)
+[**Download for Windows**](https://github.com/Subaru771/Tubeium/releases/latest) · [Privacy](PRIVACY.md) · [Security](SECURITY.md)
 
 </div>
 
@@ -75,7 +75,7 @@ Additional Windows helper scripts include `RUN_WITHOUT_BUILDING.cmd`, `BUILD_WIN
 
 The repository runs automated checks and Windows packaging through [GitHub Actions](https://github.com/Subaru771/Tubeium/actions). The current public build is **unsigned**; a separate signed-release workflow requires signing credentials and approval.
 
-See [Reproducible builds](REPRODUCIBLE_BUILDS.md), [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md), [Release checklist](RELEASE_CHECKLIST.md), and [Changelog](CHANGELOG.md).
+See [Reproducible builds](REPRODUCIBLE_BUILDS.md), [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md), [Release checklist](RELEASE_CHECKLIST.md).
 
 ## Privacy, security, and license
 
