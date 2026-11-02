@@ -16,13 +16,13 @@
 
 ## Download
 
-**Tubeium 4.5.10** is available as a public Windows release. The current release tag is `v4.5.10-beta.1` (the tag and release title retain the original beta naming).
+**Tubeium v1.0.0** is the first public Windows release.
 
 | Download | Best for |
 | --- | --- |
-| [**Windows installer (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/Tubeium-4.5.10-Setup-x64.exe) | Normal installation with shortcuts |
-| [**Portable Windows (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/Tubeium-4.5.10-Portable-x64.exe) | Running without the installer |
-| [**SHA-256 checksums**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/SHA256SUMS.txt) | Verifying downloaded files |
+| [**Windows installer (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe) | Normal installation with shortcuts |
+| [**Portable Windows (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe) | Running without the installer |
+| [**SHA-256 checksums**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | Verifying downloaded files |
 
 [View the latest release and release notes](https://github.com/Subaru771/Tubeium/releases/latest).
 
