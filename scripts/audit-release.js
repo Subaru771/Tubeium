@@ -11,7 +11,7 @@ const required = [
   'library.html', 'browser-session-transfer.js', 'browser-login-once/manifest.json',
   'browser-login-once/popup.js', 'BUILD_WINDOWS_EXE.cmd',
   'PRIVACY.md', 'SECURITY.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
-  'RELEASE_CHECKLIST.md', 'REPRODUCIBLE_BUILDS.md', 'GENERATE_LOCKFILE.cmd', 'scripts/check-dependency-lock.js', '.github/workflows/release-windows.yml'
+  'docs/RELEASE_CHECKLIST.md', 'docs/REPRODUCIBLE_BUILDS.md', 'GENERATE_LOCKFILE.cmd', 'scripts/check-dependency-lock.js', '.github/workflows/release-windows.yml'
 ];
 for (const name of required) {
   const loc = path.join(root,name);
