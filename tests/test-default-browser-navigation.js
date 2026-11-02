@@ -7,11 +7,11 @@ const preload=fs.readFileSync(path.join(root,'welcome-preload.js'),'utf8');
 const renderer=fs.readFileSync(path.join(root,'welcome-renderer.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'welcome.html'),'utf8');
 const pkg=require('../package.json');
-assert.equal(pkg.version,'4.5.10');
+assert.equal(pkg.version,'1.0.0');
 // "Open YouTube in browser" runs the real default browser's own command; Edge is never hard-coded as a target.
 assert.match(source,/async function openYouTubeInDefaultBrowser\(\)/);
 assert.match(source,/chromiumProfileArgs\(target\.profile, url\)/);
-assert.doesNotMatch(source.slice(source.indexOf('async function openYouTubeInDefaultBrowser()'), source.indexOf('// ---- One-time pairing code')),/shell\.openExternal/); // never fall back to a signed-in browser
+assert.doesNotMatch(source.slice(source.indexOf('async function openYouTubeInDefaultBrowser()'), source.indexOf('// ---- One-time pairing code')),/shell\.openExternal/);
 assert.doesNotMatch(source,/preferredSignInBrowser/);
 assert.match(source,/ipcMain\.handle\('welcome-navigate'/);
 assert.match(source,/if \(target === 'youtube'\)/);
@@ -21,7 +21,6 @@ assert.match(source,/win\.contentView\.removeChildView\(old\)/);
 assert.match(preload,/navigate:target=>ipcRenderer\.invoke\('welcome-navigate',target\)/);
 assert.match(renderer,/await window\.tubeiumWelcome\.navigate\(action\)/);
 assert.match(html,/data-action="open-browser"/);
-// The native tab switcher stays after switching to YouTube.
 assert.match(source,/if \(welcomeView\) welcomeView\.setVisible\(false\)/);
 assert.match(source,/function openTubeiumTabBar\(\)/);
 assert.match(source,/ipcMain\.on\('tubeium-tab-switch'/);
