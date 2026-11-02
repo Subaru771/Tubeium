@@ -2,56 +2,66 @@
 
 # Tubeium
 
-**A customizable YouTube desktop client for Windows.**
+### Your YouTube experience. Your desktop. Your way.
 
-[![Latest release](https://img.shields.io/github/v/release/Subaru771/Tubeium?include_prereleases)](https://github.com/Subaru771/Tubeium/releases/latest)
-[![Windows build](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
+A customizable, unofficial YouTube client built for **Windows**.
 
-[**Download for Windows**](https://github.com/Subaru771/Tubeium/releases/latest) · [Privacy](PRIVACY.md) · [Security](SECURITY.md)
+[![Release](https://img.shields.io/github/v/release/Subaru771/Tubeium?label=latest%20release)](https://github.com/Subaru771/Tubeium/releases/latest)
+[![Windows CI](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
+[![License](https://img.shields.io/github/license/Subaru771/Tubeium)](LICENSE)
+
+**[Download Tubeium](https://github.com/Subaru771/Tubeium/releases/latest)** · [Features](#what-you-can-do) · [Build from source](#build-from-source) · [Report an issue](https://github.com/Subaru771/Tubeium/issues)
 
 </div>
 
-> [!NOTE]
-> Tubeium is an independent, unofficial application. It is **not affiliated with, endorsed by, or sponsored by YouTube or Google**.
+---
+
+## A desktop-first way to watch
+
+Tubeium brings YouTube into a dedicated Windows app, with a customizable interface and tools for organizing your viewing experience. Keep playlists and viewing profiles locally, manage downloads, and tailor playback without juggling browser tabs.
+
+> [!IMPORTANT]
+> Tubeium is an **independent, unofficial** project and is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that depend on YouTube or Google may change without notice.
 
 ## Download
 
-**Tubeium v1.0.0** is the first public Windows release.
+**Latest stable release: v1.0.0** · Windows x64
 
-| Download | Best for |
-| --- | --- |
-| [**Windows installer (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe) | Normal installation with shortcuts |
-| [**Portable Windows (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe) | Running without the installer |
-| [**SHA-256 checksums**](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | Verifying downloaded files |
+| Edition | Download | Choose this if… |
+| --- | --- | --- |
+| **Installer** | [Tubeium-1.0.0-Setup-x64.exe](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe) | You want a standard Windows installation |
+| **Portable** | [Tubeium-1.0.0-Portable-x64.exe](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe) | You prefer to launch an EXE without installing |
+| **Checksums** | [SHA256SUMS.txt](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | You want to verify your download |
 
-[View the latest release and release notes](https://github.com/Subaru771/Tubeium/releases/latest).
+[**See the full release**](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0)
 
 > [!WARNING]
-> **Unsigned Windows application:** The current executables are not code-signed. Windows SmartScreen or antivirus software may warn about an unfamiliar publisher. Download only from this repository's official Releases page; verify the checksum if desired. Do not disable security software globally to run Tubeium.
+> **Unsigned app:** Tubeium v1.0.0 is not code-signed. Windows SmartScreen may warn about an unknown publisher. Get the EXE only from the official GitHub Releases page, and verify its SHA-256 checksum if desired. Do not disable Windows security protections globally.
 
-## Features
+## What you can do
 
-- **YouTube desktop experience** built with Electron for Windows.
-- **Customizable settings** and viewing profiles.
-- **Local playlists and library** features.
-- **Download queue and offline media playback** tools.
-- **Audio presets** and other playback options.
-- **Sign-in assistance** with browser-session and cookie-import workflows, subject to YouTube/Google restrictions.
-- **Local backup and migration** utilities.
+| Experience | Capabilities |
+| --- | --- |
+| **Make it yours** | Customizable settings, viewing profiles, and audio presets |
+| **Stay organized** | Local library, playlists, bookmarks, and playback progress tools |
+| **Manage media** | Download queue and offline media playback |
+| **Move between setups** | Local backups and migration tools |
+| **Use a dedicated desktop app** | Native Windows window and navigation controls |
+| **Get sign-in help** | Browser-based sign-in assistance and session-import options |
 
-Some features rely on external services or site behavior and may change or stop working. Tubeium does not guarantee Google account sign-in, uninterrupted playback, or downloads from every video.
+**A note on sign-in and downloads:** Google may restrict embedded or third-party sign-in methods, and YouTube changes can affect playback or downloading. These features are best-effort, not guaranteed.
 
-## Getting started
+## Get started
 
-1. Download the installer or portable EXE above.
-2. For the installer, run the downloaded setup and follow the prompts. For portable, launch the EXE directly.
-3. Open Tubeium and configure your preferences.
+1. Choose the **Installer** or **Portable** download above.
+2. Run the downloaded EXE.
+3. Open Tubeium, explore the settings, and personalize your experience.
 
-Keep account cookies, session exports, and tokens private. **Never post them in GitHub issues or screenshots.**
+For sign-in help, use the guidance provided inside Tubeium. Never share account cookies, session files, or tokens in an issue, screenshot, or public discussion.
 
 ## Build from source
 
-Requirements: Windows, Node.js 24, and npm.
+**Requirements:** Windows, Node.js 24, npm, and Git.
 
 ```powershell
 git clone https://github.com/Subaru771/Tubeium.git
@@ -61,27 +71,30 @@ npm run verify:release
 npm run build:windows
 ```
 
-The resulting Windows installer and portable build are written to `dist/`.
+The packaged installer and portable EXE are generated in `dist/`.
 
-To run the app without packaging:
+To run Tubeium directly from source:
 
 ```powershell
 npm start
 ```
 
-Additional Windows helper scripts include `RUN_WITHOUT_BUILDING.cmd`, `BUILD_WINDOWS_EXE.cmd`, `FAST_BUILD_WINDOWS_EXE.cmd`, and `VERIFY_WINDOWS_BUILD.cmd`.
+Windows helper scripts are also included for local building and verification.
 
-## Development and releases
+## Contributing and support
 
-The repository runs automated checks and Windows packaging through [GitHub Actions](https://github.com/Subaru771/Tubeium/actions). The current public build is **unsigned**; a separate signed-release workflow requires signing credentials and approval.
+Found a bug or have an idea? [Open an issue](https://github.com/Subaru771/Tubeium/issues) with the steps to reproduce it, your Windows version, and any relevant **non-sensitive** logs. Please check existing issues first.
 
-See [Reproducible builds](REPRODUCIBLE_BUILDS.md), [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md), [Release checklist](RELEASE_CHECKLIST.md).
+Automated tests and Windows builds run through [GitHub Actions](https://github.com/Subaru771/Tubeium/actions). See the [release checklist](RELEASE_CHECKLIST.md) and [reproducible-build notes](REPRODUCIBLE_BUILDS.md) for technical details.
 
-## Privacy, security, and license
+## Project information
 
-- [Privacy policy](PRIVACY.md) — data handling and local storage.
-- [Security policy](SECURITY.md) — reporting vulnerabilities.
-- [License](LICENSE) — conditions for use, modification, and redistribution.
-- [Third-party notices](THIRD_PARTY_NOTICES.md) — third-party licensing.
+[Privacy](PRIVACY.md) · [Security](SECURITY.md) · [License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-**Only download official builds from this repository.** If you encounter a bug, open a GitHub issue with reproduction steps and non-sensitive logs.
+<div align="center">
+
+**Built for people who want more control over their desktop viewing experience.**
+
+[Download](https://github.com/Subaru771/Tubeium/releases/latest) · [Source code](https://github.com/Subaru771/Tubeium) · [Issues](https://github.com/Subaru771/Tubeium/issues)
+
+</div>
