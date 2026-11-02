@@ -1,4 +1,4 @@
-name: Tubeium Windows beta build
+name: Tubeium Windows build
 on:
   workflow_dispatch:
   push:
@@ -6,10 +6,10 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: tubeium-beta-${{ github.ref }}
+  group: tubeium-build-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  windows-beta:
+  windows:
     runs-on: windows-2025
     timeout-minutes: 60
     steps:
@@ -52,7 +52,7 @@ jobs:
           $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Tubeium-Windows-BETA-unsigned
+          name: Tubeium-Windows-unsigned
           path: |
             dist/*.exe
             dist/SHA256SUMS.txt
