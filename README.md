@@ -2,52 +2,86 @@
 
 # Tubeium
 
-**A modern, customizable YouTube desktop client for Windows.**
+**A customizable YouTube desktop client for Windows.**
 
-[Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md) · [Security](SECURITY.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+[![Latest release](https://img.shields.io/github/v/release/Subaru771/Tubeium?include_prereleases)](https://github.com/Subaru771/Tubeium/releases/latest)
+[![Windows build](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Subaru771/Tubeium/actions/workflows/build-windows.yml)
+
+[**Download for Windows**](https://github.com/Subaru771/Tubeium/releases/latest) · [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md) · [Security](SECURITY.md)
 
 </div>
 
-> [!IMPORTANT]
-> **Release status:** Source publication and Windows build verification are in progress. **No verified installer is available yet.**
-
 > [!NOTE]
-> Tubeium is an independent project. It is not affiliated with, endorsed by or sponsored by Google or YouTube.
+> Tubeium is an independent, unofficial application. It is **not affiliated with, endorsed by, or sponsored by YouTube or Google**.
 
 ## Download
 
-There is no verified public Windows installer yet.
+**Tubeium 4.5.10** is available as a public Windows release. The current release tag is `v4.5.10-beta.1` (the tag and release title retain the original beta naming).
+
+| Download | Best for |
+| --- | --- |
+| [**Windows installer (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/Tubeium-4.5.10-Setup-x64.exe) | Normal installation with shortcuts |
+| [**Portable Windows (.exe)**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/Tubeium-4.5.10-Portable-x64.exe) | Running without the installer |
+| [**SHA-256 checksums**](https://github.com/Subaru771/Tubeium/releases/download/v4.5.10-beta.1/SHA256SUMS.txt) | Verifying downloaded files |
+
+[View the latest release and release notes](https://github.com/Subaru771/Tubeium/releases/latest).
 
 > [!WARNING]
-> Do not download executables claiming to be official Tubeium builds from other sources.
+> **Unsigned Windows application:** The current executables are not code-signed. Windows SmartScreen or antivirus software may warn about an unfamiliar publisher. Download only from this repository's official Releases page; verify the checksum if desired. Do not disable security software globally to run Tubeium.
 
-## About
+## Features
 
-Tubeium is an Electron-based desktop project for Windows. The first public source upload is being prepared from the 4.5.10 "AdFix" development snapshot, so the repository reflects work in progress.
+- **YouTube desktop experience** built with Electron for Windows.
+- **Customizable settings** and viewing profiles.
+- **Local playlists and library** features.
+- **Download queue and offline media playback** tools.
+- **Audio presets** and other playback options.
+- **Sign-in assistance** with browser-session and cookie-import workflows, subject to YouTube/Google restrictions.
+- **Local backup and migration** utilities.
 
-## Development
+Some features rely on external services or site behavior and may change or stop working. Tubeium does not guarantee Google account sign-in, uninterrupted playback, or downloads from every video.
 
-The app is built with Electron and Node.js. Helper scripts in the repository root cover common tasks:
+## Getting started
 
-| Script | Purpose |
-| --- | --- |
-| `RUN_WITHOUT_BUILDING.cmd` | Run the app without building an installer |
-| `BUILD_WINDOWS_EXE.cmd` | Build the Windows executable |
-| `FAST_BUILD_WINDOWS_EXE.cmd` | Faster build variant |
-| `VERIFY_WINDOWS_BUILD.cmd` | Verify a Windows build |
-| `GENERATE_LOCKFILE.cmd` | Regenerate `package-lock.json` |
+1. Download the installer or portable EXE above.
+2. For the installer, run the downloaded setup and follow the prompts. For portable, launch the EXE directly.
+3. Open Tubeium and configure your preferences.
 
-Related project documents:
+Keep account cookies, session exports, and tokens private. **Never post them in GitHub issues or screenshots.**
 
-- [Reproducible builds](REPRODUCIBLE_BUILDS.md)
-- [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md)
-- [Release checklist](RELEASE_CHECKLIST.md) and [release gate status](RELEASE_GATE_STATUS.md)
-- [Public release notes](PUBLIC_RELEASE_NOTES.md)
+## Build from source
 
-## Security and privacy
+Requirements: Windows, Node.js 24, and npm.
 
-Please read [SECURITY.md](SECURITY.md) before reporting a potential vulnerability, and [PRIVACY.md](PRIVACY.md) to see how the app handles your data. Never share your account cookies, tokens or session data in issues, screenshots or messages.
+```powershell
+git clone https://github.com/Subaru771/Tubeium.git
+cd Tubeium
+npm ci
+npm run verify:release
+npm run build:windows
+```
 
-## License
+The resulting Windows installer and portable build are written to `dist/`.
 
-The license terms are in the [LICENSE](LICENSE) file. Read them before redistributing or modifying the code. Third-party components keep their own licenses, listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+To run the app without packaging:
+
+```powershell
+npm start
+```
+
+Additional Windows helper scripts include `RUN_WITHOUT_BUILDING.cmd`, `BUILD_WINDOWS_EXE.cmd`, `FAST_BUILD_WINDOWS_EXE.cmd`, and `VERIFY_WINDOWS_BUILD.cmd`.
+
+## Development and releases
+
+The repository runs automated checks and Windows packaging through [GitHub Actions](https://github.com/Subaru771/Tubeium/actions). The current public build is **unsigned**; a separate signed-release workflow requires signing credentials and approval.
+
+See [Reproducible builds](REPRODUCIBLE_BUILDS.md), [Windows acceptance tests](WINDOWS_ACCEPTANCE_TESTS.md), [Release checklist](RELEASE_CHECKLIST.md), and [Changelog](CHANGELOG.md).
+
+## Privacy, security, and license
+
+- [Privacy policy](PRIVACY.md) — data handling and local storage.
+- [Security policy](SECURITY.md) — reporting vulnerabilities.
+- [License](LICENSE) — conditions for use, modification, and redistribution.
+- [Third-party notices](THIRD_PARTY_NOTICES.md) — third-party licensing.
+
+**Only download official builds from this repository.** If you encounter a bug, open a GitHub issue with reproduction steps and non-sensitive logs.
