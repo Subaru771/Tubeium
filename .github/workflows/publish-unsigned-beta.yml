@@ -1,0 +1,59 @@
+name: Publish unsigned Windows beta
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish-beta:
+    runs-on: windows-2025
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verify dependency lock
+        run: npm run verify:dependencies
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run release checks
+        run: npm run verify:release
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+      - name: Build unsigned installer and portable EXE
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:windows
+      - name: Verify outputs and create checksums
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $files = @("dist/Tubeium-$version-Setup-x64.exe", "dist/Tubeium-$version-Portable-x64.exe")
+          foreach ($file in $files) {
+            if (!(Test-Path $file)) { throw "Missing: $file" }
+            if ((Get-Item $file).Length -lt 10MB) { throw "Too small: $file" }
+          }
+          $lines = foreach ($file in $files) {
+            $hash = Get-FileHash $file -Algorithm SHA256
+            "$($hash.Hash.ToLower())  $(Split-Path $file -Leaf)"
+          }
+          $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - name: Publish public prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = "v4.5.10-beta.1"
+          $notes = @"
+          Tubeium 4.5.10 Windows beta.
+
+          **Unsigned beta:** Windows SmartScreen may display a warning. Only download from this official GitHub repository.
+          Tested by the maintainer on Windows. Automated source tests and packaging checks run before publication.
+          Sign-in imports are not guaranteed to be accepted by Google.
+
+          Includes a Windows setup installer and a portable executable. SHA256SUMS.txt contains their checksums.
+          "@
+          gh release create $tag "dist/Tubeium-4.5.10-Setup-x64.exe" "dist/Tubeium-4.5.10-Portable-x64.exe" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium 4.5.10 Beta 1 (unsigned)" --notes $notes --prerelease
