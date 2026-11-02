@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {parseSource,formatArgs,newTask,normalizeQueue}=require('../download-queue');
-const {DEFAULTS}=require('../settings-schema');
+const {parseSource,formatArgs,newTask,normalizeQueue}=require('../src/download-queue');
+const {DEFAULTS}=require('../src/settings-schema');
 const video='dQw4w9WgXcQ';
 assert.deepEqual(parseSource(video),{source:'https://www.youtube.com/watch?v='+video,scope:'video'});
 assert.deepEqual(parseSource('https://youtu.be/'+video+'?t=12'),parseSource(video));

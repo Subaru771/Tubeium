@@ -53,7 +53,7 @@ function makePopup(clipboardValue, captureFetch) {
   assert.match(help,/data-action="folder"/);
   assert.match(help,/data-action="open-browser"/);
   assert.doesNotMatch(help,/data-action="extensions"/);
-  const main=fs.readFileSync(path.join(root,'main.js'),'utf8');
+  const main=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
   assert.doesNotMatch(main,/signInGuide|openSignInGuide|signin-guide/);
   assert.equal(fs.existsSync(path.join(root,'signin-guide.html')),false);
   assert.match(main,/async function openBrowserAssistedSignIn/);

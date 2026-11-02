@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'..');
-const source=fs.readFileSync(path.join(root,'main.js'),'utf8');
+const source=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
 const preload=fs.readFileSync(path.join(root,'welcome-preload.js'),'utf8');
 const renderer=fs.readFileSync(path.join(root,'welcome-renderer.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'welcome.html'),'utf8');

@@ -1,7 +1,7 @@
 "use strict";
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
-const main=read('main.js'),pkg=require('../package.json');
+const main=read('src/main.js'),pkg=require('../package.json');
 assert.equal(pkg.version,'1.0.0');
 for(const f of ['tab-strip.html','tab-strip.css','tab-strip.js','tab-strip-preload.js']){assert(pkg.build.files.includes(f));assert(fs.existsSync(path.join(root,f)));}
 assert(main.includes('const TAB_STRIP_HEIGHT = 42'));
@@ -15,5 +15,5 @@ assert(main.includes('await openBrowserExecutable(target.exe, args)'));
 assert(main.includes('chromiumProfileArgs(target.profile, url)'));
 assert(pkg.build.files.includes('clean-signin-browser.js'));
 assert(pkg.build.files.includes('default-browser.js'));
-assert.equal(Object.keys(require('../settings-schema').DEFAULTS).length,201);
+assert.equal(Object.keys(require('../src/settings-schema').DEFAULTS).length,201);
 console.log('PASS: Brave detection, extension route, persistent tab strip, 201 settings');

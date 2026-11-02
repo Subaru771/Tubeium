@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const {GOOGLE_ERROR_SCAN, isSignInLocation, classifyFailure, messageFor} = require('../signin-failure');
+const {GOOGLE_ERROR_SCAN, isSignInLocation, classifyFailure, messageFor} = require('../src/signin-failure');
 
 // Fail only on explicit login errors, not on a normal login form or redirect.
 assert(isSignInLocation('https://accounts.google.com/v3/signin/identifier'));
@@ -24,8 +24,8 @@ assert.equal(scan('This browser is not supported'), 'browser-rejected');
 assert.equal(scan('Enter your password'),null);
 assert(!GOOGLE_ERROR_SCAN.includes('emailAddress'), 'Error scan must not collect account identifiers');
 
-const main=fs.readFileSync(path.resolve(__dirname,'../main.js'),'utf8');
-const preload=fs.readFileSync(path.resolve(__dirname,'../preload.js'),'utf8');
+const main=fs.readFileSync(path.resolve(__dirname,'src/main.js'),'utf8');
+const preload=fs.readFileSync(path.resolve(__dirname,'src/preload.js'),'utf8');
 assert.match(main,/child\.webContents\.on\('did-finish-load'/);
 assert.match(main,/child\.webContents\.on\('did-fail-load'/);
 assert.match(main,/ipcMain\.on\('tubeium-open-browser-signin', event => \{/);

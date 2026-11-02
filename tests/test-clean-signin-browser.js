@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const {createCleanProfile, chromiumProfileArgs, removeCleanProfile, pruneOldProfiles} = require('../clean-signin-browser');
+const {createCleanProfile, chromiumProfileArgs, removeCleanProfile, pruneOldProfiles} = require('../src/clean-signin-browser');
 const parent = fs.mkdtempSync(path.join(os.tmpdir(),'tubeium-test-'));
 try {
   const profile = createCleanProfile(parent);

@@ -1,10 +1,10 @@
 'use strict';
 const assert=require('node:assert/strict');const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),os=require('node:os');
-const {expectedHash,verifyBinary}=require('../downloader-integrity');
-const {findOfflineMedia,playableFiles}=require('../offline-media');
-const {pressedActions}=require('../gamepad-controls');
-const {basicHealth}=require('../system-health');
-const {normalize,metadata}=require('../settings-schema');
+const {expectedHash,verifyBinary}=require('../src/downloader-integrity');
+const {findOfflineMedia,playableFiles}=require('../src/offline-media');
+const {pressedActions}=require('../src/gamepad-controls');
+const {basicHealth}=require('../src/system-health');
+const {normalize,metadata}=require('../src/settings-schema');
 const data=Buffer.from('test file');const hash=crypto.createHash('sha256').update(data).digest('hex');
 assert.equal(expectedHash(`${hash}  yt-dlp.exe\n`,'yt-dlp.exe'),hash);assert.equal(verifyBinary(data,hash),true);
 assert.throws(()=>verifyBinary(data,'0'.repeat(64)));assert.throws(()=>expectedHash('garbage','yt-dlp.exe'));

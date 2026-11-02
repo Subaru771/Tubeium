@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {startTransfer}=require('../browser-session-transfer');
+const {startTransfer}=require('../src/browser-session-transfer');
 const source={domain:'.youtube.com',name:'LOGIN_INFO',value:'synthetic-not-real',secure:true,path:'/',expirationDate:2000000000};
 (async()=>{
   let calls=0;

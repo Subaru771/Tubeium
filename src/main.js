@@ -23,7 +23,7 @@ const { PlaylistStore } = require('./local-playlists');
 const { createBackup, readBackup, writeBackup } = require('./backup-manager');
 
 const START_URL = 'https://www.youtube.com';
-const ICON = path.join(__dirname, 'assets', 'icon.png');
+const ICON = path.join(__dirname, '..', 'assets', 'icon.png');
 const ALLOWED_HOST = /(^|\.)(youtube\.com|google\.com|youtube-nocookie\.com)$/;
 // Restricted to HTTPS sign-in hosts; used only for first-party login redirects.
 const LOGIN_HOST = /(^|\.)(youtube\.com|google\.com|googleusercontent\.com|gstatic\.com)$/;

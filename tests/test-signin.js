@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { allowedHost, parseNetscapeCookies, importCookies } = require('../signin-cookies');
+const { allowedHost, parseNetscapeCookies, importCookies } = require('../src/signin-cookies');
 const now = Math.floor(Date.now() / 1000);
 const sample = [
   '# Netscape HTTP Cookie File',
