@@ -35,7 +35,7 @@ and should be treated like passwords. Google-cookie access is **off by default**
 and may be enabled explicitly if necessary. Tubeium does not upload these cookies
 to a Tubeium-operated account server. The transfer bridge uses a time-limited,
 one-use pairing credential; the browser helper should be removed afterward.
-Google may reject a transferred session.
+Google may reject a transferred session. If the user imports a personal `cookies.txt` export, Tubeium offers to delete that selected file **only when the user chooses the unchecked option**.
 
 ## Permissions and deletion
 Camera/microphone, location and notifications are denied by default except
@@ -51,7 +51,7 @@ The supplied application code does not intentionally implement a Tubeium-owned
 analytics or advertising backend. This does **not** mean the embedded YouTube
 site or optional third-party integrations are tracking-free. Do not publish
 claims that Tubeium provides total anonymity, a zero-data experience or
-universal ad blocking.
+universal ad blocking. Experimental ad skipping is off by default for new profiles and may conflict with YouTube terms.
 
 ## Privacy questions and ongoing review
 For non-sensitive privacy questions, open an issue in this GitHub repository.

@@ -48,18 +48,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**v1.0.3 · Windows x64 · Free**
+**v1.0.4 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/Tubeium-1.0.3-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/Tubeium-1.0.3-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/Tubeium-1.0.4-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/Tubeium-1.0.4-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/SHA256SUMS.txt) | Checking file integrity |
 
-[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.3) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.4) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.3 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.4 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -93,11 +93,11 @@ Changes to YouTube's interface can affect individual filters.
 
 ### ⏭ Ads & SponsorBlock
 
-- Optional **best-effort** ad filtering and skip behavior for supported placements.
+- Experimental, **off-by-default** ad filtering and skip behavior for supported placements (explicit opt-in).
 - **SponsorBlock** integration with configurable segment categories, including sponsors, self-promotion, reminders, intros, and outros.
 - Optional notifications when segments are skipped.
 
-Ad filtering is not guaranteed and may be affected by YouTube changes. SponsorBlock relies on community-submitted segment data.
+Ad filtering is experimental, off by default, and not guaranteed. It may conflict with YouTube's terms; SponsorBlock relies on community-submitted segment data.
 
 ### 📥 Downloads & offline playback
 
@@ -107,7 +107,7 @@ Ad filtering is not guaranteed and may be affected by YouTube changes. SponsorBl
 - Optional thumbnail, subtitle, and metadata handling.
 - Open supported downloaded media using Tubeium's offline player.
 
-Some formats and conversions require FFmpeg; availability also depends on the source video. Download only content you have permission to save.
+Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256. **Update Downloader** asks before selecting the latest release. Some formats and conversions require FFmpeg; availability depends on the source. Download only content you have permission to save.
 
 ### 📚 Local library & playlists
 
@@ -119,7 +119,7 @@ Some formats and conversions require FFmpeg; availability also depends on the so
 ### 🔐 Privacy, sign-in & app behavior
 
 - Local viewing profiles and privacy-oriented backup controls.
-- Sign-in guidance using a browser and optional session-import workflows.
+- Sign-in guidance using a browser and optional session-import workflows. Importing a personal `cookies.txt` file offers deletion only if the user explicitly selects it.
 - Optional bottom Sign-in Help tabs: collapse them with **×**, then click the always-visible **↑ Show tabs** button to restore the full bar; the **View → Show Sign-in Help tabs** menu and Ctrl+Shift+G also work, and choose whether the help opens at startup.
 - Startup preferences, tray behavior, window restoration, and launch-at-login options.
 - External-link handling and configurable cache behavior.
@@ -217,7 +217,7 @@ The currently published and tested release targets **Windows x64**. Other operat
 
 New **unsigned** releases are published manually, never automatically on every merge. Update `package.json` and the lockfile to a new version, verify CI on `main`, then run [Publish unsigned Windows release](https://github.com/Subaru771/Tubeium/actions/workflows/publish-unsigned-beta.yml) from `main` with a matching `vX.Y.Z` tag. The workflow rejects existing tags, including the published v1.0.0—and publishes only after tests, dependency audit, both Windows builds, and checksums pass.
 
-The [signed release workflow](.github/workflows/release-windows.yml) is separate and requires explicit production approval and valid code-signing credentials. See [release checklist](docs/RELEASE_CHECKLIST.md).
+The [signed release workflow](.github/workflows/release-windows.yml) is separate and requires explicit production approval and valid code-signing credentials. See the [release checklist](docs/RELEASE_CHECKLIST.md) and [code-signing options](docs/CODE-SIGNING.md).
 
 ## Feedback & development
 

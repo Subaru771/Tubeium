@@ -16,7 +16,7 @@ const { GOOGLE_ERROR_SCAN, isSignInLocation, classifyFailure, messageFor } = req
 const { LibraryStore, validId } = require('./library-store');
 const { communityTitle } = require('./dearrow');
 const { websitePermission } = require('./permission-policy');
-const { expectedHash, verifyBinary, MAX_BINARY } = require('./downloader-integrity');
+const { createInstaller: createYtDlpInstaller } = require('./ytdlp-installer');
 const { findOfflineMedia, playableFiles } = require('./offline-media');
 const { basicHealth } = require('./system-health');
 const { PlaylistStore } = require('./local-playlists');
@@ -519,12 +519,17 @@ async function importExistingLogin() {
     if (fs.statSync(filename).size > MAX_FILE_BYTES) throw new Error('File exceeds the 3 MB size limit');
     const text = fs.readFileSync(filename, 'utf8');
     const result = await importCookies(session.defaultSession.cookies, text);
-    await dialog.showMessageBox(win, {
+    const done = await dialog.showMessageBox(win, {
       type: result.added ? 'info' : 'warning', buttons: ['OK'],
       title: 'YouTube sign-in import',
       message: `${result.added} YouTube/Google cookies imported. ${result.failed} were rejected.`,
       detail: result.added ? 'Tubeium will restart automatically to load the imported session. The import does not guarantee that Google will accept the sign-in.' : 'No usable session cookies were imported. Tubeium will stay open.',
+      ...(result.added ? {checkboxLabel:'Delete this cookies.txt file now (optional)',checkboxChecked:false} : {}),
     });
+    // Never delete a user-selected file unless they explicitly opt in.
+    if (result.added > 0 && done.checkboxChecked) {
+      try { fs.unlinkSync(filename); } catch (error) { console.warn('Cookie export could not be deleted:', error.message); }
+    }
     if (result.added > 0) markImportedSessionForVerification();
     else notifySignInFailure('import-empty');
     restartAfterSignInImport(result.added);
@@ -1131,7 +1136,7 @@ function buildMenu() {
     {
       label: 'Features',
       submenu: [
-        toggle('blockAds', 'Block ads'),
+        toggle('blockAds', 'Experimental ad skipping (opt-in)'),
         toggle('sponsorBlock', 'SponsorBlock (skip sponsor segments)'),
         toggle('hideShorts', 'Hide Shorts'),
         toggle('closeToTray', 'Close button hides to tray'),
@@ -1216,37 +1221,18 @@ function bundledFfmpeg() {
   try {let p=require('ffmpeg-static'); if(p){p=p.replace('app.asar','app.asar.unpacked');if(fs.existsSync(p))return p;}}catch{}
   return null;
 }
-async function ensureYtDlp(onStatus,forceLocal=false) {
-  const local=path.join(binDir(),ytdlpName());
-  if(!forceLocal){if(fs.existsSync(local))return local;if(await canRun('yt-dlp',['--version']))return 'yt-dlp';}
-  onStatus('Downloading yt-dlp…');
-  const asset=process.platform==='win32'?'yt-dlp.exe':process.platform==='darwin'?'yt-dlp_macos':'yt-dlp';
-  const release='https://github.com/yt-dlp/yt-dlp/releases/latest/download/';
-  const [res, sums]=await Promise.all([net.fetch(release+asset),net.fetch(release+'SHA2-256SUMS')]);
-  if(!res.ok||!sums.ok)throw new Error(`Could not retrieve verified yt-dlp (${res.status}/${sums.status})`);
-  const max=Number(res.headers.get('content-length')||0);
-  if(max>MAX_BINARY)throw new Error('Downloader exceeds maximum safe download size');
-  const bytes=Buffer.from(await res.arrayBuffer());
-  verifyBinary(bytes,expectedHash(await sums.text(),asset));
-  fs.mkdirSync(binDir(),{recursive:true});
-  const staged=local+'.download';fs.writeFileSync(staged,bytes);
-  if(process.platform!=='win32')fs.chmodSync(staged,0o755);
-  // Keep verified existing downloader if replacement cannot complete.
-  const backup=local+'.backup';
-  try {
-    if(fs.existsSync(backup))fs.unlinkSync(backup);
-    if(fs.existsSync(local))fs.renameSync(local,backup);
-    fs.renameSync(staged,local);
-    if(fs.existsSync(backup))fs.unlinkSync(backup);
-  } catch(error) {
-    if(!fs.existsSync(local)&&fs.existsSync(backup))fs.renameSync(backup,local);
-    throw error;
-  }
-  return local;
-}
+// First install is pinned to a known SHA-256; updates are an explicit choice.
+const ensureYtDlp = createYtDlpInstaller({ net, binDir, canRun });
 async function updateYtDlp() {
   const note=t=>win&&!win.isDestroyed()&&win.webContents.send('toast',t);
-  try{note('Updating downloader…');await ensureYtDlp(()=>{},true);note('Downloader updated');}
+  const ask=await dialog.showMessageBox(win,{
+    type:'question',buttons:['Install latest','Cancel'],defaultId:1,cancelId:1,
+    title:'Update downloader (yt-dlp)',
+    message:'Install the newest yt-dlp release?',
+    detail:'Tubeium installs a pinned, SHA-256-verified version by default. The newest release is checked against its accompanying checksum file; use this if downloads stopped working.'
+  });
+  if(ask.response!==0)return;
+  try{note('Updating downloader…');await ensureYtDlp(()=>{},{useLatest:true});note('Downloader updated');}
   catch(e){note('Update failed: '+e.message);}
 }
 function addJob(raw,scope,mode) {

@@ -7,7 +7,7 @@ const {handleGuideButtonClick} = require('./guide-toggle');
 // This is best-effort: YouTube can change its response format at any time.
 function installPageAdFilter() {
   if (window.__tubeiumAdFilter) return;
-  let enabled = true;
+  let enabled = false;
   const adFields = ['adPlacements', 'playerAds', 'adSlots', 'adBreakParams', 'adBreakHeartbeatParams', 'ad3Module', 'adSafetyReason'];
   // Feed / search / sidebar items that are ads. Matched as wrapper keys of an array item.
   const adItemKeys = ['adSlotRenderer', 'promotedSparklesWebRenderer', 'promotedSparklesTextSearchRenderer',
@@ -130,7 +130,7 @@ try {
   catch { /* Page-level filtering optional; native skip fallback remains. */ }
 }
 
-let state = { hideShorts: true, blockAds: true, sponsorBlock: true, speedStep: '0.25', mini: false };
+let state = { hideShorts: true, blockAds: false, sponsorBlock: true, speedStep: '0.25', mini: false };
 let persistedState = {...state};
 let activeViewingProfile = null;
 let playbackMemory = { speed: 1, volume: 100, muted: false };
