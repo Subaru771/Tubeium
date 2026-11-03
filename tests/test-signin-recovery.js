@@ -24,8 +24,8 @@ assert.equal(scan('This browser is not supported'), 'browser-rejected');
 assert.equal(scan('Enter your password'),null);
 assert(!GOOGLE_ERROR_SCAN.includes('emailAddress'), 'Error scan must not collect account identifiers');
 
-const main=fs.readFileSync(path.resolve(__dirname,'src/main.js'),'utf8');
-const preload=fs.readFileSync(path.resolve(__dirname,'src/preload.js'),'utf8');
+const main=fs.readFileSync(path.resolve(__dirname,'..','src/main.js'),'utf8');
+const preload=fs.readFileSync(path.resolve(__dirname,'..','src/preload.js'),'utf8');
 assert.match(main,/child\.webContents\.on\('did-finish-load'/);
 assert.match(main,/child\.webContents\.on\('did-fail-load'/);
 assert.match(main,/ipcMain\.on\('tubeium-open-browser-signin', event => \{/);
