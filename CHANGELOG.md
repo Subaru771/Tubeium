@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.4] — 2026-11-03
+
+- Integrated verified downloader changes from the contributed Tubeium ZIP without replacing v1.0.3's discoverable **↑ Show tabs** handle.
+- Pin first-install yt-dlp to 2026.10.26, verify its committed SHA-256, and confirm before installing the latest release on request.
+- Make experimental ad skipping **off by default** for new profiles, including the early page filter; preserve explicitly saved opt-ins.
+- Offer deletion of an imported `cookies.txt` file as an **unchecked, opt-in** choice.
+- Discover every `tests/test-*.js` automatically during `npm test`.
+- Document practical Windows code-signing options without promising SmartScreen warnings disappear.
+
+This update does not claim that Google authentication or every YouTube video works under all conditions.
+
+
 ## [1.0.3] — 2026-11-03
 
 - Make Sign-in Help tab visibility discoverable: clicking × collapses the bottom strip into a compact **↑ Show tabs** button rather than removing all controls.
@@ -36,6 +48,7 @@ Maintenance release of Tubeium for Windows x64.
 
 First public unsigned Windows x64 release with Setup and Portable executables, SHA-256 checksums, local playlists and downloads, personalization, playback controls, and optional browser-based sign-in assistance.
 
+[1.0.4]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.1

@@ -8,6 +8,7 @@ const required = [
   'package.json', 'src/main.js', 'src/preload.js', 'src/settings-schema.js',
   'src/settings.html', 'src/settings.css', 'src/settings-renderer.js',
   'src/downloads.html', 'src/downloads-renderer.js', 'src/offline-player.html',
+  'src/ytdlp-pin.js', 'src/ytdlp-installer.js', 'tests/run-all.js', 'docs/CODE-SIGNING.md',
   'src/library.html', 'src/browser-session-transfer.js', 'src/browser-login-once/manifest.json',
   'src/browser-login-once/popup.js', 'scripts/BUILD_WINDOWS_EXE.cmd',
   'PRIVACY.md', 'SECURITY.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
@@ -18,6 +19,12 @@ for (const name of required) {
   assert(fs.existsSync(loc) && fs.statSync(loc).size>0, `Missing/empty release file: ${name}`);
 }
 const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
+const sourcePreload=fs.readFileSync(path.join(root,'src/preload.js'),'utf8');
+assert(sourcePreload.includes('let enabled = false;'),'Early ad filter must not activate before user preferences are loaded');
+assert(sourcePreload.includes('blockAds: false'),'Experimental ad filtering should start disabled');
+const appSource=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
+assert(appSource.includes('checkboxChecked:false'),'Cookie export deletion must be opt-in');
+assert(appSource.includes('createYtDlpInstaller'),'Use pinned and checked downloader installer');
 assert.equal(pkg.name,'tubeium');
 assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 assert.equal(pkg.build.appId,'io.tubeium.desktop');
