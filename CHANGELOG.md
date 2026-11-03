@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.2] — 2026-11-03
+
+- Fix YouTube's upper-left guide/hamburger when Tubeium's Hide navigation sidebar preference is enabled. Manually clicking the menu temporarily reveals the navigation drawer without changing the saved preference.
+- Make the bottom Sign-in Help tab strip optional: hide with ×, restore from the View menu (Ctrl+Shift+G), and persist the choice across launches.
+- Add a Show bottom tabs control inside the Help page, preserve full-window playback and fullscreen behavior, and make old/empty tab preference files safe.
+- Add regression coverage for hamburger events, saved tab preferences and the restore controls.
+
+**Note:** As with previous versions, automated packaging tests do not guarantee compatibility with future YouTube UI changes or Google sign-in restrictions.
+
+
 ## [1.0.1] — 2026-11-03
 
 Maintenance release of Tubeium for Windows x64.
@@ -16,5 +26,6 @@ Maintenance release of Tubeium for Windows x64.
 
 First public unsigned Windows x64 release with Setup and Portable executables, SHA-256 checksums, local playlists and downloads, personalization, playback controls, and optional browser-based sign-in assistance.
 
+[1.0.2]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0

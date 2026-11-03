@@ -1,13 +1,13 @@
 {
   "name": "tubeium",
   "productName": "Tubeium",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Native Windows YouTube client with local playlists, viewing profiles, audio presets, privacy-safe backups and more.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "test": "node tests/test-settings.js && node tests/test-settings-taxonomy.js && node tests/test-download-queue.js && node tests/test-migration.js && node tests/test-signin.js && node tests/test-browser-session-transfer.js && node tests/test-simple-signin.js && node tests/test-restart-on-import.js && node tests/test-local-library.js && node tests/test-competitive-upgrade.js && node tests/test-privacy-and-branding.js && node tests/test-v4-3.js && node tests/test-v4-5.js && node tests/test-release-hardening.js && node tests/test-release-build-gates.js && node tests/test-signin-recovery.js && node tests/test-signin-choice.js && node tests/test-welcome-tab.js && node tests/test-default-browser-resolver.js && node tests/test-default-browser-navigation.js && node tests/test-brave-persistent-tabs.js && node tests/test-brave-behavior.js && node tests/test-clean-signin-browser.js && node tests/test-ad-transition.js && node tests/test-builder-version-detection.js && node tests/test-unsigned-release.js",
+    "test": "node tests/test-settings.js && node tests/test-settings-taxonomy.js && node tests/test-download-queue.js && node tests/test-migration.js && node tests/test-signin.js && node tests/test-browser-session-transfer.js && node tests/test-simple-signin.js && node tests/test-restart-on-import.js && node tests/test-local-library.js && node tests/test-competitive-upgrade.js && node tests/test-privacy-and-branding.js && node tests/test-v4-3.js && node tests/test-v4-5.js && node tests/test-release-hardening.js && node tests/test-release-build-gates.js && node tests/test-signin-recovery.js && node tests/test-signin-choice.js && node tests/test-welcome-tab.js && node tests/test-default-browser-resolver.js && node tests/test-default-browser-navigation.js && node tests/test-brave-persistent-tabs.js && node tests/test-brave-behavior.js && node tests/test-clean-signin-browser.js && node tests/test-ad-transition.js && node tests/test-builder-version-detection.js && node tests/test-unsigned-release.js && node tests/test-guide-toggle.js",
     "build:windows": "electron-builder --win nsis portable --x64 --publish never",
     "build:portable": "electron-builder --win portable --x64 --publish never",
     "build:installer": "electron-builder --win nsis --x64 --publish never",
@@ -34,6 +34,7 @@
       "src/downloads.css",
       "src/downloads-renderer.js",
       "src/preload.js",
+      "src/guide-toggle.js",
       "src/settings-schema.js",
       "src/settings-preload.js",
       "src/settings.html",

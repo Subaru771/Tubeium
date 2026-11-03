@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('tubeiumWelcome',Object.freeze({
   navigate:target=>ipcRenderer.invoke('welcome-navigate',target),
   getState:()=>ipcRenderer.invoke('welcome-get-state'),
   setShowOnStartup:value=>ipcRenderer.invoke('welcome-set-startup',value===true),
+  setShowTabs:value=>ipcRenderer.invoke('welcome-set-tabs-visible',value===true),
   onSignInCompleted:callback=>{
     if(typeof callback!=='function')return;
     ipcRenderer.on('welcome-signin-completed',(_event,data)=>callback({

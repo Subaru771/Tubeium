@@ -7,6 +7,18 @@ assert.match(source,/view\.webContents\.loadFile\(path\.join\(__dirname,'welcome
 assert.match(source,/if \(!welcomeSender\(event\)\) throw/);
 assert.match(source,/Welcome \/ Sign-in Help tab/);
 assert.match(read('src/tab-strip.html'),/Sign-in Help/);
+assert.match(read('src/tab-strip.html'),/id="hide-tabs"/);
+assert.match(read('src/tab-strip-preload.js'),/tubeium-tab-hide/);
+assert.match(read('src/tab-strip.js'),/tubeiumTabs\.hide\(\)/);
+assert.match(source,/ipcMain\.on\('tubeium-tab-hide'/);
+assert.match(source,/setHelpTabsVisible\(false\)/);
+assert.match(source,/showHelpTabsPreference\(\)/);
+assert.match(source,/return !saved \|\| saved\.showHelpTabs !== false/);
+assert.match(source,/CmdOrCtrl\+Shift\+G/);
+assert.match(source,/Show Sign-in Help tabs/);
+assert.match(read('src/welcome.html'),/id="show-tabs"/);
+assert.match(read('src/welcome-preload.js'),/welcome-set-tabs-visible/);
+assert.match(read('src/welcome-renderer.js'),/setShowTabs\(next\)/);
 for(const key of ['youtube','folder','open-browser','copy']){
  assert.match(html,new RegExp('data-action="'+key+'"'));
  assert.match(preload,new RegExp("'"+key+"'"));
@@ -48,5 +60,6 @@ assert.match(read('scripts/BUILD_WINDOWS_EXE.cmd'),/Tubeium-%TUBEIUM_VERSION%-Se
 assert.match(read('scripts/VERIFY_WINDOWS_BUILD.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
 for(const f of ['welcome.html','welcome.css','welcome-renderer.js','welcome-preload.js','default-browser.js'])assert(pkg.build.files.includes('src/'+f),f);
 for(const f of ['signin-guide.html','signin-guide.js','signin-preload.js'])assert(!pkg.build.files.includes(f),f+' removed');
+assert(pkg.build.files.includes('src/guide-toggle.js'));
 assert.equal(Object.keys(require('../src/settings-schema').DEFAULTS).length,201);
 console.log('PASS: simpler three-step sign-in guide, tab preserved, no settings change');

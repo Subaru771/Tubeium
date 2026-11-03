@@ -19,3 +19,5 @@
 .step-actions .button{min-width:148px;max-width:none;justify-content:center}
 @media(max-width:940px){.steps li{align-items:flex-start;flex-wrap:wrap;gap:12px}.steps li .step-copy{flex-basis:calc(100% - 50px)}.steps li > .button,.step-actions{margin-left:47px;max-width:calc(100% - 47px)}.step-actions .button{flex:1;min-width:150px}}
 @media(max-width:550px){.step-actions{width:calc(100% - 42px);margin-left:42px}.step-actions .button{width:100%;min-width:0}.steps li > .button{width:calc(100% - 42px);margin-left:42px;max-width:none}}
+
+.bottom{flex-wrap:wrap;justify-content:flex-start}.bottom #saved{margin-left:auto}
