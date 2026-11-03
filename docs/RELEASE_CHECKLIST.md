@@ -12,6 +12,13 @@ This checklist covers the current open-source Windows x64 release. Automated che
 - [x] SHA-256 checksums generated and packaged with unsigned build artifacts.
 - [x] GitHub Release v1.0.0 published as **unsigned** (not represented as a signed release).
 
+## Publishing the next unsigned release safely
+
+1. Bump `package.json` and the committed dependency lock to a **new** semantic version, then merge its CI-passing changes into `main`.
+2. In GitHub Actions, manually run **Publish unsigned Windows release** on the **main** branch and enter `v<package-version>`.
+3. The workflow refuses a tag/version mismatch and any tag already present on GitHub. Only after tests, dependency audits, both builds and checksums pass can it publish the new tag.
+4. The published v1.0.0 release is deliberately left untouched; triggering the unsigned workflow for v1.0.0 fails safely because the tag already exists.
+
 ## Publisher verification before any next public release
 
 - [ ] Run the Windows acceptance procedure in [WINDOWS_ACCEPTANCE_TESTS.md](WINDOWS_ACCEPTANCE_TESTS.md).

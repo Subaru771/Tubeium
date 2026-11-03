@@ -1,13 +1,14 @@
-# Tubeium security policy (release candidate)
+# Tubeium security policy
 
 ## Reporting a vulnerability
 Do **not** post authentication cookies, pairing credentials, passwords, local
-profiles or exploit details in a public issue. For a published GitHub repository,
-the publisher should enable **Settings → Security → Private vulnerability
-reporting** and accept reports via the repository's Security tab. The repository
-and confidential reporting contact have not yet been configured. Until they
-are available, public releases must not advertise a working private reporting
-channel.
+browser profiles, session tokens or exploit details in a public issue.
+
+If this repository's GitHub Security tab offers **private vulnerability reporting**,
+use that channel. If it is unavailable, open a public issue requesting a safe
+private reporting method **without** disclosing the vulnerability or any secret.
+A dedicated private security contact is not currently published; the maintainer
+should configure one before promoting the project more widely.
 
 ## Security boundaries
 - Tubeium runs YouTube content in an Electron BrowserWindow with Node integration

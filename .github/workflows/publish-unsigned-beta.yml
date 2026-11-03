@@ -1,59 +1,95 @@
 name: Publish unsigned Windows release
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'New release tag matching package.json (for example v1.0.1)'
+        required: true
+        type: string
 permissions:
   contents: write
+concurrency:
+  group: tubeium-unsigned-release-${{ inputs.release_tag }}
+  cancel-in-progress: false
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: windows-2025
     timeout-minutes: 70
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           package-manager-cache: false
-      - name: Verify dependency lock
+      - name: Validate requested tag, version and main branch
+        env:
+          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: node scripts/validate-unsigned-release.js
+      - name: Refuse to overwrite an existing Git tag
+        shell: pwsh
+        env:
+          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $existing = @(git ls-remote --tags --refs origin "refs/tags/$env:TUBEIUM_RELEASE_TAG")
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify remote tags; refusing to publish.' }
+          if (($existing -join '').Trim().Length -gt 0) { throw "Tag $env:TUBEIUM_RELEASE_TAG already exists. No release files were changed." }
+      - name: Verify committed dependency lock
         run: npm run verify:dependencies
-      - name: Install dependencies
+      - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run release checks
+      - name: Run source and release safety checks
         run: npm run verify:release
       - name: Audit dependencies
         run: npm audit --audit-level=high
-      - name: Build unsigned installer and portable EXE
+      - name: Build unsigned Windows installer
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:windows
-      - name: Verify outputs and create checksums
+        run: npm run build:installer
+      - name: Build unsigned Windows portable EXE
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:portable
+      - name: Verify both binaries and generate SHA-256 checksums
         shell: pwsh
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
           $files = @("dist/Tubeium-$version-Setup-x64.exe", "dist/Tubeium-$version-Portable-x64.exe")
           foreach ($file in $files) {
             if (!(Test-Path $file)) { throw "Missing: $file" }
-            if ((Get-Item $file).Length -lt 10MB) { throw "Too small: $file" }
+            if ((Get-Item $file).Length -lt 10MB) { throw "Unexpectedly small binary: $file" }
           }
           $lines = foreach ($file in $files) {
             $hash = Get-FileHash $file -Algorithm SHA256
             "$($hash.Hash.ToLower())  $(Split-Path $file -Leaf)"
           }
           $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
-      - name: Publish public release
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Tubeium-unsigned-${{ inputs.release_tag }}
+          path: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish a NEW public unsigned release
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: pwsh
+          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          $tag = "v1.0.0"
+          $tag = $env:TUBEIUM_RELEASE_TAG
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $installer = "dist/Tubeium-$version-Setup-x64.exe"
+          $portable = "dist/Tubeium-$version-Portable-x64.exe"
           $notes = @"
-          Tubeium v1.0.0 for Windows.
+          Tubeium $tag for Windows.
 
-          **Unsigned release:** Windows SmartScreen may display a warning. Only download from this official GitHub repository.
-          Tested by the maintainer on Windows. Automated source tests and packaging checks run before publication.
-          Sign-in imports are not guaranteed to be accepted by Google.
-
-          Includes a Windows setup installer and a portable executable. SHA256SUMS.txt contains their checksums.
+          **Unsigned release:** Windows SmartScreen may warn. Only download from the official Tubeium GitHub Releases page.
+          Automated source tests, dependency audits and packaging checks passed. Live Google sign-in is not guaranteed.
+          Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
-          gh release create $tag "dist/Tubeium-1.0.0-Setup-x64.exe" "dist/Tubeium-1.0.0-Portable-x64.exe" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium v1.0.0 (unsigned)" --notes $notes
+          gh release create "$tag" "$installer" "$portable" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium $tag (unsigned)" --notes "$notes"
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub release publishing failed.' }

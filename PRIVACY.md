@@ -1,4 +1,4 @@
-# Tubeium privacy information (publication candidate — 2026-11-01)
+# Tubeium privacy information (technical summary — updated 2026-11-03)
 
 Tubeium is an independent, unofficial Windows application that loads YouTube.
 It is not affiliated with, sponsored by, or endorsed by Google or YouTube.
@@ -53,8 +53,12 @@ site or optional third-party integrations are tracking-free. Do not publish
 claims that Tubeium provides total anonymity, a zero-data experience or
 universal ad blocking.
 
-## Publisher action required
-Before publishing, the project owner must specify a support/privacy contact,
-check the applicable laws and distribution requirements, and verify this text
-against the actual public build and any added telemetry. This draft should not
-be published as a finalized legal privacy policy without that review.
+## Privacy questions and ongoing review
+For non-sensitive privacy questions, open an issue in this GitHub repository.
+**Do not post** cookies, session tokens, login details, personal browsing history
+or sensitive diagnostics in issues. A dedicated private privacy contact has not
+yet been published; the maintainer should establish one.
+
+This technical summary describes the current open-source implementation, not a
+legal certification or proof that every distributed build has been independently
+audited. It must be reviewed after material app, integration or data-handling changes.
