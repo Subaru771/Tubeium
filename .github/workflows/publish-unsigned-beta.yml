@@ -6,10 +6,16 @@ on:
         description: 'New release tag matching package.json (for example v1.0.1)'
         required: true
         type: string
+  # One-time opt-in publication trigger. Pushing this exact request file
+  # invokes the existing verification/build/signature-check release gates.
+  push:
+    branches: [main]
+    paths:
+      - '.github/release-requests/v1.0.6.txt'
 permissions:
   contents: write
 concurrency:
-  group: tubeium-unsigned-release-${{ inputs.release_tag }}
+  group: tubeium-unsigned-release-${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
   cancel-in-progress: false
 jobs:
   publish:
@@ -26,12 +32,12 @@ jobs:
           package-manager-cache: false
       - name: Validate requested tag, version and main branch
         env:
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
         run: node scripts/validate-unsigned-release.js
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
         run: |
           $existing = @(git ls-remote --tags --refs origin "refs/tags/$env:TUBEIUM_RELEASE_TAG")
           if ($LASTEXITCODE -ne 0) { throw 'Could not verify remote tags; refusing to publish.' }
@@ -78,7 +84,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
         run: |
           $tag = $env:TUBEIUM_RELEASE_TAG
           $version = (Get-Content package.json | ConvertFrom-Json).version
@@ -91,5 +97,11 @@ jobs:
           Automated source tests, dependency audits and packaging checks passed. Live Google sign-in is not guaranteed.
           Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
-          gh release create "$tag" "$installer" "$portable" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "Tubeium $tag (unsigned)" --notes "$notes"
+          if ($tag -eq 'v1.0.6') {
+            $title = 'Tubeium 1.02 (v1.0.6, unsigned)'
+            $notes = Get-Content 'docs/releases/v1.0.6.md' -Raw
+          } else {
+            $title = "Tubeium $tag (unsigned)"
+          }
+          gh release create "$tag" "$installer" "$portable" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "$title" --notes "$notes"
           if ($LASTEXITCODE -ne 0) { throw 'GitHub release publishing failed.' }
