@@ -874,6 +874,8 @@ function createWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      // Give the early page filter the current saved preference before YouTube loads.
+      additionalArguments: ['--tubeium-ad-block=' + (settings.blockAds ? 'on' : 'off')],
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -1136,7 +1138,7 @@ function buildMenu() {
     {
       label: 'Features',
       submenu: [
-        toggle('blockAds', 'Experimental ad skipping (opt-in)'),
+        toggle('blockAds', 'Skip YouTube ads (best effort)'),
         toggle('sponsorBlock', 'SponsorBlock (skip sponsor segments)'),
         toggle('hideShorts', 'Hide Shorts'),
         toggle('closeToTray', 'Close button hides to tray'),

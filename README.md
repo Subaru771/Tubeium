@@ -48,18 +48,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**v1.0.4 · Windows x64 · Free**
+**v1.0.5 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/Tubeium-1.0.4-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/Tubeium-1.0.4-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.4/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.5/Tubeium-1.0.5-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.5/Tubeium-1.0.5-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.5/SHA256SUMS.txt) | Checking file integrity |
 
-[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.4) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.5) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.4 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.5 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -93,11 +93,11 @@ Changes to YouTube's interface can affect individual filters.
 
 ### ⏭ Ads & SponsorBlock
 
-- Experimental, **off-by-default** ad filtering and skip behavior for supported placements (explicit opt-in).
+- **Best-effort ad skipping enabled by default**, with an immediate on/off toggle under **Settings → Ads & SponsorBlock**. YouTube changes can still cause ads or playback problems.
 - **SponsorBlock** integration with configurable segment categories, including sponsors, self-promotion, reminders, intros, and outros.
 - Optional notifications when segments are skipped.
 
-Ad filtering is experimental, off by default, and not guaranteed. It may conflict with YouTube's terms; SponsorBlock relies on community-submitted segment data.
+Ad skipping is enabled by default for new installs, but it is best-effort and **does not guarantee an ad-free experience**. Turn it off under **Settings → Ads & SponsorBlock** if playback fails. Existing saved OFF preferences remain OFF. SponsorBlock separately uses community-submitted segment data.
 
 ### 📥 Downloads & offline playback
 

@@ -1,13 +1,16 @@
 if (/(^|\.)youtube\.com$/i.test(location.hostname)) {
 const { ipcRenderer, webFrame } = require('electron');
+// Electron appends additionalArguments to preload process.argv. A saved OFF
+// choice is respected before YouTube's own page scripts run.
+const earlyBlockAds = !process.argv.includes('--tubeium-ad-block=off');
 const {handleGuideButtonClick} = require('./guide-toggle');
 
 // Install before YouTube's page scripts. Only ad metadata in player responses is
 // filtered; video/audio URLs, authentication, playback and recommendations stay intact.
 // This is best-effort: YouTube can change its response format at any time.
-function installPageAdFilter() {
+function installPageAdFilter(initialEnabled) {
   if (window.__tubeiumAdFilter) return;
-  let enabled = false;
+  let enabled = initialEnabled === true;
   const adFields = ['adPlacements', 'playerAds', 'adSlots', 'adBreakParams', 'adBreakHeartbeatParams', 'ad3Module', 'adSafetyReason'];
   // Feed / search / sidebar items that are ads. Matched as wrapper keys of an array item.
   const adItemKeys = ['adSlotRenderer', 'promotedSparklesWebRenderer', 'promotedSparklesTextSearchRenderer',
@@ -121,16 +124,16 @@ function installPageAdFilter() {
 try {
   const { contextBridge } = require('electron');
   if (contextBridge && typeof contextBridge.executeInMainWorld === 'function') {
-    contextBridge.executeInMainWorld({ func: installPageAdFilter });
+    contextBridge.executeInMainWorld({ func: installPageAdFilter, args: [earlyBlockAds] });
   } else {
-    void webFrame.executeJavaScript('(' + installPageAdFilter.toString() + ')()', false).catch(() => {});
+    void webFrame.executeJavaScript('(' + installPageAdFilter.toString() + ')(' + String(earlyBlockAds) + ')', false).catch(() => {});
   }
 } catch {
-  try { void webFrame.executeJavaScript('(' + installPageAdFilter.toString() + ')()', false).catch(() => {}); }
+  try { void webFrame.executeJavaScript('(' + installPageAdFilter.toString() + ')(' + String(earlyBlockAds) + ')', false).catch(() => {}); }
   catch { /* Page-level filtering optional; native skip fallback remains. */ }
 }
 
-let state = { hideShorts: true, blockAds: false, sponsorBlock: true, speedStep: '0.25', mini: false };
+let state = { hideShorts: true, blockAds: earlyBlockAds, sponsorBlock: true, speedStep: '0.25', mini: false };
 let persistedState = {...state};
 let activeViewingProfile = null;
 let playbackMemory = { speed: 1, volume: 100, muted: false };
