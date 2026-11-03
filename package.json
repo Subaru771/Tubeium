@@ -69,7 +69,6 @@
       "SECURITY.md",
       "LICENSE",
       "THIRD_PARTY_NOTICES.md",
-      "README_RELEASE.md",
       "src/welcome.html",
       "src/welcome.css",
       "src/welcome-renderer.js",
