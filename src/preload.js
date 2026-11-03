@@ -269,10 +269,27 @@ html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl { display: flex; }
 #uyp-dl .uyp-menu button { background: transparent; padding: 10px 18px; text-align: left; }
 #uyp-dl .uyp-menu button:hover { background: #2e2e34; }
 html.uyp-dl-left #uyp-dl{right:auto!important;left:24px!important;align-items:flex-start!important;}
-#uyp-prefs-btn{position:fixed;bottom:20px;left:19px;z-index:2147483645;width:36px;height:36px;border-radius:50%;background:#22222b;box-shadow:0 2px 12px #0008;border:1px solid var(--uyp-accent,#aa7dff);color:var(--uyp-accent,#aa7dff);font:20px Arial,sans-serif;cursor:pointer;opacity:.78;transition:opacity .2s;}
-#uyp-prefs-btn:hover{opacity:1;}
+/* Position above the native 42px tab strip instead of underneath it. */
+#uyp-prefs-btn{
+  position:fixed;bottom:68px;left:18px;z-index:2147483645;
+  display:inline-flex;align-items:center;gap:9px;min-height:44px;
+  padding:7px 15px 7px 9px;border-radius:14px;
+  border:1px solid var(--uyp-accent,#aa7dff);
+  background:linear-gradient(135deg,#342842,#1b1726);
+  color:#fff;box-shadow:0 6px 24px #0009;
+  font:700 13px/1.2 "Segoe UI",Roboto,Arial,sans-serif;
+  letter-spacing:.01em;cursor:pointer;opacity:.98;
+  transition:background .16s,box-shadow .16s,transform .16s;
+}
+#uyp-prefs-btn .uyp-prefs-icon{
+  display:grid;place-items:center;width:28px;height:28px;flex-shrink:0;
+  border-radius:9px;background:var(--uyp-accent,#aa7dff);color:#15101d;font-size:19px;
+}
+#uyp-prefs-btn:hover{background:#453353;box-shadow:0 8px 28px #000b;transform:translateY(-1px);}
+#uyp-prefs-btn:focus-visible{outline:3px solid #e3caff;outline-offset:3px;}
 html.uyp-mini #uyp-prefs-btn,html.uyp-fs #uyp-prefs-btn,html.uyp-hide-settings #uyp-prefs-btn{display:none!important;}
-html.uyp-dl-left #uyp-prefs-btn{left:auto;right:19px;}
+html.uyp-dl-left #uyp-prefs-btn{left:auto;right:18px;}
+@media(prefers-reduced-motion:reduce){#uyp-prefs-btn{transition:none;}#uyp-prefs-btn:hover{transform:none;}}
 
 html.uyp-opt-hideChannelAvatars ytd-channel-name #avatar,
 html.uyp-opt-hideChannelAvatars ytd-video-owner-renderer #avatar,
@@ -593,7 +610,15 @@ function initPlayback() {
 
 function initSettingsButton() {
   if(document.getElementById('uyp-prefs-btn'))return;
-  const b=document.createElement('button');b.id='uyp-prefs-btn';b.textContent='⚙';b.title='Tubeium settings (Ctrl+,)';b.setAttribute('aria-label','Open Tubeium settings');
+  const b=document.createElement('button');
+  b.id='uyp-prefs-btn';b.type='button';
+  b.title='Open Tubeium settings (Ctrl+,)';
+  b.setAttribute('aria-label','Open Tubeium settings');
+  const icon=document.createElement('span');icon.className='uyp-prefs-icon';
+  icon.textContent='⚙';icon.setAttribute('aria-hidden','true');
+  const label=document.createElement('span');label.className='uyp-prefs-label';
+  label.textContent='Settings';
+  b.append(icon,label);
   b.addEventListener('click',()=>ipcRenderer.send('open-settings'));
   document.body.append(b);
 }
