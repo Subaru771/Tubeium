@@ -1,0 +1,6 @@
+Tubeium 1.02 publishing request
+Release tag: v1.0.6
+Source branch: main
+Requested: 2026-11-03
+Release workflow: publish-unsigned-beta.yml
+No tag overwrite; publish only after testing, dependency audit, Windows packaging and SHA-256 checks.
