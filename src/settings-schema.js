@@ -50,7 +50,7 @@ const groups = [
     ['preferredQuality', 'Preferred video quality', 'Best-effort request. YouTube may override this based on bandwidth.', 'select', 'auto', { options: [['auto','Automatic'],['hd2160','2160p / 4K'],['hd1440','1440p'],['hd1080','1080p'],['hd720','720p'],['large','480p'],['medium','360p']] }],
   ]},
   { id: 'blocking', title: 'Ads & SponsorBlock', icon: '◈', subtitle: 'Choose what to block or skip', settings: [
-    ['blockAds', 'Skip video and feed ads', 'Hide known ad placements and attempt to skip video ads.', 'toggle', true],
+    ['blockAds', 'Experimental ad skipping', 'Off by default. Attempts to hide or skip ads; may stop working and may conflict with YouTube terms.', 'toggle', false],
     ['adSkipToast', 'Ad skip notification', 'Show a small notification when an ad was skipped.', 'toggle', true],
     ['sponsorBlock', 'Enable SponsorBlock', 'Retrieve community-submitted timestamps to skip segments.', 'toggle', true],
     ['sbCategories', 'SponsorBlock categories', 'Choose exactly which types of segments to skip.', 'multiselect', ['sponsor','selfpromo','interaction'], { options: [['sponsor','Sponsor'], ['selfpromo','Unpaid self-promotion'], ['interaction','Like / subscribe reminders'], ['intro','Intro / intermission'], ['outro','Endcards / credits'], ['preview','Preview / recap'], ['filler','Filler / tangents']] }],
