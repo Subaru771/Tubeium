@@ -206,7 +206,8 @@ ipcMain.on('open-settings', e => { if (ytOnly(e)) openSettings(); });
 const welcomeStatePath = () => path.join(app.getPath('userData'), 'welcome-tab.json');
 const WELCOME_GUIDE_REVISION = 458;
 function showHelpTabsPreference() {
-  return readJson(welcomeStatePath(), {}).showHelpTabs !== false;
+  const saved = readJson(welcomeStatePath(), {});
+  return !saved || saved.showHelpTabs !== false;
 }
 function showWelcomeOnStartup() {
   // Opt-in only: Tubeium opens on YouTube. Earlier versions opened this tab at
@@ -1135,6 +1136,7 @@ function buildMenu() {
         { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' },
         { role: 'togglefullscreen' },
         { label: 'Show Sign-in Help tabs', type: 'checkbox', checked: helpTabsVisible,
+          accelerator: 'CmdOrCtrl+Shift+G',
           click: item => setHelpTabsVisible(item.checked) },
         ...(settings.showDeveloperTools ? [{ type: 'separator' }, { role: 'toggleDevTools' }] : []),
       ],

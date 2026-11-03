@@ -13,6 +13,8 @@ assert.match(read('src/tab-strip.js'),/tubeiumTabs\.hide\(\)/);
 assert.match(source,/ipcMain\.on\('tubeium-tab-hide'/);
 assert.match(source,/setHelpTabsVisible\(false\)/);
 assert.match(source,/showHelpTabsPreference\(\)/);
+assert.match(source,/return !saved \|\| saved\.showHelpTabs !== false/);
+assert.match(source,/CmdOrCtrl\+Shift\+G/);
 assert.match(source,/Show Sign-in Help tabs/);
 assert.match(read('src/welcome.html'),/id="show-tabs"/);
 assert.match(read('src/welcome-preload.js'),/welcome-set-tabs-visible/);
