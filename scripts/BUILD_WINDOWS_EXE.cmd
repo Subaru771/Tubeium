@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title Tubeium - Windows Build Repair
 color 0B
 
@@ -139,7 +139,7 @@ exit /b 1
 echo.
 echo BUILD FAILED. No user data was changed during packaging.
 echo See the preceding error. If runtime files disappeared, check Windows Security - Protection history.
-echo If packaging already created a setup file, run CHECK_EXISTING_INSTALLER.cmd to inspect it.
+echo If packaging created a setup file, verify it with scripts\VERIFY_WINDOWS_BUILD.cmd.
 echo The original unpacked app, if complete, can be tested at dist\win-unpacked\Tubeium.exe
 pause
 exit /b 1

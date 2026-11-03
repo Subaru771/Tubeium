@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title Tubeium - Verify Windows build
 echo =======================================================
 echo         Tubeium - Windows Release Check

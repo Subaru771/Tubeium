@@ -18,7 +18,10 @@ try {
   assert.equal(removeCleanProfile(parent,parent),false,'cannot delete parent directory');
   assert.equal(removeCleanProfile(profile,parent),true);
   assert(fs.existsSync(second));
-  pruneOldProfiles(parent,0);
+  // Avoid a same-millisecond mtime race on Windows: mark the isolated test profile as old.
+  const aged = new Date(Date.now() - 60_000);
+  fs.utimesSync(second, aged, aged);
+  pruneOldProfiles(parent,1000);
   assert(!fs.existsSync(second));
   console.log('PASS: new isolated profile, matching extension/YouTube profile, no inherited sign-in, restricted cleanup');
 } finally { fs.rmSync(parent,{recursive:true,force:true}); }

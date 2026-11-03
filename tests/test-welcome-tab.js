@@ -44,8 +44,8 @@ assert.equal(run({showOnStartup:true,lastShownRevision:456}),false);
 assert.equal(run({showOnStartup:false,optInRevision:458}),false);
 assert.equal(run({showOnStartup:true,optInRevision:458}),true,'explicit opt-in is honoured');
 
-assert.match(read('BUILD_WINDOWS_EXE.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
-assert.match(read('VERIFY_WINDOWS_BUILD.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
+assert.match(read('scripts/BUILD_WINDOWS_EXE.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
+assert.match(read('scripts/VERIFY_WINDOWS_BUILD.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
 for(const f of ['welcome.html','welcome.css','welcome-renderer.js','welcome-preload.js','default-browser.js'])assert(pkg.build.files.includes('src/'+f),f);
 for(const f of ['signin-guide.html','signin-guide.js','signin-preload.js'])assert(!pkg.build.files.includes(f),f+' removed');
 assert.equal(Object.keys(require('../src/settings-schema').DEFAULTS).length,201);
