@@ -1,5 +1,6 @@
 if (/(^|\.)youtube\.com$/i.test(location.hostname)) {
 const { ipcRenderer, webFrame } = require('electron');
+const {handleGuideButtonClick} = require('./guide-toggle');
 
 // Install before YouTube's page scripts. Only ad metadata in player responses is
 // filtered; video/audio URLs, authentication, playback and recommendations stay intact.
@@ -214,8 +215,8 @@ html.uyp-yt-font ytd-mini-guide-entry-renderer .title,
 html.uyp-yt-font ytd-masthead #search-input input,
 html.uyp-yt-font #guide-section-title { font-size:calc(14px * var(--uyp-yt-font-scale,1.1))!important;line-height:1.4!important; }
 /* Layout & Focus customization */
-html.uyp-hide-sidebar #guide,html.uyp-hide-sidebar ytd-mini-guide-renderer,html.uyp-hide-sidebar tp-yt-app-drawer,html.uyp-hide-sidebar ytd-guide-renderer {display:none!important;}
-html.uyp-hide-sidebar ytd-page-manager,html.uyp-hide-sidebar #page-manager {margin-left:0!important;}
+html.uyp-hide-sidebar:not(.uyp-guide-open) #guide,html.uyp-hide-sidebar:not(.uyp-guide-open) ytd-mini-guide-renderer,html.uyp-hide-sidebar:not(.uyp-guide-open) tp-yt-app-drawer,html.uyp-hide-sidebar:not(.uyp-guide-open) ytd-guide-renderer {display:none!important;}
+html.uyp-hide-sidebar:not(.uyp-guide-open) ytd-page-manager,html.uyp-hide-sidebar:not(.uyp-guide-open) #page-manager {margin-left:0!important;}
 html.uyp-compact-sidebar ytd-guide-renderer {width:205px!important;}
 html.uyp-hide-comments ytd-comments,html.uyp-hide-comments #comments {display:none!important;}
 html.uyp-hide-related #secondary,html.uyp-hide-related #related {display:none!important;}
@@ -435,6 +436,7 @@ function applyState() {
   if(state.pageTheme && state.pageTheme !== 'native') root.toggleAttribute('dark', state.pageTheme !== 'light');
   else root.toggleAttribute('dark', youtubeNativeDark);
   for (const [cls, key] of Object.entries(FLAGS)) root.classList.toggle(cls, key ? !!state[key] : state.downloadPosition === 'left');
+  if (!state.hideSidebar) root.classList.remove('uyp-guide-open');
   for (const key of EXTRA_CSS_KEYS) root.classList.toggle('uyp-opt-' + key, !!state[key]);
   root.style.setProperty('--uyp-thumbnail-radius', (Number(state.thumbnailRadius) || 0) + 'px');
   root.classList.toggle('uyp-round', !!state.roundedThumbnails);
@@ -1065,6 +1067,9 @@ function initTubeiumCommandPalette(){
 // ---- Boot ----
 window.addEventListener('DOMContentLoaded', async () => {
   injectStyle();
+  // Let YouTube handle its menu normally; temporarily suspend Tubeium's
+  // hide-sidebar CSS when the user explicitly presses YouTube's hamburger.
+  document.addEventListener('click', event => handleGuideButtonClick(event, document.documentElement), true);
   try { persistedState = { ...state, ...(await ipcRenderer.invoke('get-state')) }; state={...persistedState}; } catch { /* use defaults */ }
   try { playbackMemory = { ...playbackMemory, ...(await ipcRenderer.invoke('get-player-memory')) }; } catch {}
   applyState();

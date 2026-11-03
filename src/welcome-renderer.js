@@ -2,6 +2,7 @@
 const status = document.getElementById('status');
 const saved = document.getElementById('saved');
 const checkbox = document.getElementById('on-start');
+const showTabs = document.getElementById('show-tabs');
 
 // One live message line under the steps: says what just happened.
 function say(text, kind) {
@@ -31,8 +32,9 @@ for (const button of document.querySelectorAll('[data-action]')) {
   });
 }
 
-window.tubeiumWelcome.getState().then(({showOnStartup, browserLabel, codeReady}) => {
+window.tubeiumWelcome.getState().then(({showOnStartup, showHelpTabs, browserLabel, codeReady}) => {
   checkbox.checked = showOnStartup;
+  showTabs.checked = showHelpTabs !== false;
   if (codeReady) say('Your one-time code is ready and copied. Continue with the steps below.', 'ok');
 }).catch(() => {saved.textContent = 'Could not read startup preference';});
 
@@ -46,6 +48,19 @@ checkbox.addEventListener('change', async () => {
     checkbox.checked = !checkbox.checked;
     saved.textContent = 'Could not save preference';
   } finally { checkbox.disabled = false; }
+});
+
+showTabs.addEventListener('change', async () => {
+  const next = showTabs.checked;
+  showTabs.disabled = true;
+  try {
+    const state = await window.tubeiumWelcome.setShowTabs(next);
+    showTabs.checked = state.showHelpTabs;
+    saved.textContent = next ? 'Tabs visible' : 'Tabs hidden — restore in View menu';
+  } catch {
+    showTabs.checked = !next;
+    saved.textContent = 'Could not change tab visibility';
+  } finally { showTabs.disabled = false; }
 });
 
 window.tubeiumWelcome.onSignInCompleted(({imported, rejected}) => {

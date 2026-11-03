@@ -6,6 +6,7 @@ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 for(const f of ['tab-strip.html','tab-strip.css','tab-strip.js','tab-strip-preload.js']){assert(pkg.build.files.includes('src/'+f));assert(fs.existsSync(path.join(root,'src',f)));}
 assert(main.includes('const TAB_STRIP_HEIGHT = 42'));
 assert(main.includes('openTubeiumTabBar();'));
+assert(main.includes('setHelpTabsVisible(false)'));
 assert(main.includes("ipcMain.on('tubeium-tab-switch'"));
 assert(main.includes("welcomeView.setVisible(false)"));
 assert(main.includes("welcomeView.setVisible(true)"));

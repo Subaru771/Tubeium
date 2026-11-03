@@ -49,6 +49,8 @@ let win = null;
 let welcomeView = null;
 let tabBarView = null;
 let activeTubeiumTab = 'youtube';
+let helpTabsVisible = true;
+let tabBarFullscreen = false;
 let prefs = null;
 let downloadsWindow = null;
 let libraryWindow = null;
@@ -203,6 +205,9 @@ ipcMain.on('open-settings', e => { if (ytOnly(e)) openSettings(); });
 // or altering the existing login/session/cookie handling.
 const welcomeStatePath = () => path.join(app.getPath('userData'), 'welcome-tab.json');
 const WELCOME_GUIDE_REVISION = 458;
+function showHelpTabsPreference() {
+  return readJson(welcomeStatePath(), {}).showHelpTabs !== false;
+}
 function showWelcomeOnStartup() {
   // Opt-in only: Tubeium opens on YouTube. Earlier versions opened this tab at
   // every launch, so values saved by them are ignored; only a choice made with
@@ -220,8 +225,28 @@ const TAB_STRIP_HEIGHT = 42;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
   const [width, height] = win.getContentSize();
-  if (welcomeView) welcomeView.setBounds({x:0,y:0,width:Math.max(width,1),height:Math.max(1,height-TAB_STRIP_HEIGHT)});
+  const stripHeight = helpTabsVisible ? TAB_STRIP_HEIGHT : 0;
+  if (welcomeView) welcomeView.setBounds({x:0,y:0,width:Math.max(width,1),height:Math.max(1,height-stripHeight)});
   if (tabBarView) tabBarView.setBounds({x:0,y:Math.max(0,height-TAB_STRIP_HEIGHT),width:Math.max(width,1),height:TAB_STRIP_HEIGHT});
+}
+function updateHelpTabsVisibility() {
+  if (tabBarView && !tabBarView.webContents.isDestroyed()) {
+    tabBarView.setVisible(helpTabsVisible && !tabBarFullscreen);
+  }
+}
+function setHelpTabsVisible(value) {
+  helpTabsVisible = value === true;
+  const saved = readJson(welcomeStatePath(), {});
+  // When the bar is dismissed, do not reopen the instructions on next launch.
+  writeJson(welcomeStatePath(), {
+    ...saved, showHelpTabs: helpTabsVisible,
+    ...(helpTabsVisible ? {} : {showOnStartup:false}),
+  });
+  if (!helpTabsVisible && activeTubeiumTab === 'welcome') showYoutubeTab();
+  sizeWelcomeTab();
+  updateHelpTabsVisibility();
+  buildMenu(); // Keep the View checkbox synchronized with the native tab strip.
+  return {showHelpTabs: helpTabsVisible};
 }
 function updateTubeiumTabBar() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
@@ -250,6 +275,8 @@ function closeWelcomeTab() {
 }
 function openWelcomeTab() {
   if (!win || win.isDestroyed()) return;
+  // An explicit request to view help always restores its tabs if previously hidden.
+  if (!helpTabsVisible) setHelpTabsVisible(true);
   activeTubeiumTab = 'welcome';
   if (welcomeView) {
     welcomeView.setVisible(true);
@@ -289,6 +316,7 @@ function openTubeiumTabBar() {
   }});
   tabBarView = view;
   view.setBackgroundColor('#171521');
+  updateHelpTabsVisibility();
   view.webContents.setWindowOpenHandler(() => ({action:'deny'}));
   view.webContents.on('will-navigate', e=>e.preventDefault());
   win.contentView.addChildView(view);
@@ -301,14 +329,22 @@ ipcMain.on('tubeium-tab-switch',(event,tab)=>{
   if (tab==='youtube') showYoutubeTab();
   else if (tab==='welcome') openWelcomeTab();
 });
+ipcMain.on('tubeium-tab-hide', event => {
+  if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
+  setHelpTabsVisible(false);
+});
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');
-  return {showOnStartup:showWelcomeOnStartup(), browserLabel:browserLabelForHelp(), codeReady:!!browserPairing};
+  return {showOnStartup:showWelcomeOnStartup(), showHelpTabs:helpTabsVisible, browserLabel:browserLabelForHelp(), codeReady:!!browserPairing};
 });
 ipcMain.handle('welcome-set-startup', (event, value) => {
   if (!welcomeSender(event) || typeof value !== 'boolean') throw new Error('Invalid welcome setting');
   writeJson(welcomeStatePath(),{...readJson(welcomeStatePath(),{}), showOnStartup:value,optInRevision:WELCOME_GUIDE_REVISION});
   return {showOnStartup:value};
+});
+ipcMain.handle('welcome-set-tabs-visible', (event, value) => {
+  if (!welcomeSender(event) || typeof value !== 'boolean') throw new Error('Invalid tab visibility setting');
+  return setHelpTabsVisible(value);
 });
 // Switching tabs hides the Welcome view but keeps its native tab available.
 ipcMain.handle('welcome-navigate', async (event, target) => {
@@ -797,6 +833,8 @@ ipcMain.handle('dearrow-title',async(e,id)=>{
 });
 // ---- Window ----
 function createWindow() {
+  helpTabsVisible = showHelpTabsPreference();
+  tabBarFullscreen = false;
   const st = settings.rememberWindow ? readJson(stateFile(), {}) : {};
   win = new BrowserWindow({
     width: st.width || 1280,
@@ -903,10 +941,10 @@ function createWindow() {
   win.on('minimize', () => { if (settings.autoPauseOnHide) pausePlayback(); });
   win.on('blur', () => { if (settings.pauseOnBlur) pausePlayback(); });
   win.on('resize', sizeWelcomeTab);
-  win.on('enter-html-full-screen', () => { if (tabBarView) tabBarView.setVisible(false); });
-  win.on('leave-html-full-screen', () => { if (tabBarView) tabBarView.setVisible(true); });
-  win.on('enter-full-screen', () => { if (tabBarView) tabBarView.setVisible(false); });
-  win.on('leave-full-screen', () => { if (tabBarView) tabBarView.setVisible(true); });
+  win.on('enter-html-full-screen', () => { tabBarFullscreen = true; updateHelpTabsVisibility(); });
+  win.on('leave-html-full-screen', () => { tabBarFullscreen = win.isFullScreen(); updateHelpTabsVisibility(); });
+  win.on('enter-full-screen', () => { tabBarFullscreen = true; updateHelpTabsVisibility(); });
+  win.on('leave-full-screen', () => { tabBarFullscreen = false; updateHelpTabsVisibility(); });
   win.on('closed', () => { closeWelcomeTab(); tabBarView = null; win = null; });
   // Tubeium always opens on YouTube. The Sign-in Help tab sits beside it in the
   // tab strip and only opens when asked (or if the user opted in at launch).
@@ -1096,6 +1134,8 @@ function buildMenu() {
       submenu: [
         { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' },
         { role: 'togglefullscreen' },
+        { label: 'Show Sign-in Help tabs', type: 'checkbox', checked: helpTabsVisible,
+          click: item => setHelpTabsVisible(item.checked) },
         ...(settings.showDeveloperTools ? [{ type: 'separator' }, { role: 'toggleDevTools' }] : []),
       ],
     },

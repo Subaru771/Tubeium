@@ -120,6 +120,7 @@ Some formats and conversions require FFmpeg; availability also depends on the so
 
 - Local viewing profiles and privacy-oriented backup controls.
 - Sign-in guidance using a browser and optional session-import workflows.
+- Optional bottom Sign-in Help tabs: hide them with **×**, restore them from **View → Show Sign-in Help tabs**, and choose whether the help opens at startup.
 - Startup preferences, tray behavior, window restoration, and launch-at-login options.
 - External-link handling and configurable cache behavior.
 
