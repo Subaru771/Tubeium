@@ -3,7 +3,21 @@ const { ipcRenderer, webFrame } = require('electron');
 // Electron appends additionalArguments to preload process.argv. A saved OFF
 // choice is respected before YouTube's own page scripts run.
 const earlyBlockAds = !process.argv.includes('--tubeium-ad-block=off');
-const {handleGuideButtonClick} = require('./guide-toggle');
+// Sandboxed preload scripts can only require('electron') under Electron 45.
+// Inline this tiny pure handler rather than trying to require a local module,
+// which previously aborted the entire preload (Settings, ad skipping, and UI).
+const GUIDE_SELECTOR = 'ytd-masthead #guide-button, ytd-app #guide-button';
+function handleGuideButtonClick(event, root) {
+  if (!root?.classList?.contains('uyp-hide-sidebar') || !event) return false;
+  const path = typeof event.composedPath === 'function'
+    ? event.composedPath() : [event.target];
+  const guideClick = path.some(node =>
+    node && typeof node.matches === 'function' && node.matches(GUIDE_SELECTOR)
+  );
+  if (!guideClick) return false;
+  root.classList.toggle('uyp-guide-open');
+  return true;
+}
 
 // Install before YouTube's page scripts. Only ad metadata in player responses is
 // filtered; video/audio URLs, authentication, playback and recommendations stay intact.
@@ -269,10 +283,27 @@ html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl { display: flex; }
 #uyp-dl .uyp-menu button { background: transparent; padding: 10px 18px; text-align: left; }
 #uyp-dl .uyp-menu button:hover { background: #2e2e34; }
 html.uyp-dl-left #uyp-dl{right:auto!important;left:24px!important;align-items:flex-start!important;}
-#uyp-prefs-btn{position:fixed;bottom:20px;left:19px;z-index:2147483645;width:36px;height:36px;border-radius:50%;background:#22222b;box-shadow:0 2px 12px #0008;border:1px solid var(--uyp-accent,#aa7dff);color:var(--uyp-accent,#aa7dff);font:20px Arial,sans-serif;cursor:pointer;opacity:.78;transition:opacity .2s;}
-#uyp-prefs-btn:hover{opacity:1;}
+/* Position above the native 42px tab strip instead of underneath it. */
+#uyp-prefs-btn{
+  position:fixed;bottom:68px;left:18px;z-index:2147483645;
+  display:inline-flex;align-items:center;gap:9px;min-height:44px;
+  padding:7px 15px 7px 9px;border-radius:14px;
+  border:1px solid var(--uyp-accent,#aa7dff);
+  background:linear-gradient(135deg,#342842,#1b1726);
+  color:#fff;box-shadow:0 6px 24px #0009;
+  font:700 13px/1.2 "Segoe UI",Roboto,Arial,sans-serif;
+  letter-spacing:.01em;cursor:pointer;opacity:.98;
+  transition:background .16s,box-shadow .16s,transform .16s;
+}
+#uyp-prefs-btn .uyp-prefs-icon{
+  display:grid;place-items:center;width:28px;height:28px;flex-shrink:0;
+  border-radius:9px;background:var(--uyp-accent,#aa7dff);color:#15101d;font-size:19px;
+}
+#uyp-prefs-btn:hover{background:#453353;box-shadow:0 8px 28px #000b;transform:translateY(-1px);}
+#uyp-prefs-btn:focus-visible{outline:3px solid #e3caff;outline-offset:3px;}
 html.uyp-mini #uyp-prefs-btn,html.uyp-fs #uyp-prefs-btn,html.uyp-hide-settings #uyp-prefs-btn{display:none!important;}
-html.uyp-dl-left #uyp-prefs-btn{left:auto;right:19px;}
+html.uyp-dl-left #uyp-prefs-btn{left:auto;right:18px;}
+@media(prefers-reduced-motion:reduce){#uyp-prefs-btn{transition:none;}#uyp-prefs-btn:hover{transform:none;}}
 
 html.uyp-opt-hideChannelAvatars ytd-channel-name #avatar,
 html.uyp-opt-hideChannelAvatars ytd-video-owner-renderer #avatar,
@@ -593,7 +624,15 @@ function initPlayback() {
 
 function initSettingsButton() {
   if(document.getElementById('uyp-prefs-btn'))return;
-  const b=document.createElement('button');b.id='uyp-prefs-btn';b.textContent='⚙';b.title='Tubeium settings (Ctrl+,)';b.setAttribute('aria-label','Open Tubeium settings');
+  const b=document.createElement('button');
+  b.id='uyp-prefs-btn';b.type='button';
+  b.title='Open Tubeium settings (Ctrl+,)';
+  b.setAttribute('aria-label','Open Tubeium settings');
+  const icon=document.createElement('span');icon.className='uyp-prefs-icon';
+  icon.textContent='⚙';icon.setAttribute('aria-hidden','true');
+  const label=document.createElement('span');label.className='uyp-prefs-label';
+  label.textContent='Settings';
+  b.append(icon,label);
   b.addEventListener('click',()=>ipcRenderer.send('open-settings'));
   document.body.append(b);
 }
@@ -1096,8 +1135,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTubeiumCommandPalette();
   setInterval(refreshSmartProfile,1500);
   refreshSmartProfile();
-  // YouTube is a single-page app; keep our classes in sync as pages swap
-  document.addEventListener('yt-navigate-finish',()=>{activeViewingProfile='refresh';refreshSmartProfile();});
+  // YouTube is a single-page app and can replace DOM nodes during navigation.
+  // Recreate Tubeium's quick Settings control and style if either is removed.
+  function restoreTubeiumControls() {
+    if (!document.body) return;
+    injectStyle();
+    initSettingsButton();
+  }
+  document.addEventListener('yt-navigate-finish',()=>{
+    activeViewingProfile='refresh';
+    refreshSmartProfile();
+    restoreTubeiumControls();
+  });
+  setInterval(restoreTubeiumControls, 2500);
   document.addEventListener('fullscreenchange', () => {
     document.documentElement.classList.toggle('uyp-fs', !!document.fullscreenElement);
   });

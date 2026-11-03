@@ -4,6 +4,7 @@ yt.addEventListener('click',()=>window.tubeiumTabs.select('youtube'));
 help.addEventListener('click',()=>window.tubeiumTabs.select('welcome'));
 document.getElementById('hide-tabs').addEventListener('click',()=>window.tubeiumTabs.hide());
 document.getElementById('show-tabs').addEventListener('click',()=>window.tubeiumTabs.show());
+document.getElementById('open-settings').addEventListener('click',()=>window.tubeiumTabs.openSettings());
 window.tubeiumTabs.onState(state=>{
   const tab=typeof state==='string'?state:state.tab;
   const collapsed=typeof state==='object' && state.showHelpTabs===false;

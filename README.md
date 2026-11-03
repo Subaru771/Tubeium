@@ -144,7 +144,7 @@ Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256.
 
 1. Download the **installer** or **portable EXE** from the links above.
 2. Launch Tubeium. The installer can create shortcuts; the portable edition runs directly.
-3. Open **Settings** to choose your theme, layout, playback preferences, and download location.
+3. Open **⚙ Settings** with the floating shortcut just above the bottom bar, the bottom navigation button, or **Ctrl+,** to adjust your theme, layout, playback preferences, and downloads.
 4. Explore the local library, download manager, and optional sign-in guidance.
 
 > **Tip:** Start with the Appearance, Layout & Focus, and Playback sections to make the biggest difference immediately.

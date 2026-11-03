@@ -223,7 +223,7 @@ function welcomeSender(event) {
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
 const TAB_STRIP_HEIGHT = 42;
-const COLLAPSED_TAB_WIDTH = 136;
+const COLLAPSED_TAB_WIDTH = 244;
 const COLLAPSED_TAB_HEIGHT = 38;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
@@ -349,6 +349,11 @@ ipcMain.on('tubeium-tab-hide', event => {
 ipcMain.on('tubeium-tab-show', event => {
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
   setHelpTabsVisible(true);
+});
+// Restrict the new Settings action to the trusted local tab-strip view.
+ipcMain.on('tubeium-tab-open-settings', event => {
+  if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
+  openSettings();
 });
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');
