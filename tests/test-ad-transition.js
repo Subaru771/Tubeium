@@ -51,6 +51,9 @@ function makePage() {
 
 (async function() {
   const {window,context} = makePage();
+  assert.equal(window.__tubeiumAdFilter.isEnabled(),false,'early filter must start disabled');
+  // Opt-in enables YouTube response filtering.
+  window.__tubeiumAdFilter.setEnabled(true);
   assert.equal(window.__tubeiumAdFilter.isEnabled(),true);
   window.ytInitialPlayerResponse={videoDetails:{title:'Test'},adPlacements:[{}],playerAds:[{}]};
   assert.equal(window.ytInitialPlayerResponse.adPlacements,undefined);
