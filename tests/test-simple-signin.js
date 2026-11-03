@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
-const code = fs.readFileSync(path.join(root, 'browser-login-once', 'popup.js'), 'utf8');
+const code = fs.readFileSync(path.join(root, 'src', 'browser-login-once', 'popup.js'), 'utf8');
 
 function makePopup(clipboardValue, captureFetch) {
   const controls = {
@@ -49,7 +49,7 @@ function makePopup(clipboardValue, captureFetch) {
   assert.equal(ui.pair.focused,true);
 
   // The instructions live in the in-app Sign-in Help tab; there is no pop-up guide window.
-  const help=fs.readFileSync(path.join(root,'welcome.html'),'utf8');
+  const help=fs.readFileSync(path.join(root,'src','welcome.html'),'utf8');
   assert.match(help,/data-action="folder"/);
   assert.match(help,/data-action="open-browser"/);
   assert.doesNotMatch(help,/data-action="extensions"/);
