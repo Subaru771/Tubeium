@@ -1,0 +1,31 @@
+name: Capture bundled Tubeium UI screenshots
+on:
+  workflow_dispatch:
+  push:
+    branches: [refactor/organize-root-screenshots]
+permissions:
+  contents: write
+jobs:
+  capture:
+    if: github.repository == 'Subaru771/Tubeium'
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+      - name: Capture genuine bundled UI pages
+        shell: pwsh
+        run: ./scripts/capture-ui-screenshots.ps1
+      - name: Commit screenshot images
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots/settings.png docs/screenshots/downloads.png docs/screenshots/welcome.png
+          if (git diff --cached --quiet) {
+            Write-Host "Screenshots unchanged"
+          } else {
+            git commit -m "docs: capture Tubeium bundled UI screenshots"
+            git push origin HEAD:refactor/organize-root-screenshots
+          }
