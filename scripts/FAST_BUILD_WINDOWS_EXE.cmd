@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title Tubeium - FAST Windows Installer
 color 0B
 

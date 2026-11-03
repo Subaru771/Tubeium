@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 echo Tubeium dependency lockfile setup - requires internet and npm.
 where npm.cmd >nul 2>nul || (echo npm.cmd not found. Install Node.js LTS. & pause & exit /b 1)
 call npm.cmd install --package-lock-only --ignore-scripts --no-audit --no-fund

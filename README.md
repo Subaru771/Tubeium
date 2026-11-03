@@ -30,6 +30,22 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
+## Screenshots
+
+The screenshots below show **Tubeium's actual bundled interface pages**, captured directly from the project HTML and CSS on a clean Windows browser with no personal account data. They are UI captures, **not** proof of live YouTube playback, successful Google sign-in, or Windows desktop acceptance testing.
+
+**Personalization Studio**
+
+![Tubeium Settings overview](docs/screenshots/settings.png)
+
+**Download manager**
+
+![Tubeium Download Manager](docs/screenshots/downloads.png)
+
+**Sign-in Help**
+
+![Tubeium Sign-in Help](docs/screenshots/welcome.png)
+
 ## Download Tubeium
 
 **v1.0.0 · Windows x64 · Free**
@@ -150,7 +166,7 @@ npm run verify:release
 npm run build:windows
 ```
 
-Build outputs are generated in `dist/`. Windows helper scripts are also available in the repository.
+Build outputs are generated in `dist/`. Windows helper scripts are in [`scripts/`](scripts/). On Windows, run `scripts\BUILD_WINDOWS_EXE.cmd` for the installer and portable EXE, `scripts\FAST_BUILD_WINDOWS_EXE.cmd` for an installer-only build, or `scripts\RUN_WITHOUT_BUILDING.cmd` to launch from source.
 
 ## FAQ
 

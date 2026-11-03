@@ -9,9 +9,9 @@ const required = [
   'src/settings.html', 'src/settings.css', 'src/settings-renderer.js',
   'src/downloads.html', 'src/downloads-renderer.js', 'src/offline-player.html',
   'src/library.html', 'src/browser-session-transfer.js', 'src/browser-login-once/manifest.json',
-  'src/browser-login-once/popup.js', 'BUILD_WINDOWS_EXE.cmd',
+  'src/browser-login-once/popup.js', 'scripts/BUILD_WINDOWS_EXE.cmd',
   'PRIVACY.md', 'SECURITY.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
-  'docs/RELEASE_CHECKLIST.md', 'docs/REPRODUCIBLE_BUILDS.md', 'GENERATE_LOCKFILE.cmd', 'scripts/check-dependency-lock.js', '.github/workflows/release-windows.yml'
+  'docs/RELEASE_CHECKLIST.md', 'docs/REPRODUCIBLE_BUILDS.md', 'scripts/GENERATE_LOCKFILE.cmd', 'scripts/check-dependency-lock.js', '.github/workflows/release-windows.yml'
 ];
 for (const name of required) {
   const loc = path.join(root,name);
