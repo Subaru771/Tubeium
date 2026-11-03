@@ -350,6 +350,11 @@ ipcMain.on('tubeium-tab-show', event => {
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
   setHelpTabsVisible(true);
 });
+// Restrict the new Settings action to the trusted local tab-strip view.
+ipcMain.on('tubeium-tab-open-settings', event => {
+  if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
+  openSettings();
+});
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');
   return {showOnStartup:showWelcomeOnStartup(), showHelpTabs:helpTabsVisible, browserLabel:browserLabelForHelp(), codeReady:!!browserPairing};
