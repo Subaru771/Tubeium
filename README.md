@@ -212,6 +212,12 @@ The currently published and tested release targets **Windows x64**. Other operat
 
 </details>
 
+## Publishing a new Windows release (maintainers)
+
+New **unsigned** releases are published manually, never automatically on every merge. Update `package.json` and the lockfile to a new version, verify CI on `main`, then run [Publish unsigned Windows release](https://github.com/Subaru771/Tubeium/actions/workflows/publish-unsigned-beta.yml) from `main` with a matching `vX.Y.Z` tag. The workflow rejects existing tags—including v1.0.0—and publishes only after tests, dependency audit, both Windows builds, and checksums pass.
+
+The [signed release workflow](.github/workflows/release-windows.yml) is separate and requires explicit production approval and valid code-signing credentials. See [release checklist](docs/RELEASE_CHECKLIST.md).
+
 ## Feedback & development
 
 Found a problem or have an idea? [**Open a GitHub issue**](https://github.com/Subaru771/Tubeium/issues). Include your Windows version, steps to reproduce, and non-sensitive logs. **Never attach cookies or account tokens.**

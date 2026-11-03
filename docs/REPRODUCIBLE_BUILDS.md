@@ -16,7 +16,7 @@ For a double-click local build, run `scripts\BUILD_WINDOWS_EXE.cmd`. `scripts\FA
 ## CI, signing, and limits
 
 - CI uses pinned GitHub Actions, Node 24, `npm ci`, full tests, dependency audit, binary packaging checks, and SHA-256 generation.
-- The unsigned build workflow produces downloadable CI artifacts. A public unsigned release has a separate explicitly marked workflow.
+- The Windows build workflow produces downloadable unsigned CI artifacts. For a **new** public unsigned release, dispatch `publish-unsigned-beta.yml` from `main` and supply a new `release_tag` matching `package.json`. It checks the remote tag does not already exist and refuses to overwrite an existing release.
 - The *signed* release workflow requires `production-release` approval and valid signing credentials and verifies binaries before publishing.
 - Neither dependency locking nor a reproducible build alone proves that the app works on a particular Windows machine, that Google accepts sign-in, or that live YouTube behaviors remain compatible.
 

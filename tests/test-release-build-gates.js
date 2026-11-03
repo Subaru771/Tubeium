@@ -22,4 +22,12 @@ for(const workflow of [beta,rel]){
 assert(!/jobs:\s*[\s\S]*?env:\s*\n\s*GH_TOKEN:/.test(rel.slice(0,rel.indexOf('steps:'))));
 assert(rel.indexOf('npm run build:installer')>0 && rel.indexOf('Verify signature and update metadata')>rel.indexOf('npm run build:installer'));
 assert(rel.indexOf('gh release create')>rel.indexOf('Verify signature and update metadata'));
+const unsigned=fs.readFileSync(path.join(base,'.github/workflows/publish-unsigned-beta.yml'),'utf8');
+assert.match(unsigned,/release_tag:/);
+assert.match(unsigned,/github.ref == 'refs\/heads\/main'/);
+assert.match(unsigned,/node scripts\/validate-unsigned-release\.js/);
+assert.match(unsigned,/git ls-remote --tags --refs origin/);
+assert.match(unsigned,/npm audit --audit-level=high/);
+assert.match(unsigned,/gh release create/);
+assert.doesNotMatch(unsigned,/\$tag = "v1\.0\.0"/);
 console.log('Release-gates tests passed: lock validation, immutable actions, audit gates, verify-before-upload.');
