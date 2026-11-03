@@ -34,7 +34,7 @@ assert.equal(closeCalls, 1);
 assert.equal(ctx.quitting, true, 'Do not minimize to tray on restart');
 assert(main.includes('restartAfterSignInImport(result.added)'), 'Netscape cookie import should restart');
 assert(main.includes('restartAfterSignInImport(imported)'), 'Browser assisted import should restart');
-const helper = fs.readFileSync(path.join(__dirname, '..', 'browser-login-once', 'popup.js'), 'utf8');
+const helper = fs.readFileSync(path.join(__dirname, '..', 'src', 'browser-login-once', 'popup.js'), 'utf8');
 const permissionAt = helper.indexOf('await chrome.permissions.request');
 const clipboardAt = helper.indexOf('await navigator.clipboard.readText');
 assert(permissionAt > 0 && clipboardAt > permissionAt, 'Browser permissions must be requested before clipboard awaits');
