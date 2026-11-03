@@ -3,7 +3,21 @@ const { ipcRenderer, webFrame } = require('electron');
 // Electron appends additionalArguments to preload process.argv. A saved OFF
 // choice is respected before YouTube's own page scripts run.
 const earlyBlockAds = !process.argv.includes('--tubeium-ad-block=off');
-const {handleGuideButtonClick} = require('./guide-toggle');
+// Sandboxed preload scripts can only require('electron') under Electron 45.
+// Inline this tiny pure handler rather than trying to require a local module,
+// which previously aborted the entire preload (Settings, ad skipping, and UI).
+const GUIDE_SELECTOR = 'ytd-masthead #guide-button, ytd-app #guide-button';
+function handleGuideButtonClick(event, root) {
+  if (!root?.classList?.contains('uyp-hide-sidebar') || !event) return false;
+  const path = typeof event.composedPath === 'function'
+    ? event.composedPath() : [event.target];
+  const guideClick = path.some(node =>
+    node && typeof node.matches === 'function' && node.matches(GUIDE_SELECTOR)
+  );
+  if (!guideClick) return false;
+  root.classList.toggle('uyp-guide-open');
+  return true;
+}
 
 // Install before YouTube's page scripts. Only ad metadata in player responses is
 // filtered; video/audio URLs, authentication, playback and recommendations stay intact.
