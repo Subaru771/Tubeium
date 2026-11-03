@@ -1,1 +1,0 @@
-Correct the existing v1.0.6 GitHub Release display name to Tubeium 1.06. Keep v1.0.6 tag, existing installers, checksums and release asset links unchanged.
