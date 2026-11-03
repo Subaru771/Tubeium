@@ -48,18 +48,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**v1.0.0 · Windows x64 · Free**
+**v1.0.1 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/Tubeium-1.0.0-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.0/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.1/Tubeium-1.0.1-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.1/Tubeium-1.0.1-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.1/SHA256SUMS.txt) | Checking file integrity |
 
-[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.1) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.0 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.1 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -214,7 +214,7 @@ The currently published and tested release targets **Windows x64**. Other operat
 
 ## Publishing a new Windows release (maintainers)
 
-New **unsigned** releases are published manually, never automatically on every merge. Update `package.json` and the lockfile to a new version, verify CI on `main`, then run [Publish unsigned Windows release](https://github.com/Subaru771/Tubeium/actions/workflows/publish-unsigned-beta.yml) from `main` with a matching `vX.Y.Z` tag. The workflow rejects existing tags—including v1.0.0—and publishes only after tests, dependency audit, both Windows builds, and checksums pass.
+New **unsigned** releases are published manually, never automatically on every merge. Update `package.json` and the lockfile to a new version, verify CI on `main`, then run [Publish unsigned Windows release](https://github.com/Subaru771/Tubeium/actions/workflows/publish-unsigned-beta.yml) from `main` with a matching `vX.Y.Z` tag. The workflow rejects existing tags, including the published v1.0.0—and publishes only after tests, dependency audit, both Windows builds, and checksums pass.
 
 The [signed release workflow](.github/workflows/release-windows.yml) is separate and requires explicit production approval and valid code-signing credentials. See [release checklist](docs/RELEASE_CHECKLIST.md).
 
