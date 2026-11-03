@@ -1,15 +1,32 @@
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#171521;color:#e9dff4;font-family:Inter,"Segoe UI",sans-serif}nav{height:42px;display:flex;align-items:center;gap:6px;padding:4px 12px;border-top:1px solid #413450}.brand{font-size:12px;font-weight:800;color:#ac8dd7;margin-right:12px}button{border:1px solid transparent;background:transparent;color:#aaa1b7;font:600 12px "Segoe UI",sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer}button:hover,button:focus-visible{background:#392c4f;color:#fff}button.active{border-color:#6c4c95;background:#352449;color:#fff}.hint{margin-left:auto;font-size:11px;color:#90869b}@media(max-width:470px){.hint{display:none}.brand{margin-right:3px}button{padding:7px 9px}}
-#hide-tabs{margin-left:4px;min-width:30px;padding:6px 8px;font-size:18px;line-height:1;color:#cbbadf}#hide-tabs:hover{background:#4b2947;color:#fff}
-
-/* Compact tab handle stays visible when full tabs are collapsed. */
+/* Tubeium native navigation · deliberately isolated from YouTube CSS */
+:root{color-scheme:dark;--bg:#12111a;--line:rgba(190,162,243,.18);--ink:#f1eefa;--muted:#a79db7;--accent:#bd99ff}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Inter,Arial,sans-serif}
+nav{
+ display:flex;align-items:center;gap:7px;height:42px;padding:4px 12px;
+ background:linear-gradient(110deg,#181423 0%,#14131d 48%,#171324 100%);
+ border-top:1px solid var(--line)
+}
+.brand{display:inline-flex;align-items:center;gap:8px;margin-right:13px;white-space:nowrap;font-size:12px;font-weight:780;letter-spacing:.025em;color:#e3d5f8}
+.brand-mark{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:linear-gradient(135deg,#9865e8,#6955c5);color:white;font-size:15px;box-shadow:0 2px 12px #9a72e838}
+button{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:32px;border:1px solid transparent;background:transparent;color:var(--muted);font:650 12px "Segoe UI",Arial,sans-serif;padding:6px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:background .16s,border-color .16s,color .16s}
+button:hover{background:#2b2339;color:var(--ink)}
+button:focus-visible{outline:2px solid #caa9ff;outline-offset:1px}
+button.active{border-color:#7559ac;background:#38294f;color:#f7f0ff;box-shadow:inset 0 1px 0 #ffffff12}
+.hint{margin-left:auto;font-size:11px;color:#897e99;white-space:nowrap}
+.settings-shortcut{margin-left:8px;border:1px solid #9a72d6;background:linear-gradient(115deg,#513477,#483367);color:#fff;box-shadow:0 2px 9px #05030c45;font-weight:750}
+.settings-shortcut:hover,.settings-shortcut:focus-visible{border-color:#d6baff;background:linear-gradient(115deg,#674293,#58417f);color:#fff}
+#hide-tabs{margin-left:4px;min-width:32px;padding:5px 7px;font-size:18px;line-height:1;color:#b6a7cc}
+#hide-tabs:hover{background:#4d294c;color:#fff}
 #show-tabs{display:none}
-html.collapsed,html.collapsed body{background:#171521}
-html.collapsed nav{height:38px;padding:2px 4px;gap:0;justify-content:center;border:1px solid #6c4c95;border-radius:10px;background:#241b32}
-html.collapsed nav>:not(#show-tabs){display:none}
-html.collapsed #show-tabs{display:inline-flex;align-items:center;justify-content:center;width:100%;height:32px;border:1px solid #7c5ba8;border-radius:7px;background:#372449;color:#fff;font-weight:700;font-size:12px}
-html.collapsed #show-tabs:hover,html.collapsed #show-tabs:focus-visible{background:#57386e;outline:2px solid #cbb4f5;outline-offset:-2px}
+@media(max-width:600px){.hint{display:none}.settings-shortcut{margin-left:auto}.brand{margin-right:2px}}
+@media(max-width:415px){.brand-name{display:none}.brand{margin-right:0}button{padding:6px 8px}}
 
-/* A second entry point stays visible when the optional floating control is off. */
-.settings-shortcut{margin-left:8px;border:1px solid #8164ac;background:#322440;color:#f0e4ff;font-weight:700}
-.settings-shortcut:hover,.settings-shortcut:focus-visible{border-color:#c5a1ff;background:#4a3166;color:#fff;outline-offset:2px}
-@media(max-width:560px){.settings-shortcut{margin-left:auto;padding:7px 10px}}
+/* Collapsed toolbar retains TWO independently usable controls: tabs + settings. */
+html.collapsed,html.collapsed body{background:transparent}
+html.collapsed nav{height:38px;padding:2px 4px;gap:4px;justify-content:center;border:1px solid #8063b3;border-radius:12px;background:#1e192b}
+html.collapsed nav>:not(#show-tabs):not(#open-settings){display:none}
+html.collapsed #show-tabs{display:inline-flex;flex:1;min-width:0;padding:5px 7px;height:30px;border:1px solid #654d8a;border-radius:8px;background:#322541;color:#f3e8ff;font-weight:700}
+html.collapsed #open-settings{display:inline-flex;flex:1;min-width:0;margin-left:0;height:30px;padding:5px 7px;border:1px solid #9a72d6;border-radius:8px;font-size:12px}
+html.collapsed #show-tabs:hover,html.collapsed #show-tabs:focus-visible{background:#4b3762}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
