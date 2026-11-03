@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.6] — Unreleased
+
+- Replace the small floating gear with a labeled **⚙ Settings** shortcut that is keyboard accessible.
+- Move the shortcut above Tubeium's native bottom tab strip, which previously could obscure it.
+- Add **⚙ Settings** to the bottom tab navigation, including when Sign-in Help is open.
+- Retain Ctrl+, access, fullscreen behavior, floating-button preference, tab collapse, and existing sign-in flows.
+- Validate the new tab-strip Settings IPC against the trusted local view and add regression coverage.
+
+This is an unreleased source change. v1.0.5 remains the publicly downloadable Windows release.
+
+
 ## [1.0.5] — 2026-11-03
 
 - Fix a regression that made YouTube ads appear on fresh v1.0.4 installs: ad skipping now defaults to enabled again.
