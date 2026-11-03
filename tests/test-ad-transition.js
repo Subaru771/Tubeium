@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
-const preload = fs.readFileSync(path.join(root, 'preload.js'), 'utf8');
+const preload = fs.readFileSync(path.join(root, 'src/preload.js'), 'utf8');
 const start = preload.indexOf('function installPageAdFilter() {');
 const end = preload.indexOf('// Electron executes this in the page', start);
 assert(start !== -1 && end > start, 'Early filtering source must exist');

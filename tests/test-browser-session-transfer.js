@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('node:assert/strict');
-const { validateCookies, startTransfer } = require('../browser-session-transfer');
+const { validateCookies, startTransfer } = require('../src/browser-session-transfer');
 const example = [
   { domain: '.youtube.com', name: 'LOGIN_INFO', value: 'dummy-test-only', secure: true, httpOnly: true, path: '/', hostOnly: false, expirationDate: 2000000000 },
   { domain: '.google.com', name: 'SID', value: 'test-only', secure: true, path: '/', hostOnly: false, expirationDate: 2000000000 },

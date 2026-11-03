@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const { DEFAULTS, normalize, metadata, publicGroups }=require('../settings-schema');
+const { DEFAULTS, normalize, metadata, publicGroups }=require('../src/settings-schema');
 const groups=publicGroups();
 assert.equal(groups.length,15);
 assert.ok(Object.keys(DEFAULTS).length>=160,'Expected a comprehensive collection of options');

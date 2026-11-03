@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const db=require('../default-browser');
+const db=require('../src/default-browser');
 // reg.exe output formats, including a localized default-value label and CRLF line endings.
 assert.equal(db.parseRegValue('\r\nHKEY\\x\r\n    ProgId    REG_SZ    BraveHTML\r\n\r\n','ProgId'),'BraveHTML');
 assert.equal(db.parseRegValue('\r\n    (Par défaut)    REG_SZ    "C:\\a b\\x.exe" %1\r\n','').length>0,true);

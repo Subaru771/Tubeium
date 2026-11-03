@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert/strict');const fs=require('fs');const path=require('path');const os=require('os');
-const {PlaylistStore,validate}=require('../local-playlists');const {createBackup,parseBackup,readBackup,writeBackup}=require('../backup-manager');const {chooseProfile,overlay}=require('../viewing-profiles');const {gains}=require('../audio-presets');
+const {PlaylistStore,validate}=require('../src/local-playlists');const {createBackup,parseBackup,readBackup,writeBackup}=require('../src/backup-manager');const {chooseProfile,overlay}=require('../src/viewing-profiles');const {gains}=require('../src/audio-presets');
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'tubeium-test-'));
 try{
  const library=new PlaylistStore(path.join(tmp,'playlists.json'));

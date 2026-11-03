@@ -1,12 +1,12 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
-const source=read('main.js'),html=read('welcome.html'),preload=read('welcome-preload.js'),pkg=require('../package.json');
+const source=read('src/main.js'),html=read('src/welcome.html'),preload=read('src/welcome-preload.js'),pkg=require('../package.json');
 assert.match(source,/WebContentsView/);
 assert.match(source,/view\.webContents\.loadFile\(path\.join\(__dirname,'welcome\.html'\)\)/);
 assert.match(source,/if \(!welcomeSender\(event\)\) throw/);
 assert.match(source,/Welcome \/ Sign-in Help tab/);
-assert.match(read('tab-strip.html'),/Sign-in Help/);
+assert.match(read('src/tab-strip.html'),/Sign-in Help/);
 for(const key of ['youtube','folder','open-browser','copy']){
  assert.match(html,new RegExp('data-action="'+key+'"'));
  assert.match(preload,new RegExp("'"+key+"'"));
@@ -46,7 +46,7 @@ assert.equal(run({showOnStartup:true,optInRevision:458}),true,'explicit opt-in i
 
 assert.match(read('BUILD_WINDOWS_EXE.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
 assert.match(read('VERIFY_WINDOWS_BUILD.cmd'),/Tubeium-%TUBEIUM_VERSION%-Setup-x64\.exe/);
-for(const f of ['welcome.html','welcome.css','welcome-renderer.js','welcome-preload.js','default-browser.js'])assert(pkg.build.files.includes(f),f);
+for(const f of ['welcome.html','welcome.css','welcome-renderer.js','welcome-preload.js','default-browser.js'])assert(pkg.build.files.includes('src/'+f),f);
 for(const f of ['signin-guide.html','signin-guide.js','signin-preload.js'])assert(!pkg.build.files.includes(f),f+' removed');
-assert.equal(Object.keys(require('../settings-schema').DEFAULTS).length,201);
+assert.equal(Object.keys(require('../src/settings-schema').DEFAULTS).length,201);
 console.log('PASS: simpler three-step sign-in guide, tab preserved, no settings change');

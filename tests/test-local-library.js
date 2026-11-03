@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');const fs=require('fs');const os=require('os');const path=require('path');
-const {LibraryStore,sanitize,validId}=require('../library-store');
+const {LibraryStore,sanitize,validId}=require('../src/library-store');
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'tubeium-library-test-'));
 try{
  const file=path.join(tmp,'saved','library.json');const lib=new LibraryStore(file);

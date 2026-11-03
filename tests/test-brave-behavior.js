@@ -3,8 +3,8 @@
 // environment. Both actions MUST use one clean, isolated browser profile.
 const assert = require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{EventEmitter}=require('node:events');
-const db=require('../default-browser'), helper=require('../clean-signin-browser');
-const source=fs.readFileSync(path.join(__dirname,'..','main.js'),'utf8');
+const db=require('../src/default-browser'), helper=require('../src/clean-signin-browser');
+const source=fs.readFileSync(path.join(__dirname,'..','src/main.js'),'utf8');
 const browserCode=source.slice(source.indexOf('function findInstalledBrowser(browser) {'),source.indexOf('// ---- One-time pairing code'));
 const EXE={
  brave:'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe',

@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict');const {websitePermission,allowedHost}=require('../permission-policy');const {communityTitle}=require('../dearrow');
+const assert=require('node:assert/strict');const {websitePermission,allowedHost}=require('../src/permission-policy');const {communityTitle}=require('../src/dearrow');
 const url='https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 assert.equal(allowedHost(url),true);assert.equal(allowedHost('https://youtube.com.evil.tld'),false);
 assert.equal(allowedHost('http://www.youtube.com'),false);

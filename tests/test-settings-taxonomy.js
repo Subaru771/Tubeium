@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('node:assert/strict');
-const { DEFAULTS, metadata, normalize, publicGroups } = require('../settings-schema');
+const { DEFAULTS, metadata, normalize, publicGroups } = require('../src/settings-schema');
 const groups = publicGroups();
 const found = groups.flatMap(g => g.settings);
 assert.equal(groups.length, 15);

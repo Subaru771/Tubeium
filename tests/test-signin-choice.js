@@ -1,6 +1,6 @@
  'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const main=fs.readFileSync(path.join(__dirname,'..','main.js'),'utf8');
+const main=fs.readFileSync(path.join(__dirname,'..','src/main.js'),'utf8');
 const menu=main.slice(main.indexOf('function buildMenu() {'),main.indexOf("label: 'Settings…'"));
 assert.match(menu,/Use browser extension to sign in…/);
 assert.match(menu,/Sign-in help \(browser extension\)…/);

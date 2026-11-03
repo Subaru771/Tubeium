@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');const fs=require('fs');const path=require('path');
-const {publicGroups,normalize,DEFAULTS,metadata}=require('../settings-schema');
+const {publicGroups,normalize,DEFAULTS,metadata}=require('../src/settings-schema');
 const groups=publicGroups(),keys=groups.flatMap(g=>g.settings.map(s=>s.key));
 assert.equal(groups.length,15);assert.equal(keys.length,201);assert.equal(new Set(keys).size,201);
 for(const k of ['localLibraryEnabled','recordWatchProgress','resumeWatchedVideos','showBookmarkButton','dearrowTitles','confirmExternalLinks','allowLocation','allowMedia','allowNotifications','showScreenshotButton'])assert(k in DEFAULTS);
@@ -9,8 +9,8 @@ assert.equal(normalize({dearrowTitles:true}).dearrowTitles,true);
 assert.equal(metadata.dearrowTitles.group,'watch');
 assert.equal(metadata.allowMedia.group,'privacy');
 assert.equal(metadata.localLibraryEnabled.group,'library');
-const main=fs.readFileSync(path.join(__dirname,'..','main.js'),'utf8');
+const main=fs.readFileSync(path.join(__dirname,'..','src/main.js'),'utf8');
 for(const feature of ['setupWebsitePermissions','openLocalLibrary','player-screenshot','dearrow-title','confirmExternalLinks','setPermissionRequestHandler','library-record','library-bookmark'])assert(main.includes(feature),feature);
-const preload=fs.readFileSync(path.join(__dirname,'..','preload.js'),'utf8');
+const preload=fs.readFileSync(path.join(__dirname,'..','src/preload.js'),'utf8');
 for(const feature of ['initLocalLibrary','initDeArrow','makeVideoRecord','open-local-library'])assert(preload.includes(feature),feature);
 console.log('PASS: 10 settings wired into local library, permissions, screenshot and DeArrow');
