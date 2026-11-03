@@ -21,6 +21,10 @@ const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
 assert.equal(pkg.name,'tubeium');
 assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 assert.equal(pkg.build.appId,'io.tubeium.desktop');
+for(const entry of pkg.build.files){
+  if(entry.includes('*')) continue;
+  assert(fs.existsSync(path.join(root,entry)),`Missing packaged file: ${entry}`);
+}
 assert(pkg.scripts['verify:release'] && pkg.scripts['audit:release']);
 const {DEFAULTS,publicGroups}=require('../src/settings-schema');
 assert.equal(Object.keys(DEFAULTS).length,201,'Existing 201 options must remain intact');
@@ -29,7 +33,7 @@ const manifest=JSON.parse(fs.readFileSync(path.join(root,'src/browser-login-once
 assert.equal(manifest.manifest_version,3);
 assert(!manifest.host_permissions.some(x=>x.includes('google.com')),'Google access must be optional');
 assert(manifest.optional_host_permissions.some(x=>x.includes('google.com')));
-const popup=fs.readFileSync(path.join(root,'browser-login-once/popup.html'),'utf8');
+const popup=fs.readFileSync(path.join(root,'src/browser-login-once/popup.html'),'utf8');
 assert(/id="google" type="checkbox"/.test(popup) && !/id="google" type="checkbox" checked/.test(popup),'Google authentication cookies must be opt-in');
 const bridge=fs.readFileSync(path.join(root,'src/browser-session-transfer.js'),'utf8');
 assert(bridge.includes("server.listen(0, '127.0.0.1'"),'Sign-in bridge must only bind loopback');

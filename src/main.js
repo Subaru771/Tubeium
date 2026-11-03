@@ -481,7 +481,7 @@ async function importExistingLogin() {
 }
 
 function browserHelperFolder() {
-  return app.isPackaged ? path.join(process.resourcesPath, 'app.asar.unpacked', 'browser-login-once') : path.join(__dirname, 'browser-login-once');
+  return app.isPackaged ? path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'browser-login-once') : path.join(__dirname, 'browser-login-once');
 }
 
 // A temporary, local-only browser sign-in bridge. This only affects the
