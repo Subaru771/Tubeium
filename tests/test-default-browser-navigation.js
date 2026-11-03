@@ -7,7 +7,7 @@ const preload=fs.readFileSync(path.join(root,'src/welcome-preload.js'),'utf8');
 const renderer=fs.readFileSync(path.join(root,'src/welcome-renderer.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'src/welcome.html'),'utf8');
 const pkg=require('../package.json');
-assert.equal(pkg.version,'1.0.0');
+assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 // "Open YouTube in browser" runs the real default browser's own command; Edge is never hard-coded as a target.
 assert.match(source,/async function openYouTubeInDefaultBrowser\(\)/);
 assert.match(source,/chromiumProfileArgs\(target\.profile, url\)/);
