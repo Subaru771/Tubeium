@@ -1,2 +1,10 @@
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#171521;color:#e9dff4;font-family:Inter,"Segoe UI",sans-serif}nav{height:42px;display:flex;align-items:center;gap:6px;padding:4px 12px;border-top:1px solid #413450}.brand{font-size:12px;font-weight:800;color:#ac8dd7;margin-right:12px}button{border:1px solid transparent;background:transparent;color:#aaa1b7;font:600 12px "Segoe UI",sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer}button:hover,button:focus-visible{background:#392c4f;color:#fff}button.active{border-color:#6c4c95;background:#352449;color:#fff}.hint{margin-left:auto;font-size:11px;color:#90869b}@media(max-width:470px){.hint{display:none}.brand{margin-right:3px}button{padding:7px 9px}}
 #hide-tabs{margin-left:4px;min-width:30px;padding:6px 8px;font-size:18px;line-height:1;color:#cbbadf}#hide-tabs:hover{background:#4b2947;color:#fff}
+
+/* Compact tab handle stays visible when full tabs are collapsed. */
+#show-tabs{display:none}
+html.collapsed,html.collapsed body{background:#171521}
+html.collapsed nav{height:38px;padding:2px 4px;gap:0;justify-content:center;border:1px solid #6c4c95;border-radius:10px;background:#241b32}
+html.collapsed nav>:not(#show-tabs){display:none}
+html.collapsed #show-tabs{display:inline-flex;align-items:center;justify-content:center;width:100%;height:32px;border:1px solid #7c5ba8;border-radius:7px;background:#372449;color:#fff;font-weight:700;font-size:12px}
+html.collapsed #show-tabs:hover,html.collapsed #show-tabs:focus-visible{background:#57386e;outline:2px solid #cbb4f5;outline-offset:-2px}

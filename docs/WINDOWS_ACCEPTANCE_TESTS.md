@@ -2,7 +2,7 @@
 
 These manual checks must run on actual Windows 10/11, even if automated CI passes. Use a disposable local profile and only your own Google account. **Never upload cookies, session tokens or sensitive logs.**
 
-1. Run `scripts\BUILD_WINDOWS_EXE.cmd` from the cloned repository and confirm `dist\Tubeium-1.0.2-Setup-x64.exe` plus `dist\Tubeium-1.0.2-Portable-x64.exe` are created.
+1. Run `scripts\BUILD_WINDOWS_EXE.cmd` from the cloned repository and confirm `dist\Tubeium-1.0.3-Setup-x64.exe` plus `dist\Tubeium-1.0.3-Portable-x64.exe` are created.
 2. Run `scripts\VERIFY_WINDOWS_BUILD.cmd`; verify both files and generated SHA-256 checksums.
 3. Install on a clean Windows profile without a separate Node.js installation; verify Start Menu shortcut and clean uninstall.
 4. Open Settings; verify themes and all 201 settings load and persist across restarts.

@@ -223,16 +223,27 @@ function welcomeSender(event) {
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
 const TAB_STRIP_HEIGHT = 42;
+const COLLAPSED_TAB_WIDTH = 136;
+const COLLAPSED_TAB_HEIGHT = 38;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
   const [width, height] = win.getContentSize();
   const stripHeight = helpTabsVisible ? TAB_STRIP_HEIGHT : 0;
   if (welcomeView) welcomeView.setBounds({x:0,y:0,width:Math.max(width,1),height:Math.max(1,height-stripHeight)});
-  if (tabBarView) tabBarView.setBounds({x:0,y:Math.max(0,height-TAB_STRIP_HEIGHT),width:Math.max(width,1),height:TAB_STRIP_HEIGHT});
+  if (tabBarView) {
+    // Collapsed: keep an obvious, compact native restore handle instead of hiding
+    // the entire strip with no discoverable way back.
+    const compactWidth = Math.min(COLLAPSED_TAB_WIDTH, Math.max(width,1));
+    const compactHeight = Math.min(COLLAPSED_TAB_HEIGHT, Math.max(height,1));
+    tabBarView.setBounds(helpTabsVisible
+      ? {x:0,y:Math.max(0,height-TAB_STRIP_HEIGHT),width:Math.max(width,1),height:TAB_STRIP_HEIGHT}
+      : {x:Math.max(0,width-compactWidth-12),y:Math.max(0,height-compactHeight-10),
+         width:compactWidth,height:compactHeight});
+  }
 }
 function updateHelpTabsVisibility() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
-    tabBarView.setVisible(helpTabsVisible && !tabBarFullscreen);
+    tabBarView.setVisible(!tabBarFullscreen);
   }
 }
 function setHelpTabsVisible(value) {
@@ -246,12 +257,13 @@ function setHelpTabsVisible(value) {
   if (!helpTabsVisible && activeTubeiumTab === 'welcome') showYoutubeTab();
   sizeWelcomeTab();
   updateHelpTabsVisibility();
+  updateTubeiumTabBar(); // Tell the tab renderer to show its compact restore handle.
   buildMenu(); // Keep the View checkbox synchronized with the native tab strip.
   return {showHelpTabs: helpTabsVisible};
 }
 function updateTubeiumTabBar() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
-    tabBarView.webContents.send('tubeium-tab-state', activeTubeiumTab);
+    tabBarView.webContents.send('tubeium-tab-state', {tab: activeTubeiumTab, showHelpTabs: helpTabsVisible});
   }
 }
 function showYoutubeTab() {
@@ -333,6 +345,10 @@ ipcMain.on('tubeium-tab-switch',(event,tab)=>{
 ipcMain.on('tubeium-tab-hide', event => {
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
   setHelpTabsVisible(false);
+});
+ipcMain.on('tubeium-tab-show', event => {
+  if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
+  setHelpTabsVisible(true);
 });
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');

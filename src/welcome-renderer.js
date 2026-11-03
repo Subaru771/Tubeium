@@ -56,7 +56,7 @@ showTabs.addEventListener('change', async () => {
   try {
     const state = await window.tubeiumWelcome.setShowTabs(next);
     showTabs.checked = state.showHelpTabs;
-    saved.textContent = next ? 'Tabs visible' : 'Tabs hidden — restore in View menu';
+    saved.textContent = next ? 'Tabs visible' : 'Tabs collapsed — use the Show tabs button';
   } catch {
     showTabs.checked = !next;
     saved.textContent = 'Could not change tab visibility';

@@ -48,18 +48,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**v1.0.2 · Windows x64 · Free**
+**v1.0.3 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.2/Tubeium-1.0.2-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.2/Tubeium-1.0.2-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.2/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/Tubeium-1.0.3-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/Tubeium-1.0.3-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.3/SHA256SUMS.txt) | Checking file integrity |
 
-[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.2) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.3) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.2 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.3 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -120,7 +120,7 @@ Some formats and conversions require FFmpeg; availability also depends on the so
 
 - Local viewing profiles and privacy-oriented backup controls.
 - Sign-in guidance using a browser and optional session-import workflows.
-- Optional bottom Sign-in Help tabs: hide them with **×**, restore them from **View → Show Sign-in Help tabs** (Ctrl+Shift+G), and choose whether the help opens at startup.
+- Optional bottom Sign-in Help tabs: collapse them with **×**, then click the always-visible **↑ Show tabs** button to restore the full bar; the **View → Show Sign-in Help tabs** menu and Ctrl+Shift+G also work, and choose whether the help opens at startup.
 - Startup preferences, tray behavior, window restoration, and launch-at-login options.
 - External-link handling and configurable cache behavior.
 

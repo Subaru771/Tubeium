@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.3] — 2026-11-03
+
+- Make Sign-in Help tab visibility discoverable: clicking × collapses the bottom strip into a compact **↑ Show tabs** button rather than removing all controls.
+- Restore the full tab strip with a single click, without requiring a hidden shortcut or menu knowledge. The choice persists across app restarts.
+- Keep the compact restore button outside the YouTube playback layout; preserve View menu / Ctrl+Shift+G as alternatives.
+- Add a regression test that simulates tab hiding and restoration.
+
+The v1.0.2 hamburger-menu and existing Sign-in Help functionality remain unchanged. This is an unsigned Windows release.
+
+
 ## [1.0.2] — 2026-11-03
 
 - Fix YouTube's upper-left guide/hamburger when Tubeium's Hide navigation sidebar preference is enabled. Manually clicking the menu temporarily reveals the navigation drawer without changing the saved preference.
@@ -26,6 +36,7 @@ Maintenance release of Tubeium for Windows x64.
 
 First public unsigned Windows x64 release with Setup and Portable executables, SHA-256 checksums, local playlists and downloads, personalization, playback controls, and optional browser-based sign-in assistance.
 
+[1.0.3]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.0

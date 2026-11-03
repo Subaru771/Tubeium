@@ -1,6 +1,6 @@
 # Tubeium reproducible dependency builds
 
-Tubeium v1.0.2 has a committed `package-lock.json`; there is no need to generate a new lockfile just to build the current source.
+Tubeium v1.0.3 has a committed `package-lock.json`; there is no need to generate a new lockfile just to build the current source.
 
 ## Build on Windows
 
