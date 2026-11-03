@@ -51,7 +51,7 @@ The supplied application code does not intentionally implement a Tubeium-owned
 analytics or advertising backend. This does **not** mean the embedded YouTube
 site or optional third-party integrations are tracking-free. Do not publish
 claims that Tubeium provides total anonymity, a zero-data experience or
-universal ad blocking. Experimental ad skipping is off by default for new profiles and may conflict with YouTube terms.
+universal ad blocking. Best-effort ad skipping is on by default for new profiles, can be disabled at any time, respects a saved OFF preference, and may conflict with YouTube terms.
 
 ## Privacy questions and ongoing review
 For non-sensitive privacy questions, open an issue in this GitHub repository.

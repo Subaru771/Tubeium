@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.5] — 2026-11-03
+
+- Fix a regression that made YouTube ads appear on fresh v1.0.4 installs: ad skipping now defaults to enabled again.
+- Pass the user's **saved** ad-skipping preference to the Electron preload before YouTube's own scripts execute, avoiding the initial-off race.
+- Preserve explicit OFF choices; the setting remains available in Settings → Ads & SponsorBlock.
+- Add tests for the early page filter, both startup preference values, and default settings.
+
+Ad skipping remains best-effort. YouTube can change advertising behavior without notice and some ads may still appear.
+
+
 ## [1.0.4] — 2026-11-03
 
 - Integrated verified downloader changes from the contributed Tubeium ZIP without replacing v1.0.3's discoverable **↑ Show tabs** handle.
@@ -48,6 +58,7 @@ Maintenance release of Tubeium for Windows x64.
 
 First public unsigned Windows x64 release with Setup and Portable executables, SHA-256 checksums, local playlists and downloads, personalization, playback controls, and optional browser-based sign-in assistance.
 
+[1.0.5]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.5
 [1.0.4]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Subaru771/Tubeium/releases/tag/v1.0.2

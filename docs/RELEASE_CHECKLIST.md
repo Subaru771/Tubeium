@@ -1,4 +1,4 @@
-# Tubeium v1.0.4 — release checklist
+# Tubeium v1.0.5 — release checklist
 
 This checklist covers the current open-source Windows x64 release. Automated checks do **not** replace runtime tests on a clean Windows machine.
 
@@ -10,7 +10,7 @@ This checklist covers the current open-source Windows x64 release. Automated che
 - [x] CI dependency audit covers production and development dependencies.
 - [x] Installer and portable executable packaging checked in Windows CI.
 - [x] SHA-256 checksums generated and packaged with unsigned build artifacts.
-- [x] Downloader's first install is pinned and hash-verified; experimental ad filtering defaults off.
+- [x] Downloader's first install is pinned and hash-verified; ad filtering defaults on but respects saved OFF preferences.
 - [x] Tests are discovered automatically (including new downloader and tab regressions).
 - [x] GitHub Release v1.0.0 previously published as **unsigned** (not represented as a signed release).
 
@@ -19,7 +19,7 @@ This checklist covers the current open-source Windows x64 release. Automated che
 1. Bump `package.json` and the committed dependency lock to a **new** semantic version, then merge its CI-passing changes into `main`.
 2. In GitHub Actions, manually run **Publish unsigned Windows release** on the **main** branch and enter `v<package-version>`.
 3. The workflow refuses a tag/version mismatch and any tag already present on GitHub. Only after tests, dependency audits, both builds and checksums pass can it publish the new tag.
-4. The published v1.0.0–v1.0.2 releases remain untouched. For v1.0.4, use the matching manually dispatched new-release workflow after CI on main is green.
+4. The published v1.0.0–v1.0.2 releases remain untouched. For v1.0.5, use the matching manually dispatched new-release workflow after CI on main is green.
 
 ## Publisher verification before any next public release
 

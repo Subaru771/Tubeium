@@ -20,8 +20,9 @@ for (const name of required) {
 }
 const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
 const sourcePreload=fs.readFileSync(path.join(root,'src/preload.js'),'utf8');
-assert(sourcePreload.includes('let enabled = false;'),'Early ad filter must not activate before user preferences are loaded');
-assert(sourcePreload.includes('blockAds: false'),'Experimental ad filtering should start disabled');
+assert(sourcePreload.includes('let enabled = initialEnabled === true;'),'Early ad filter must use the saved startup preference');
+assert(sourcePreload.includes("args: [earlyBlockAds]"),'Early filter startup preference must reach YouTube');
+assert(sourcePreload.includes('blockAds: earlyBlockAds'),'Renderer state must match the startup preference');
 const appSource=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
 assert(appSource.includes('checkboxChecked:false'),'Cookie export deletion must be opt-in');
 assert(appSource.includes('createYtDlpInstaller'),'Use pinned and checked downloader installer');

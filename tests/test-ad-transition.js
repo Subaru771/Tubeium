@@ -6,7 +6,11 @@ const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
 const preload = fs.readFileSync(path.join(root, 'src/preload.js'), 'utf8');
-const start = preload.indexOf('function installPageAdFilter() {');
+const main = fs.readFileSync(path.join(root, 'src/main.js'), 'utf8');
+assert.match(main, /additionalArguments: \['--tubeium-ad-block=' \+ \(settings\.blockAds \? 'on' : 'off'\)\]/);
+assert.match(preload, /args: \[earlyBlockAds\]/);
+assert.match(preload, /earlyBlockAds = !process\.argv\.includes\('--tubeium-ad-block=off'\)/);
+const start = preload.indexOf('function installPageAdFilter(initialEnabled) {');
 const end = preload.indexOf('// Electron executes this in the page', start);
 assert(start !== -1 && end > start, 'Early filtering source must exist');
 const functionCode = preload.slice(start, end);
@@ -17,7 +21,7 @@ assert(!/\.currentTime\s*=/.test(fallback));
 assert(/typeof player\?\.skipAd === 'function'/.test(fallback));
 assert(/getClientRects\(\)\.length/.test(fallback));
 
-function makePage() {
+function makePage(initialEnabled=true) {
   const calls=[];
   const window = {
     ytInitialPlayerResponse: undefined,
@@ -45,16 +49,17 @@ function makePage() {
     },
   };
   const context = vm.createContext({window, URL, Headers, Response, location: {href:'https://www.youtube.com/watch?v=123'}, console});
-  vm.runInContext(functionCode+'\ninstallPageAdFilter();',context);
+  vm.runInContext(functionCode+'\ninstallPageAdFilter('+Boolean(initialEnabled)+');',context);
   return {window,calls,context};
 }
 
 (async function() {
   const {window,context} = makePage();
-  assert.equal(window.__tubeiumAdFilter.isEnabled(),false,'early filter must start disabled');
-  // Opt-in enables YouTube response filtering.
-  window.__tubeiumAdFilter.setEnabled(true);
-  assert.equal(window.__tubeiumAdFilter.isEnabled(),true);
+  assert.equal(window.__tubeiumAdFilter.isEnabled(),true,'new installs filter before YouTube initializes');
+  const offPage = makePage(false).window;
+  assert.equal(offPage.__tubeiumAdFilter.isEnabled(),false,'explicit OFF is respected at document start');
+  offPage.ytInitialPlayerResponse={videoDetails:{title:'Untouched'},adPlacements:[{}]};
+  assert.equal(offPage.ytInitialPlayerResponse.adPlacements.length,1,'saved OFF does not strip ad metadata');
   window.ytInitialPlayerResponse={videoDetails:{title:'Test'},adPlacements:[{}],playerAds:[{}]};
   assert.equal(window.ytInitialPlayerResponse.adPlacements,undefined);
   assert.equal(window.ytInitialPlayerResponse.playerAds,undefined);
