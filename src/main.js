@@ -223,7 +223,7 @@ function welcomeSender(event) {
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
 const TAB_STRIP_HEIGHT = 42;
-const COLLAPSED_TAB_WIDTH = 136;
+const COLLAPSED_TAB_WIDTH = 244;
 const COLLAPSED_TAB_HEIGHT = 38;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
