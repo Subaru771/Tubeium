@@ -1,0 +1,32 @@
+name: Correct Tubeium 1.06 release title
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/release-requests/correct-v1.0.6-title.txt'
+permissions:
+  contents: write
+jobs:
+  correct-title:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Correct existing release without modifying version tag or binary assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s docs/releases/v1.0.6.md
+          current_tag="$(gh release view v1.0.6 --json tagName --jq .tagName)"
+          test "$current_tag" = 'v1.0.6'
+          gh release edit v1.0.6 \
+            --title 'Tubeium 1.06' \
+            --notes-file docs/releases/v1.0.6.md
+          new_name="$(gh release view v1.0.6 --json name --jq .name)"
+          test "$new_name" = 'Tubeium 1.06'
+          echo 'Existing v1.0.6 release now displays Tubeium 1.06.'
