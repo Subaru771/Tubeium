@@ -1135,8 +1135,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTubeiumCommandPalette();
   setInterval(refreshSmartProfile,1500);
   refreshSmartProfile();
-  // YouTube is a single-page app; keep our classes in sync as pages swap
-  document.addEventListener('yt-navigate-finish',()=>{activeViewingProfile='refresh';refreshSmartProfile();});
+  // YouTube is a single-page app and can replace DOM nodes during navigation.
+  // Recreate Tubeium's quick Settings control and style if either is removed.
+  function restoreTubeiumControls() {
+    if (!document.body) return;
+    injectStyle();
+    initSettingsButton();
+  }
+  document.addEventListener('yt-navigate-finish',()=>{
+    activeViewingProfile='refresh';
+    refreshSmartProfile();
+    restoreTubeiumControls();
+  });
+  setInterval(restoreTubeiumControls, 2500);
   document.addEventListener('fullscreenchange', () => {
     document.documentElement.classList.toggle('uyp-fs', !!document.fullscreenElement);
   });
