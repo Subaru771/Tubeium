@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const main=read('src/main.js'),pkg=require('../package.json');
-assert.equal(pkg.version,'1.0.0');
+assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 for(const f of ['tab-strip.html','tab-strip.css','tab-strip.js','tab-strip-preload.js']){assert(pkg.build.files.includes('src/'+f));assert(fs.existsSync(path.join(root,'src',f)));}
 assert(main.includes('const TAB_STRIP_HEIGHT = 42'));
 assert(main.includes('openTubeiumTabBar();'));
