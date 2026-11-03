@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.6] — 2026-11-03 (Tubeium 1.02)
+## [1.0.6] — 2026-11-03 (Tubeium 1.06)
 
 - **Critical repair:** remove an unsupported local-module import from Electron 45's sandboxed YouTube preload. That import could abort the entire preload, disabling the floating Settings control, player-response ad filtering, ad-skip fallback, and other YouTube enhancements.
 - Preserve Electron's sandbox and add a regression test executing the preload with Electron-only module access.
@@ -13,7 +13,7 @@
 - Retain Ctrl+, access, fullscreen behavior, floating-button preference, tab collapse, and existing sign-in flows.
 - Validate the new tab-strip Settings IPC against the trusted local view and add regression coverage.
 
-This update is distributed as **Tubeium 1.02** (technical version **v1.0.6**); the earlier v1.0.2 release tag remains unchanged. Ad skipping is still best-effort, and live sign-in behavior depends on Google.
+This update is distributed as **Tubeium 1.06** (technical version **v1.0.6**); the earlier v1.0.2 release tag remains unchanged. Ad skipping is still best-effort, and live sign-in behavior depends on Google.
 
 
 ## [1.0.5] — 2026-11-03
