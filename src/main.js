@@ -21,6 +21,7 @@ const { findOfflineMedia, playableFiles } = require('./offline-media');
 const { basicHealth } = require('./system-health');
 const { PlaylistStore } = require('./local-playlists');
 const { createBackup, readBackup, writeBackup } = require('./backup-manager');
+const { fetchLatest: fetchGitHubRelease, RELEASES_URL } = require('./update-check');
 
 const START_URL = 'https://www.youtube.com';
 const ICON = path.join(__dirname, '..', 'assets', 'icon.png');
@@ -1050,12 +1051,56 @@ function getUpdateClient(){
   return autoUpdater;
  }catch(error){console.warn('Updater not available:',error.message);return null;}
 }
+// This fallback works for unsigned GitHub Release EXEs that intentionally do
+// not include app-update.yml. It checks only the official public GitHub API.
+async function checkGitHubUpdates(interactive=false){
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),9000);
+ try{
+  const result=await fetchGitHubRelease(net.fetch,app.getVersion(),{signal:controller.signal});
+  if(result.status==='available'){
+   const choice=await dialog.showMessageBox({
+    type:'info',title:'Tubeium update available',
+    message:`Tubeium ${result.tag.slice(1)} is available`,
+    detail:`Installed: ${result.currentVersion}  ·  Latest: ${result.tag.slice(1)}\\n\\nDownload the installer or portable edition from the official GitHub Releases page. Tubeium will not download or install an executable automatically.`,
+    buttons:['Later','View official release'],defaultId:1,cancelId:0
+   });
+   if(choice.response===1) await shell.openExternal(RELEASES_URL);
+  } else if(interactive){
+   await dialog.showMessageBox({
+    type:'info',title:'Tubeium updates',
+    message:result.status==='current'?'Tubeium is up to date':'You are using a newer development build',
+    detail:`Installed: ${result.currentVersion}  ·  Latest public release: ${result.tag.slice(1)}`
+   });
+  }
+  return true;
+ }catch(error){
+  console.warn('GitHub release check:',String(error.message||error));
+  if(interactive){
+   const choice=await dialog.showMessageBox({
+    type:'warning',title:'Could not check for Tubeium updates',
+    message:'GitHub releases could not be checked.',
+    detail:'Check your connection and try again, or open the official Releases page. No files were changed.',
+    buttons:['Close','Open releases'],defaultId:0,cancelId:0
+   });
+   if(choice.response===1)await shell.openExternal(RELEASES_URL);
+  }
+  return false;
+ } finally {clearTimeout(timeout);}
+}
 async function checkTubeiumUpdates(interactive=false){
  const client=getUpdateClient();
- if(!client){if(interactive)await dialog.showMessageBox({type:'info',title:'Tubeium updates',message:'Automatic releases are not configured yet.',detail:'The publisher must publish a tagged Windows release with update metadata. This build can still be upgraded using a newer installer.'});return false;}
- try {client.autoDownload=!!settings.autoDownloadUpdates || interactive;const result=await client.checkForUpdates();
-  if(interactive && !result?.updateInfo)await dialog.showMessageBox({type:'info',message:'Update check completed.'});return true;
- }catch(err){if(interactive)await dialog.showMessageBox({type:'error',title:'Update check failed',message:String(err.message||err)});return false;}
+ if(!client)return checkGitHubUpdates(interactive);
+ try{
+  client.autoDownload=!!settings.autoDownloadUpdates || interactive;
+  const result=await client.checkForUpdates();
+  if(interactive && !result?.updateInfo)await dialog.showMessageBox({type:'info',title:'Tubeium updates',message:'Update check completed.'});
+  return true;
+ }catch(error){
+  // Even signed metadata failures should allow checking the public release.
+  console.warn('Signed release feed failed:',String(error.message||error));
+  return checkGitHubUpdates(interactive);
+ }
 }
 async function checkYouTubeAccount(){
  if(!win||win.isDestroyed())return;
@@ -1461,6 +1506,6 @@ if (!app.requestSingleInstanceLock()) {
     void verifyImportedSessionOnce();
     buildMenu();
     buildTray();
-    if(settings.autoCheckUpdates && releaseFeedConfigured())setTimeout(()=>void checkTubeiumUpdates(false),12000);
+    if(settings.autoCheckUpdates)setTimeout(()=>void checkTubeiumUpdates(false),12000);
   });
 }
