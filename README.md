@@ -74,6 +74,7 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 ### 🎬 Playback & player controls
 
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
+- **Up to 4K (2160p) when supported:** the floating quality control displays the decoded video resolution (such as 1080p, 1440p or 4K) and opens YouTube’s real Quality menu. A preference for 4K is not a guarantee; the video, browser codec support and bandwidth determine available resolutions.
 - Remember volume and mute state; set default volume and caption preferences.
 - Theater mode, fullscreen preferences, video looping, and autoplay controls.
 - Floating mini-player settings, including size, position, and Windows opacity.
