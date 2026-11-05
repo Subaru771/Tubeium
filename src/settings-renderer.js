@@ -14,6 +14,14 @@
     root: document.documentElement,
     win: window,
   });
+  window.tubeiumActionsResize?.init({
+    sidebar: document.querySelector('.sidebar'),
+    navigation: $('navigation'),
+    panel: document.querySelector('.sidebar-bottom'),
+    handle: $('actions-resizer'),
+    root: document.documentElement,
+    win: window,
+  });
   function toast(text) { const n=$('toast'); n.textContent=text; n.classList.add('show'); clearTimeout(timer); timer=setTimeout(()=>n.classList.remove('show'),2800); }
   function error(err) { toast('Something went wrong: '+(err.message || String(err))); }
   function theme() {
