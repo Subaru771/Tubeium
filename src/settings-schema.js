@@ -47,7 +47,7 @@ const groups = [
     ['autoTheater', 'Automatically use theater mode', 'Expand the video player when entering a watch page.', 'toggle', false],
     ['autoplayNext', 'Autoplay next video', 'Control YouTube’s automatic next-video toggle where available.', 'toggle', true],
     ['autoCaptions', 'Enable captions', 'Turn on subtitles when available on a new video.', 'toggle', false],
-    ['preferredQuality', 'Preferred video quality', 'Best-effort request. YouTube may override this based on bandwidth.', 'select', 'auto', { options: [['auto','Automatic'],['hd2160','2160p / 4K'],['hd1440','1440p'],['hd1080','1080p'],['hd720','720p'],['large','480p'],['medium','360p']] }],
+    ['preferredQuality', 'Preferred video quality', 'Up to 4K when the video, codecs and network allow it. YouTube may ignore this preference; use the player Quality menu to select a resolution.', 'select', 'auto', { options: [['auto','Automatic'],['hd2160','Up to 4K (2160p when available)'],['hd1440','1440p'],['hd1080','1080p'],['hd720','720p'],['large','480p'],['medium','360p']] }],
   ]},
   { id: 'blocking', title: 'Ads & SponsorBlock', icon: '◈', subtitle: 'Choose what to block or skip', settings: [
     ['blockAds', 'Skip YouTube ads (best effort)', 'Enabled by default. Attempts to hide known ad placements and skip ads when possible. YouTube changes may bypass it; disable if playback misbehaves.', 'toggle', true],
@@ -212,7 +212,7 @@ appendTo('downloads', [
   ['maxPlaylistItems','Maximum items per playlist/channel','Safety limit per playlist or channel run. Large playlists can consume significant storage.','select','50',{options:[['10','10 videos'],['25','25 videos'],['50','50 videos'],['100','100 videos'],['250','250 videos']]}],
 ]);
 appendTo('controls', [
-  ['toolQuality','Toolbar: YouTube quality menu','Open YouTube’s actual Quality menu rather than using an unsupported quality API.','toggle',true],
+  ['toolQuality','Toolbar: Current video quality','Display the currently playing resolution (4K when verified) and open YouTube’s native Quality menu.','toggle',true],
   ['toolDownloads','Toolbar: Downloads manager','Open the downloads queue and offline library.','toggle',true],
   ['toolSeekButtons','Toolbar: Seek back/forward','Replace navigation buttons with customizable time-skip controls on the floating toolbar.','toggle',false],
   ['confirmCast','Confirm before casting','Ask for confirmation before using YouTube Cast controls (where detectable).','toggle',false],
