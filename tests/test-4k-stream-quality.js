@@ -13,6 +13,8 @@ const evaluate=value=>vm.runInNewContext(fn[0]+'\nstreamQualityLabel('+JSON.stri
 assert.equal(evaluate({videoWidth:3840,videoHeight:2160}).badge,'4K','UHD 2160p should show the 4K badge');
 assert.equal(evaluate({videoWidth:4096,videoHeight:2160}).badge,'4K','Cinema 4K 2160p should show the 4K badge');
 assert.equal(evaluate({videoWidth:2560,videoHeight:1440}).badge,'1440p');
+assert.equal(evaluate({videoWidth:7680,videoHeight:4320}).badge,'4320p','An 8K stream must not be misidentified as 4K');
+assert.equal(evaluate({videoWidth:5120,videoHeight:2880}).badge,'2880p','An ultrawide or 5K stream must not be mislabeled 4K');
 assert.equal(evaluate({videoWidth:1920,videoHeight:1080}).badge,'1080p');
 assert.equal(evaluate({videoWidth:1280,videoHeight:720}).badge,'720p');
 assert.equal(evaluate({videoWidth:854,videoHeight:480}).badge,'480p');
