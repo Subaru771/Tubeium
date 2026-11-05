@@ -2,6 +2,10 @@
 
 ## [1.0.7] — Unreleased
 
+- Show **current playback resolution up to 4K** on the existing floating Quality toolbar button. The indicator reads the decoded video stream (not the preferred setting), updates if adaptive streaming changes resolution, and opens YouTube’s native Quality menu.
+- Clarify that 2160p / 4K is a best-effort playback preference and appears only when the video and playback environment support it.
+
+
 - Make **Check for updates** work with unsigned GitHub releases: compare installed version to the latest official release and offer an external download link; retain the signed updater when configured.
 - Enable the same GitHub release check on launch when requested in Settings; never silently download unsigned installers.
 - Reduce the icon size and vertical bulk of the six quick-action buttons in the lower Settings sidebar.

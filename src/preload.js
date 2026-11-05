@@ -419,6 +419,12 @@ html.uyp-opt-hideMasthead #page-manager{margin-top:0!important;}html.uyp-opt-hid
 #uyp-toolbox{position:fixed;z-index:2147483642;right:22px;top:78px;display:flex;align-items:center;gap:5px;padding:7px;background:#181922e8;border:1px solid #ffffff36;border-radius:13px;box-shadow:0 6px 24px #0008;font:500 13px Arial,sans-serif;color:white;max-width:calc(100vw - 40px);}
 #uyp-toolbox button{background:#ffffff17;border:1px solid transparent;color:white;font:inherit;padding:8px 9px;border-radius:8px;cursor:pointer;white-space:nowrap;}
 #uyp-toolbox button:hover,#uyp-toolbox button:focus-visible{background:#ffffff36;outline:1px solid var(--uyp-accent,#aa7dff);}
+#uyp-toolbox button[data-tool="quality"]{font-weight:750;font-size:12px;letter-spacing:.02em;min-width:39px;}
+#uyp-toolbox button.tubeium-quality-4k{
+  background:color-mix(in srgb,var(--uyp-accent,#aa7dff) 26%,#191b24);
+  border-color:var(--uyp-accent,#aa7dff);
+  color:#fff;
+}
 #uyp-dislikes{position:fixed;z-index:2147483642;right:22px;top:132px;border-radius:9px;background:#191b23ee;color:#fff;padding:7px 11px;font:12px Arial,sans-serif;box-shadow:0 5px 19px #0008;}
 #uyp-shorts-seek{position:fixed;z-index:2147483643;left:50%;transform:translateX(-50%);bottom:26px;width:min(470px,66vw);background:#181922e8;border:1px solid #ffffff50;color:#fff;border-radius:13px;display:flex;align-items:center;gap:12px;padding:10px 14px;font:600 13px Arial,sans-serif;box-shadow:0 5px 20px #0008}
 #uyp-shorts-seek[hidden]{display:none!important}#uyp-shorts-seek input{flex:1;accent-color:var(--uyp-accent,#aa7dff);min-width:70px}#uyp-shorts-seek output{min-width:73px;text-align:right}
@@ -813,6 +819,31 @@ function updateTools() {
     if (button) button.hidden = !state[key] || (id==='bookmark'&&!state.localLibraryEnabled);
   }
 }
+// The quality tool reports the *current decoded stream resolution*, not a
+// promised or requested playback preference. HTMLVideoElement.videoHeight may
+// change as adaptive streaming switches between YouTube resolutions.
+function streamQualityLabel(video) {
+  const width=Number(video?.videoWidth);
+  const height=Number(video?.videoHeight);
+  if (!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0) return null;
+  const w=Math.round(width), h=Math.round(height);
+  const is4K=h>=2100 && h<=2350 && w>=3200 && w<=4400; // Conservative UHD/DCI 4K, not 8K, 5K or portrait.
+  const badge=is4K?'4K':h+'p';
+  return { badge, resolution:w+'×'+h+(is4K?' (4K)':'') };
+}
+function refreshStreamQualityButton(){
+  const qualityButton=toolbar?.querySelector('[data-tool="quality"]');
+  if(!qualityButton)return;
+  const info=currentVideoId()&&!adShowing()?streamQualityLabel(getVideo()):null;
+  const badge=info?.badge||'HD';
+  if(qualityButton.textContent!==badge)qualityButton.textContent=badge;
+  const title=info
+    ? 'Playing '+info.resolution+'. Open YouTube quality choices.'
+    : 'Stream resolution not available yet. Open YouTube quality choices.';
+  qualityButton.title=title;
+  qualityButton.setAttribute('aria-label',title);
+  qualityButton.classList.toggle('tubeium-quality-4k',badge==='4K');
+}
 // YouTube's supported quality API is deprecated; open the actual UI instead.
 function openNativeQualityMenu(){
   const gear=document.querySelector('.ytp-settings-button');
@@ -847,7 +878,12 @@ function initToolbar() {
       }catch(e){toast('Not available: '+String(e.message||e).slice(0,90));}
     }); toolbar.appendChild(b);
   }
-  document.body.appendChild(toolbar);updateTools();
+  document.body.appendChild(toolbar);
+  updateTools();
+  refreshStreamQualityButton();
+  // Periodic updates also handle YouTube SPA navigation and adaptive quality
+  // changes without writing to or overriding the YouTube video player.
+  setInterval(refreshStreamQualityButton,1500);
 }
 function initCastConfirmation(){
   document.addEventListener('click',e=>{
