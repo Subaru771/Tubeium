@@ -9,6 +9,7 @@
   // Resizing is purely local to this Settings window and never changes YouTube.
   window.tubeiumSidebarResize?.init({
     shell: document.querySelector('.app-shell'),
+    sidebar: document.querySelector('.sidebar'),
     handle: $('sidebar-resizer'),
     root: document.documentElement,
     win: window,
