@@ -827,7 +827,7 @@ function streamQualityLabel(video) {
   const height=Number(video?.videoHeight);
   if (!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0) return null;
   const w=Math.round(width), h=Math.round(height);
-  const is4K=h>=2100 && w>=3200; // UHD/4K landscape stream; not a 4K claim for vertical 1080x2160.
+  const is4K=h>=2100 && h<=2350 && w>=3200 && w<=4400; // Conservative UHD/DCI 4K, not 8K, 5K or portrait.
   const badge=is4K?'4K':h+'p';
   return { badge, resolution:w+'×'+h+(is4K?' (4K)':'') };
 }
