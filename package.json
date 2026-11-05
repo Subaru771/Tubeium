@@ -40,6 +40,7 @@
       "src/settings.html",
       "src/settings.css",
       "src/settings-renderer.js",
+      "src/settings-sidebar-resize.js",
       "assets/**",
       "src/migration-userdata.js",
       "src/signin-cookies.js",
