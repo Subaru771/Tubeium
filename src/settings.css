@@ -130,3 +130,10 @@ html.settings-actions-dragging,html.settings-actions-dragging *{
 @media(prefers-reduced-motion:reduce){
   .sidebar .actions-resizer::after{transition:none}
 }
+
+/* In compact icon-only layout the lower buttons are hidden; relinquish their
+   reserved height so category navigation gets the available space. */
+@media(max-width:640px){
+  .sidebar .actions-resizer{display:none}
+  .sidebar .sidebar-bottom{height:0!important;flex-basis:0!important;padding:0;border:0;overflow:hidden}
+}
