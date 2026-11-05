@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.7] — Unreleased
+
+- Make the Settings sidebar width adjustable by dragging its right edge (205–480px, constrained to keep the content readable).
+- Restore the chosen width when Settings reopens, without changing the 201 existing app preferences.
+- Support keyboard resizing with Left/Right arrows, Shift for larger steps, Home/End, and double-click to reset to the original 249px.
+- Keep a subtle, visible resize handle and respect narrow-window layouts, light/dark themes, and reduced-motion preferences.
+- Add automated tests for pointer dragging, persistence, keyboard accessibility, reset, and window resizing.
+
+This change is in development. The last public release remains **Tubeium 1.06** (`v1.0.6`).
+
+
 ## [1.0.6] — 2026-11-03 (Tubeium 1.06)
 
 - **Critical repair:** remove an unsupported local-module import from Electron 45's sandboxed YouTube preload. That import could abort the entire preload, disabling the floating Settings control, player-response ad filtering, ad-skip fallback, and other YouTube enhancements.
