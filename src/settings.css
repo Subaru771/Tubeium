@@ -85,3 +85,55 @@ html.settings-sidebar-dragging,html.settings-sidebar-dragging *{
 @media(prefers-reduced-motion:reduce){
   .sidebar-resizer::before,.sidebar-resizer::after{transition:none}
 }
+
+/* Lower sidebar quick-actions can be resized independently of sidebar width.
+   Navigation remains scrollable above it; quick actions scroll independently
+   when their panel is shorter than their contents. */
+.sidebar .actions-resizer{
+  position:relative;z-index:8;
+  flex:0 0 12px;min-height:12px;height:12px;width:100%;
+  cursor:row-resize;touch-action:none;user-select:none;outline:none;
+  margin:0;
+}
+.sidebar .actions-resizer::before{
+  content:"";position:absolute;left:2px;right:2px;top:5px;height:2px;
+  background:var(--border);border-radius:2px;
+}
+.sidebar .actions-resizer::after{
+  content:"";position:absolute;left:50%;top:3px;transform:translateX(-50%);
+  width:54px;height:6px;border-radius:99px;
+  background:color-mix(in srgb,var(--accent) 48%,var(--panel2));
+  border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));
+}
+.sidebar .actions-resizer:hover::before,
+.sidebar .actions-resizer.dragging::before,
+.sidebar .actions-resizer:focus-visible::before{background:var(--accent)}
+.sidebar .actions-resizer:hover::after,
+.sidebar .actions-resizer.dragging::after,
+.sidebar .actions-resizer:focus-visible::after{
+  background:var(--accent);box-shadow:0 0 0 4px var(--glow);
+}
+.sidebar .actions-resizer:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.sidebar .sidebar-bottom{
+  flex:0 0 var(--settings-actions-height,370px);
+  height:var(--settings-actions-height,370px);
+  min-height:0;margin-top:0;
+  overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  padding:10px 3px 2px;
+}
+html.settings-actions-dragging,html.settings-actions-dragging *{
+  cursor:row-resize!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar .actions-resizer::after{transition:none}
+}
+
+/* In compact icon-only layout the lower buttons are hidden; relinquish their
+   reserved height so category navigation gets the available space. */
+@media(max-width:640px){
+  .sidebar .actions-resizer{display:none}
+  .sidebar .sidebar-bottom{height:0!important;flex-basis:0!important;padding:0;border:0;overflow:hidden}
+}

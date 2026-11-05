@@ -2,6 +2,10 @@
 
 ## [1.0.7] — Unreleased
 
+- Add a draggable **horizontal splitter** between Settings categories and the lower left quick-actions section (Live customization, player/download/library/backup buttons). The previous drag handle adjusted only sidebar width.
+- Remember quick-actions height separately from sidebar width. Keep both lists independently scrollable and accessible by keyboard, with double-click to reset.
+
+
 - Fix a real-world Windows regression: the resize grip could move independently of the navigation panel. The grip now belongs to the flex layout and resizes the *actual* sidebar.
 - Prevent selecting text during a drag, track pointer movement across the whole Settings window, and safely cancel incomplete drags.
 
