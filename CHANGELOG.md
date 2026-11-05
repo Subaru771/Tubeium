@@ -2,6 +2,10 @@
 
 ## [1.0.7] — Unreleased
 
+- Make **Check for updates** work with unsigned GitHub releases: compare installed version to the latest official release and offer an external download link; retain the signed updater when configured.
+- Enable the same GitHub release check on launch when requested in Settings; never silently download unsigned installers.
+- Reduce the icon size and vertical bulk of the six quick-action buttons in the lower Settings sidebar.
+
 - Add a draggable **horizontal splitter** between Settings categories and the lower left quick-actions section (Live customization, player/download/library/backup buttons). The previous drag handle adjusted only sidebar width.
 - Remember quick-actions height separately from sidebar width. Keep both lists independently scrollable and accessible by keyboard, with double-click to reset.
 

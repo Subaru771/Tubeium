@@ -745,8 +745,8 @@ const NEW_SETTINGS = [
 NEW_SETTINGS.push(
  ['gamepadEnabled','Gamepad media controls','Use a connected controller for play/pause, seeking and volume (A, LB/RB, D-pad).','toggle',false,'controls','Gamepad'],
  ['gamepadSeekSeconds','Controller seek amount','Seconds to jump backward or forward using controller shoulder buttons.','select','10','controls','Gamepad'],
- ['autoCheckUpdates','Check for app updates','Checks an official Tubeium release feed when it has been configured by the publisher.','toggle',true,'general','Updates'],
- ['autoDownloadUpdates','Download approved updates automatically','Download updates from the configured release feed; installation always asks first.','toggle',false,'general','Updates'],
+ ['autoCheckUpdates','Check for app updates','Checks the latest official Tubeium GitHub Release on startup; does not install automatically.','toggle',true,'general','Updates'],
+ ['autoDownloadUpdates','Download approved updates automatically','Only applies to builds with a configured signed update feed. Unsigned GitHub releases must be downloaded manually.','toggle',false,'general','Updates'],
  ['autoPlayOffline','Autoplay offline media','Start downloaded videos automatically when opened in the offline player.','toggle',false,'downloads','Offline playback']
 );
 const groupById = new Map(groups.map(g=>[g.id,g]));

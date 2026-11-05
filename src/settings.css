@@ -137,3 +137,19 @@ html.settings-actions-dragging,html.settings-actions-dragging *{
   .sidebar .actions-resizer{display:none}
   .sidebar .sidebar-bottom{height:0!important;flex-basis:0!important;padding:0;border:0;overflow:hidden}
 }
+
+/* Compact quick-action buttons only. Leave navigation and primary controls untouched. */
+.sidebar .sidebar-bottom .outline-full{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  min-height:30px;padding:7px 8px;
+  border-radius:8px;line-height:1.2;
+}
+.sidebar .sidebar-bottom .outline-full .action-icon{
+  flex:0 0 13px;width:13px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:"Segoe UI Symbol","Segoe UI",sans-serif;
+  font-size:11px;font-weight:500;line-height:1;opacity:.77;
+}
+.sidebar .sidebar-bottom .outline-full:hover .action-icon{
+  color:var(--accent);opacity:1;
+}
