@@ -2,6 +2,9 @@
 
 ## [1.0.7] — Unreleased
 
+- Fix a real-world Windows regression: the resize grip could move independently of the navigation panel. The grip now belongs to the flex layout and resizes the *actual* sidebar.
+- Prevent selecting text during a drag, track pointer movement across the whole Settings window, and safely cancel incomplete drags.
+
 - Make the Settings sidebar width adjustable by dragging its right edge (205–480px, constrained to keep the content readable).
 - Restore the chosen width when Settings reopens, without changing the 201 existing app preferences.
 - Support keyboard resizing with Left/Right arrows, Shift for larger steps, Home/End, and double-click to reset to the original 249px.
