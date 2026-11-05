@@ -1,7 +1,7 @@
 {
   "name": "tubeium",
   "productName": "Tubeium",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Native Windows YouTube client with local playlists, viewing profiles, audio presets, privacy-safe backups and more.",
   "main": "src/main.js",
   "scripts": {
@@ -40,6 +40,7 @@
       "src/settings.html",
       "src/settings.css",
       "src/settings-renderer.js",
+      "src/settings-sidebar-resize.js",
       "assets/**",
       "src/migration-userdata.js",
       "src/signin-cookies.js",

@@ -16,9 +16,10 @@
     <div class="sidebar-bottom">
       <div class="sidebar-info"><div class="pulse"></div><div><b>Live customization</b><small>Changes save automatically</small></div></div>
       <button id="go-player" class="outline-full">↗ Return to YouTube</button><button id="go-downloads" class="outline-full">↓ Download manager</button><button id="go-library" class="outline-full">▣ Local library</button><button id="backup-all" class="outline-full">↥ Backup data</button><button id="restore-all" class="outline-full">↧ Restore backup</button><button id="check-updates" class="outline-full">↻ Check updates</button>
-      <span class="version">Tubeium v1.0 · Personalization Studio</span>
+      <span class="version">Tubeium · Personalization Studio</span>
     </div>
   </aside>
+  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-label="Resize settings sidebar" aria-orientation="vertical" aria-valuemin="205" aria-valuemax="480" aria-valuenow="249" tabindex="0" title="Drag to resize sidebar. Double-click to reset."></div>
   <main class="main">
     <header class="topbar">
       <div class="crumb">YOUR WORKSPACE <span> / </span> <b id="crumb-name">Overview</b></div>
@@ -56,6 +57,7 @@
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="settings-sidebar-resize.js"></script>
 <script src="settings-renderer.js"></script>
 </body>
 </html>
