@@ -6,6 +6,13 @@
   let timer = null;
   const $ = (id) => document.getElementById(id);
   function el(tag, className, text) { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; }
+  // Resizing is purely local to this Settings window and never changes YouTube.
+  window.tubeiumSidebarResize?.init({
+    shell: document.querySelector('.app-shell'),
+    handle: $('sidebar-resizer'),
+    root: document.documentElement,
+    win: window,
+  });
   function toast(text) { const n=$('toast'); n.textContent=text; n.classList.add('show'); clearTimeout(timer); timer=setTimeout(()=>n.classList.remove('show'),2800); }
   function error(err) { toast('Something went wrong: '+(err.message || String(err))); }
   function theme() {
