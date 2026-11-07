@@ -1,6 +1,16 @@
 # Changelog
 
-## [1.0.7] — Unreleased
+## [1.0.7] — 2026-11-08 (Tubeium 1.07)
+
+- **Settings Favorites:** pin up to 24 existing preferences via an accessible star, access them from the new Favorites category or Overview, and preserve them in a separate validated local user-data file without duplicating settings.
+- **Playback Diagnostics:** new Stats button in the floating player toolbar and Player menu entry. See the decoded resolution, estimated rendered FPS, dropped-frame counts and percentage, buffered seconds, and playback state. Copy a report without account credentials. Read-only diagnostics cannot guarantee why a source lacks 4K.
+- Include the earlier v1.0.7 development improvements to both independent Settings sidebar dividers, smaller quick-action icons, official GitHub release checks for unsigned builds, and a verified stream-resolution badge up to 4K.
+- Preserve the original 201 validated preferences, the YouTube preload sandbox, and the existing Google sign-in / local library data.
+- Add automated regression checks for favorites, diagnostics, resizing, update checks, and playback-quality labeling.
+
+**Limitations:** YouTube ad skipping remains best-effort. Google sign-in and any live video playback regressions require manual verification on Windows; automated packaging does not establish those behaviors.
+
+
 
 - Show **current playback resolution up to 4K** on the existing floating Quality toolbar button. The indicator reads the decoded video stream (not the preferred setting), updates if adaptive streaming changes resolution, and opens YouTube’s native Quality menu.
 - Clarify that 2160p / 4K is a best-effort playback preference and appears only when the video and playback environment support it.
@@ -23,7 +33,7 @@
 - Keep a subtle, visible resize handle and respect narrow-window layouts, light/dark themes, and reduced-motion preferences.
 - Add automated tests for pointer dragging, persistence, keyboard accessibility, reset, and window resizing.
 
-This change is in development. The last public release remains **Tubeium 1.06** (`v1.0.6`).
+All enhancements in this section are included in **Tubeium 1.07** (`v1.0.7`).
 
 
 ## [1.0.6] — 2026-11-03 (Tubeium 1.06)
