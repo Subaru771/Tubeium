@@ -26,7 +26,13 @@ const unsigned=fs.readFileSync(path.join(base,'.github/workflows/publish-unsigne
 assert.match(unsigned,/release_tag:/);
 assert.match(unsigned,/github.ref == 'refs\/heads\/main'/);
 assert.match(unsigned,/node scripts\/validate-unsigned-release\.js/);
-assert.match(unsigned,/git ls-remote --tags --refs origin/);
+// The unsigned publisher must check Git tags using an authenticated API
+// and must fail closed for anything except a confirmed not-found response.
+assert.match(unsigned,/GH_TOKEN: \$\{\{ github\.token \}\}/);
+assert.match(unsigned,/api\.github\.com\/repos\/\$env:GH_REPO\/git\/ref\/tags\/\$env:TUBEIUM_RELEASE_TAG/);
+assert.match(unsigned,/if \(\$response\.StatusCode -eq 200\)/);
+assert.match(unsigned,/if \(\$response\.StatusCode -ne 404\)/);
+assert.doesNotMatch(unsigned,/git ls-remote --tags --refs origin/);
 assert.match(unsigned,/npm audit --audit-level=high/);
 assert.match(unsigned,/gh release create/);
 assert.doesNotMatch(unsigned,/\$tag = "v1\.0\.0"/);
