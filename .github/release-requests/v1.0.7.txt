@@ -1,5 +1,0 @@
-Publish the already-reviewed Tubeium 1.07 Windows x64 release (technical tag v1.0.7) with installer, portable EXE, detailed notes and SHA-256 checksums. The tag must not already exist. Use the existing gated unsigned release workflow; do not change earlier releases.
-
-Retry publication after replacing unauthenticated git ls-remote with authenticated GitHub REST tag verification. Ensure original v1.0.7 tag is absent and do not modify existing releases.
-
-Third attempt after updating release-gates test to assert authenticated 404-only tag check instead of obsolete unauthenticated git ls-remote; publish only if all checks pass.
