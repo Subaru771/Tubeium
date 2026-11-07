@@ -420,6 +420,31 @@ html.uyp-opt-hideMasthead #page-manager{margin-top:0!important;}html.uyp-opt-hid
 #uyp-toolbox button{background:#ffffff17;border:1px solid transparent;color:white;font:inherit;padding:8px 9px;border-radius:8px;cursor:pointer;white-space:nowrap;}
 #uyp-toolbox button:hover,#uyp-toolbox button:focus-visible{background:#ffffff36;outline:1px solid var(--uyp-accent,#aa7dff);}
 #uyp-toolbox button[data-tool="quality"]{font-weight:750;font-size:12px;letter-spacing:.02em;min-width:39px;}
+#uyp-playback-diagnostics[hidden]{display:none!important;}
+#uyp-playback-diagnostics{
+  position:fixed;right:20px;top:137px;z-index:2147483644;
+  width:min(370px,calc(100vw - 40px));max-height:calc(100vh - 150px);
+  overflow-y:auto;padding:13px;border:1px solid #64527c;
+  border-radius:14px;box-shadow:0 14px 42px #000c;
+  background:#17151f;color:#f6f4ff;font:13px/1.5 "Segoe UI",Arial,sans-serif;
+}
+#uyp-playback-diagnostics header,#uyp-playback-diagnostics footer{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+#uyp-playback-diagnostics strong{font-size:15px}
+#uyp-playback-diagnostics button{padding:7px 11px;border-radius:8px;
+  border:1px solid #5a4b70;background:#272334;color:#fff;cursor:pointer;}
+#uyp-playback-diagnostics button:focus-visible{outline:2px solid #c8aaff;outline-offset:2px}
+#uyp-playback-diagnostics .uyp-diag-row{
+  padding:7px 2px;border-bottom:1px solid #ffffff18;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+#uyp-playback-diagnostics .uyp-diag-label{flex:0 0 44%;color:#bab4cc}
+#uyp-playback-diagnostics .uyp-diag-value{
+  flex:1;min-width:0;overflow-wrap:anywhere;text-align:right;
+}
+#uyp-playback-diagnostics footer{margin-top:12px;justify-content:flex-end}
+html.uyp-fs #uyp-playback-diagnostics,html.uyp-mini #uyp-playback-diagnostics{display:none!important;}
 #uyp-toolbox button.tubeium-quality-4k{
   background:color-mix(in srgb,var(--uyp-accent,#aa7dff) 26%,#191b24);
   border-color:var(--uyp-accent,#aa7dff);
@@ -818,6 +843,8 @@ function updateTools() {
     const button = toolbar.querySelector(`[data-tool="${id}"]`);
     if (button) button.hidden = !state[key] || (id==='bookmark'&&!state.localLibraryEnabled);
   }
+  const diagnosticsButton=toolbar.querySelector('[data-tool="diagnostics"]');
+  if(diagnosticsButton)diagnosticsButton.hidden=!state.toolQuality;
 }
 // The quality tool reports the *current decoded stream resolution*, not a
 // promised or requested playback preference. HTMLVideoElement.videoHeight may
@@ -844,6 +871,111 @@ function refreshStreamQualityButton(){
   qualityButton.setAttribute('aria-label',title);
   qualityButton.classList.toggle('tubeium-quality-4k',badge==='4K');
 }
+// Local-only, observational player diagnostics. Never reads cookies or
+// attempts to change the active stream. FPS is estimated from decoded frames.
+function computePlaybackDiagnostics(video, previous, nowMs) {
+  if(!video)return null;
+  const width=Number(video.videoWidth)||0,height=Number(video.videoHeight)||0;
+  const position=Number(video.currentTime)||0,paused=!!video.paused;
+  let buffered=0;
+  try{
+    const ranges=video.buffered;
+    for(let i=0;i<ranges.length;i++){
+      if(ranges.start(i)<=position&&ranges.end(i)>=position){
+        buffered=Math.max(0,ranges.end(i)-position);break;
+      }
+    }
+  }catch{}
+  let total=null,dropped=null,fps=null;
+  try{
+    const q=video.getVideoPlaybackQuality?.();
+    if(q&&Number.isFinite(q.totalVideoFrames)&&Number.isFinite(q.droppedVideoFrames)){
+      total=Math.max(0,Math.round(q.totalVideoFrames));
+      dropped=Math.max(0,Math.min(total,Math.round(q.droppedVideoFrames)));
+      const seconds=previous?.video===video?(nowMs-previous.at)/1000:0;
+      if(!paused&&seconds>=0.5&&seconds<=10&&previous.frames!==null&&total>=previous.frames)
+        fps=Math.round((total-previous.frames)/seconds*10)/10;
+    }
+  }catch{}
+  const droppedPercent=total>0?Math.round(dropped/total*1000)/10:null;
+  return {width,height,position,paused,readyState:Number(video.readyState)||0,
+    bufferedSeconds:Math.round(buffered*10)/10,
+    totalFrames:total,droppedFrames:dropped,droppedPercent,
+    renderedFps:fps,sample:{video,frames:total,at:nowMs}};
+}
+let diagnosticsPanel=null,diagnosticsPrevious=null,diagnosticsText='';
+function refreshPlaybackDiagnostics(){
+  if(!diagnosticsPanel||diagnosticsPanel.hidden)return;
+  const content=diagnosticsPanel.querySelector('[data-diagnostics-content]');
+  const video=currentVideoId()&&!adShowing()?getVideo():null;
+  const stats=computePlaybackDiagnostics(video,diagnosticsPrevious,Date.now());
+  diagnosticsPrevious=stats?.sample||null;
+  const rows=[];
+  if(!stats)rows.push(['Status','Open a regular YouTube video to see playback statistics']);
+  else{
+    const quality=streamQualityLabel(video);
+    rows.push(['Current resolution',quality?.resolution||'Not reported yet']);
+    rows.push(['Preferred quality',state.preferredQuality==='hd2160'?'Up to 4K':String(state.preferredQuality||'Automatic')]);
+    rows.push(['Rendered FPS (estimated)',stats.renderedFps===null?'Unavailable':stats.renderedFps.toFixed(1)]);
+    rows.push(['Dropped frames',stats.droppedFrames===null?'Unavailable':stats.droppedFrames+' / '+stats.totalFrames+' ('+stats.droppedPercent.toFixed(1)+'%)']);
+    rows.push(['Buffered ahead',stats.bufferedSeconds.toFixed(1)+' seconds']);
+    rows.push(['Playback state',stats.paused?'Paused':stats.readyState<2?'Loading / waiting':'Playing']);
+    let note='YouTube chooses the stream; 4K depends on the uploaded video, codec support and connection.';
+    if(stats.droppedPercent!==null&&stats.droppedPercent>=5)
+      note='Frame drops observed. Rendering or decoding performance may contribute.';
+    else if(!stats.paused&&stats.bufferedSeconds<3)
+      note='Low buffered media. Connection or streaming performance may contribute.';
+    rows.push(['Interpretation',note]);
+  }
+  content.replaceChildren();
+  for(const [label,value] of rows){
+    const row=document.createElement('div');row.className='uyp-diag-row';
+    const key=document.createElement('span');key.className='uyp-diag-label';key.textContent=label;
+    const val=document.createElement('span');val.className='uyp-diag-value';val.textContent=value;
+    row.append(key,val);content.append(row);
+  }
+  diagnosticsText='Tubeium playback diagnostics\n'+rows.map(([a,b])=>a+': '+b).join('\n')+'\nNo account information included.';
+}
+function togglePlaybackDiagnostics(){
+  if(!diagnosticsPanel)return;
+  diagnosticsPanel.hidden=!diagnosticsPanel.hidden;
+  diagnosticsPrevious=null;
+  if(!diagnosticsPanel.hidden){
+    refreshPlaybackDiagnostics();
+    diagnosticsPanel.querySelector('[data-diag-close]')?.focus();
+  }
+}
+function initPlaybackDiagnostics(){
+  if(diagnosticsPanel)return;
+  const panel=document.createElement('section');panel.id='uyp-playback-diagnostics';
+  panel.hidden=true;panel.setAttribute('role','dialog');
+  panel.setAttribute('aria-label','Tubeium playback diagnostics');
+  panel.setAttribute('aria-modal','false');
+  const header=document.createElement('header');
+  const title=document.createElement('strong');title.textContent='Playback diagnostics';
+  const close=document.createElement('button');close.type='button';close.textContent='×';
+  close.dataset.diagClose='';close.title='Close diagnostics';
+  close.setAttribute('aria-label','Close playback diagnostics');
+  close.addEventListener('click',togglePlaybackDiagnostics);
+  header.append(title,close);
+  const content=document.createElement('div');content.dataset.diagnosticsContent='';
+  const footer=document.createElement('footer');
+  const copy=document.createElement('button');copy.type='button';copy.textContent='Copy diagnostics';
+  copy.addEventListener('click',async()=>{
+    refreshPlaybackDiagnostics();
+    try{await ipcRenderer.invoke('copy-video-text',diagnosticsText);toast('Playback diagnostics copied');}
+    catch{toast('Copy unavailable');}
+  });
+  footer.append(copy);panel.append(header,content,footer);
+  document.body.append(panel);diagnosticsPanel=panel;
+  setInterval(refreshPlaybackDiagnostics,1800);
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&diagnosticsPanel&&!diagnosticsPanel.hidden){
+      event.preventDefault();togglePlaybackDiagnostics();
+    }
+  });
+  ipcRenderer.on('tubeium-toggle-diagnostics',togglePlaybackDiagnostics);
+}
 // YouTube's supported quality API is deprecated; open the actual UI instead.
 function openNativeQualityMenu(){
   const gear=document.querySelector('.ytp-settings-button');
@@ -857,11 +989,11 @@ function openNativeQualityMenu(){
 }
 function initToolbar() {
   toolbar = document.createElement('div');toolbar.id='uyp-toolbox';
-  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['downloads','Download manager','↓'],['bookmark','Bookmark or unbookmark video','★'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
+  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['diagnostics','Show playback diagnostics','Stats'],['downloads','Download manager','↓'],['bookmark','Bookmark or unbookmark video','★'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
   for (const [id,label,symbol] of entries){
     const b=document.createElement('button');b.type='button';b.dataset.tool=id;b.textContent=symbol;b.title=label;b.setAttribute('aria-label',label);
     b.addEventListener('click',async()=>{
-      const v=getVideo();if(!v && !['downloads','library'].includes(id)) return;
+      const v=getVideo();if(!v && !['downloads','library','diagnostics'].includes(id)) return;
       try{
         if(id==='mute') {v.muted=!v.muted;toast(v.muted?'Muted':'Unmuted');}
         else if(id==='speed') {const speeds=[0.5,0.75,1,1.25,1.5,1.75,2,2.5,3,4];const next=speeds.find(x=>x>v.playbackRate+0.01);v.playbackRate=next||speeds[0];toast('Speed '+v.playbackRate+'×');}
@@ -870,6 +1002,7 @@ function initToolbar() {
         else if(id==='full') document.querySelector('.ytp-fullscreen-button')?.click();
         else if(id==='theater') document.querySelector('.ytp-size-button')?.click();
         else if(id==='quality') openNativeQualityMenu();
+        else if(id==='diagnostics') togglePlaybackDiagnostics();
         else if(id==='downloads') ipcRenderer.send('open-download-manager');
         else if(id==='library') ipcRenderer.send('open-local-library');
         else if(id==='bookmark'){const result=await ipcRenderer.invoke('library-bookmark',makeVideoRecord());toast(result?(result.bookmarked?'Video bookmarked':'Bookmark removed'):'Local library disabled');}
@@ -1158,6 +1291,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initAdBlock();
   initSponsorBlock();
   initToolbar();
+  initPlaybackDiagnostics();
   initQuickNav();
   initShortsSeek();
   initGestures();
