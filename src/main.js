@@ -21,6 +21,7 @@ const { findOfflineMedia, playableFiles } = require('./offline-media');
 const { basicHealth } = require('./system-health');
 const { PlaylistStore } = require('./local-playlists');
 const { createBackup, readBackup, writeBackup } = require('./backup-manager');
+const { normalizeFavorites } = require('./settings-favorites');
 const { fetchLatest: fetchGitHubRelease, RELEASES_URL } = require('./update-check');
 
 const START_URL = 'https://www.youtube.com';
@@ -67,6 +68,8 @@ let adBlockInstalled = false;
 let playerMemory = { speed: 1, volume: 100, muted: false };
 
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json');
+const favoriteSettingsFile = () => path.join(app.getPath('userData'), 'settings-favorites.json');
+const getFavoriteSettings = () => normalizeFavorites(readJson(favoriteSettingsFile(), []), Object.keys(DEFAULTS));
 const stateFile = () => path.join(app.getPath('userData'), 'window-state.json');
 const memoryFile = () => path.join(app.getPath('userData'), 'playback-memory.json');
 function readJson(file, fallback) {
@@ -134,7 +137,8 @@ function openSettings() {
 function prefsOnly(e) { return !!prefs && !prefs.isDestroyed() && e.sender === prefs.webContents; }
 function ytOnly(e) { return !!win && !win.isDestroyed() && e.sender === win.webContents; }
 const prefsHandlers = {
-  'prefs-init': () => ({ settings, groups: publicGroups(), platform: process.platform, defaultDownloads: app.getPath('downloads') }),
+  'prefs-init': () => ({ settings, groups: publicGroups(), favorites: getFavoriteSettings(), platform: process.platform, defaultDownloads: app.getPath('downloads') }),
+  'prefs-set-favorites': (_e, keys) => { const favorites = normalizeFavorites(keys, Object.keys(DEFAULTS)); writeJson(favoriteSettingsFile(), favorites); return favorites; },
   'prefs-update': (_e, patch) => setSettings(patch && typeof patch === 'object' && !Array.isArray(patch) ? patch : {}),
   'prefs-preset': (_e, name) => { if (!Object.prototype.hasOwnProperty.call(PRESETS, name)) throw new Error('Unknown preset'); return setSettings(PRESETS[name]); },
   'prefs-reset': (_e, group) => {
@@ -1181,6 +1185,7 @@ function buildMenu() {
         { label: 'Check App Updates…', click: () => checkTubeiumUpdates(true) },
         { label: 'Backups (in Settings)…', click: openSettings },
         { label: 'System Diagnostics…', click: showSystemDiagnostics },
+        { label: 'Playback Diagnostics…', click: () => { if (win && !win.isDestroyed()) win.webContents.send('tubeium-toggle-diagnostics'); } },
         { label: 'Check Player Feature Compatibility…', click: auditYouTubeUI },
         { label: 'Check YouTube Sign-in Status…', click: checkYouTubeAccount },
       ],
