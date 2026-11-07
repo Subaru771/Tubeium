@@ -3,6 +3,16 @@
   const api = window.youplusSettings;
   let data = null;
   let current = 'overview';
+  let favorites = [];
+  const favoriteSettings = () => data.groups.flatMap(g => g.settings.filter(setting => favorites.includes(setting.key)).map(setting => ({...setting, favoriteGroup:g.title}))).sort((a,b)=>favorites.indexOf(a.key)-favorites.indexOf(b.key));
+  const favoriteGroup = () => ({id:'favorites',title:'Favorite Settings',subtitle:'Your frequently used settings, all in one place.',settings:favoriteSettings()});
+  async function toggleFavorite(key){
+    const exists=favorites.includes(key);
+    if(!exists && favorites.length>=24){toast('You can pin up to 24 settings');return;}
+    const next=exists?favorites.filter(k=>k!==key):[...favorites,key];
+    try { favorites=await api.setFavorites(next);nav();renderCategory();toast(exists?'Removed from favorites':'Added to favorites'); }
+    catch(e){error(e);}
+  }
   let timer = null;
   const $ = (id) => document.getElementById(id);
   function el(tag, className, text) { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; }
@@ -42,7 +52,7 @@
   }
   function nav() {
     const n=$('navigation'); n.replaceChildren();
-    const items=[{id:'overview',title:'Overview',icon:'◇',settings:[]},...data.groups];
+    const items=[{id:'overview',title:'Overview',icon:'◇',settings:[]},{...favoriteGroup(),icon:'★'},...data.groups];
     for(const g of items){
       const b=el('button','nav-item'+(current===g.id?' active':'')); b.type='button';
       b.append(el('span','nav-icon',g.icon),el('span','nav-title',g.title));
@@ -51,11 +61,11 @@
     }
   }
   function selectCategory(id){
-    const g=data.groups.find(x=>x.id===id);
+    const g=id==='favorites'?favoriteGroup():data.groups.find(x=>x.id===id);
     if(id!=='overview'&&!g) return;
     current=id; nav(); $('overview').hidden=id!=='overview'; $('category-view').hidden=id==='overview';
     $('crumb-name').textContent=id==='overview'?'Overview':g.title;
-    if(g){$('category-number').textContent=String(data.groups.indexOf(g)+1).padStart(2,'0');$('category-heading').textContent=g.title;$('category-description').textContent=g.subtitle;$('search').value='';renderCategory();}
+    if(g){$('category-number').textContent=id==='favorites'?'★':String(data.groups.indexOf(g)+1).padStart(2,'0');$('category-heading').textContent=g.title;$('category-description').textContent=g.subtitle;$('search').value='';$('reset-section').hidden=id==='favorites';renderCategory();}
     $('scroll-area').scrollTop=0;
   }
   function commitLater(input, key, ms=550){
@@ -103,16 +113,16 @@
   }
   function renderCategory(){
     if(current==='overview')return;
-    const g=data.groups.find(x=>x.id===current);if(!g)return;
+    const g=current==='favorites'?favoriteGroup():data.groups.find(x=>x.id===current);if(!g)return;
     const query=$('search').value.trim().toLowerCase();
-    const searchGroups = query ? data.groups : [g];
-    const matches=searchGroups.flatMap(group=>group.settings.filter(m=>!query||(m.label+' '+m.description+' '+m.key+' '+group.title).toLowerCase().includes(query)).map(m=>({...m,searchGroup:group.title})));
+    const searchGroups = current==='favorites' ? [g] : (query ? data.groups : [g]);
+    const matches=searchGroups.flatMap(group=>group.settings.filter(m=>!query||(m.label+' '+m.description+' '+m.key+' '+(m.favoriteGroup||group.title)).toLowerCase().includes(query)).map(m=>({...m,searchGroup:m.favoriteGroup||group.title})));
     const list=$('settings-list');list.replaceChildren();
     let lastSection = null;
     const maintenanceSearch = Boolean(query && ['clear cookies','cookies','sign out','clear cache','cached files','browsing data'].some(word => word.includes(query) || query.includes(word)));
-    if(!matches.length && !maintenanceSearch){list.append(el('div','empty-search','No matching settings. Try another keyword or select a different category.'));}
+    if(!matches.length && !maintenanceSearch){list.append(el('div','empty-search',current==='favorites'&&!query?'No favorites yet. Open any category and select ☆ next to a setting to pin it here.':'No matching settings. Try another keyword or select a different category.'));}
     for(const m of matches){
-      const sectionName = query ? m.searchGroup+' / '+(m.section || 'Other') : (m.section || 'Other');
+      const sectionName = (query||current==='favorites') ? m.searchGroup+' / '+(m.section || 'Other') : (m.section || 'Other');
       if (sectionName!==lastSection) {
         list.append(el('div','settings-section-heading',sectionName));
         lastSection=sectionName;
@@ -121,7 +131,12 @@
       const row=el('div','setting-row'+(stacked?' stacked':''));
       const info=el('div','setting-info');info.append(el('b',null,m.label),el('p',null,m.description));
       if(query && m.searchGroup !== g.title) info.append(el('span','search-group-tag',m.searchGroup));
-      row.append(info,buildControl(m));list.append(row);
+      const star=el('button','favorite-star'+(favorites.includes(m.key)?' pinned':''),favorites.includes(m.key)?'★':'☆');
+      star.type='button';star.title=(favorites.includes(m.key)?'Unpin ':'Pin ')+m.label;
+      star.setAttribute('aria-label',star.title);
+      star.setAttribute('aria-pressed',String(favorites.includes(m.key)));
+      star.onclick=()=>toggleFavorite(m.key);
+      row.append(star,info,buildControl(m));list.append(row);
     }
     if(maintenanceSearch){
       const link=el('button','maintenance-search-link','Open Privacy & Local Data → Clear cache / cookies');
@@ -132,13 +147,14 @@
   }
   function wire(){
     $('start-customizing').onclick=()=>selectCategory('appearance');
+    $('open-favorites').onclick=()=>selectCategory('favorites');
     const resizeFont=(direction)=>{ const value=Math.max(100,Math.min(170,(Number(data.settings.dashboardFontSize)||125)+direction)); if(value!==data.settings.dashboardFontSize)update({dashboardFontSize:value}); };
     $('font-smaller').onclick=()=>resizeFont(-5);
     $('font-larger').onclick=()=>resizeFont(5);
     document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;if(e.key==='+'||e.key==='='){e.preventDefault();resizeFont(5);}else if(e.key==='-'){e.preventDefault();resizeFont(-5);}else if(e.key==='0'){e.preventDefault();update({dashboardFontSize:125});}});
     $('search').oninput=renderCategory;
     $('search').onkeydown=e=>{if(e.key==='Escape'){$('search').value='';renderCategory();}};
-    $('reset-section').onclick=async()=>{if(!confirm('Restore defaults for this section?'))return;try{data.settings=await api.reset(current);renderCategory();theme();toast('Section restored to defaults');}catch(e){error(e);}};
+    $('reset-section').onclick=async()=>{if(current==='favorites')return;if(!confirm('Restore defaults for this section?'))return;try{data.settings=await api.reset(current);renderCategory();theme();toast('Section restored to defaults');}catch(e){error(e);}};
     $('reset-all').onclick=async()=>{if(!confirm('Restore ALL Tubeium settings to defaults?'))return;try{data.settings=await api.reset('all');renderCategory();theme();toast('All options restored');}catch(e){error(e);}};
     $('presets').addEventListener('click',async e=>{const b=e.target.closest('[data-preset]');if(!b)return;try{data.settings=await api.applyPreset(b.dataset.preset);theme();toast('Preset applied. You can fine-tune every setting.');}catch(e){error(e);}});
     $('export').onclick=async()=>{try{const ok=await api.export();if(ok)toast('Settings exported');}catch(e){error(e);}};
@@ -155,7 +171,7 @@
     api.onSettings(s=>{if(!data)return;data.settings=s;theme();if(!document.querySelector('.hotkey-control.recording') && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))renderCategory();});
   }
   async function boot(){
-    try {data=await api.initialize();$('option-count').textContent=String(data.groups.reduce((n,g)=>n+g.settings.length,0));$('category-count').textContent=String(data.groups.length);theme();wire();selectCategory('overview');}
+    try {data=await api.initialize();favorites=Array.isArray(data.favorites)?data.favorites:[];$('option-count').textContent=String(data.groups.reduce((n,g)=>n+g.settings.length,0));$('category-count').textContent=String(data.groups.length);theme();wire();selectCategory('overview');}
     catch(e){error(e);}
   }
   boot();
