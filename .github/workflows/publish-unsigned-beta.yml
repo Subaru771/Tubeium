@@ -37,11 +37,21 @@ jobs:
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
         run: |
-          $existing = @(git ls-remote --tags --refs origin "refs/tags/$env:TUBEIUM_RELEASE_TAG")
-          if ($LASTEXITCODE -ne 0) { throw 'Could not verify remote tags; refusing to publish.' }
-          if (($existing -join '').Trim().Length -gt 0) { throw "Tag $env:TUBEIUM_RELEASE_TAG already exists. No release files were changed." }
+          # Authenticated lookup works even when checkout has persist-credentials: false.
+          # Treat only 404 as tag-not-found. All other API failures block publishing.
+          $url = "https://api.github.com/repos/$env:GH_REPO/git/ref/tags/$env:TUBEIUM_RELEASE_TAG"
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $response = Invoke-WebRequest -Uri $url -Headers $headers -SkipHttpErrorCheck -ErrorAction Stop
+          if ($response.StatusCode -eq 200) { throw "Tag $env:TUBEIUM_RELEASE_TAG already exists. Refusing to overwrite." }
+          if ($response.StatusCode -ne 404) { throw "Could not verify remote tags (HTTP $($response.StatusCode)). Refusing to publish." }
       - name: Verify committed dependency lock
         run: npm run verify:dependencies
       - name: Install locked dependencies
