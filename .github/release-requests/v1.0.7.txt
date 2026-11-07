@@ -1,0 +1,1 @@
+Publish the already-reviewed Tubeium 1.07 Windows x64 release (technical tag v1.0.7) with installer, portable EXE, detailed notes and SHA-256 checksums. The tag must not already exist. Use the existing gated unsigned release workflow; do not change earlier releases.
