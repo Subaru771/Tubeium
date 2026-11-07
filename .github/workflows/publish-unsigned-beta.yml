@@ -11,11 +11,11 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/release-requests/v1.0.6.txt'
+      - '.github/release-requests/v1.0.7.txt'
 permissions:
   contents: write
 concurrency:
-  group: tubeium-unsigned-release-${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
+  group: tubeium-unsigned-release-${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
   cancel-in-progress: false
 jobs:
   publish:
@@ -32,12 +32,12 @@ jobs:
           package-manager-cache: false
       - name: Validate requested tag, version and main branch
         env:
-          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
         run: node scripts/validate-unsigned-release.js
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
-          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
         run: |
           $existing = @(git ls-remote --tags --refs origin "refs/tags/$env:TUBEIUM_RELEASE_TAG")
           if ($LASTEXITCODE -ne 0) { throw 'Could not verify remote tags; refusing to publish.' }
@@ -74,7 +74,7 @@ jobs:
           $lines | Set-Content dist/SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Tubeium-unsigned-${{ inputs.release_tag }}
+          name: Tubeium-unsigned-${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
           path: |
             dist/*.exe
             dist/SHA256SUMS.txt
@@ -84,7 +84,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.6' || inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.7' || inputs.release_tag }}
         run: |
           $tag = $env:TUBEIUM_RELEASE_TAG
           $version = (Get-Content package.json | ConvertFrom-Json).version
@@ -97,9 +97,9 @@ jobs:
           Automated source tests, dependency audits and packaging checks passed. Live Google sign-in is not guaranteed.
           Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
-          if ($tag -eq 'v1.0.6') {
-            $title = 'Tubeium 1.02 (v1.0.6, unsigned)'
-            $notes = Get-Content 'docs/releases/v1.0.6.md' -Raw
+          if ($tag -eq 'v1.0.7') {
+            $title = 'Tubeium 1.07'
+            $notes = Get-Content 'docs/releases/v1.0.7.md' -Raw
           } else {
             $title = "Tubeium $tag (unsigned)"
           }
