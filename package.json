@@ -36,6 +36,7 @@
       "src/preload.js",
       "src/guide-toggle.js",
       "src/settings-schema.js",
+      "src/settings-favorites.js",
       "src/settings-preload.js",
       "src/settings.html",
       "src/settings.css",

@@ -153,3 +153,24 @@ html.settings-actions-dragging,html.settings-actions-dragging *{
 .sidebar .sidebar-bottom .outline-full:hover .action-icon{
   color:var(--accent);opacity:1;
 }
+
+/* Favorites add a shortcut to the existing validated Settings controls;
+   they do not duplicate preferences or affect the sidebar resize geometry. */
+.favorite-star{
+  flex:0 0 32px;width:32px;height:32px;align-self:center;
+  display:inline-grid;place-items:center;
+  border:1px solid var(--border);border-radius:9px;
+  color:var(--faint);background:var(--panel2);
+  font-size:19px;line-height:1;cursor:pointer;
+}
+.favorite-star:hover,.favorite-star:focus-visible,.favorite-star.pinned{
+  color:var(--accent);border-color:var(--accent);
+}
+.setting-row.stacked .favorite-star{align-self:flex-start}
+.favorites-open{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:18px;width:100%;padding:13px 18px;border-radius:12px;
+  border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));
+  background:var(--panel);color:var(--accent);font-size:14px;font-weight:750;
+}
+.favorites-open:hover{background:var(--glow)}

@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const call = (channel, ...args) => ipcRenderer.invoke(channel, ...args);
 contextBridge.exposeInMainWorld('youplusSettings', Object.freeze({
   initialize: () => call('prefs-init'),
+  setFavorites: keys => call('prefs-set-favorites', keys),
   update: patch => call('prefs-update', patch),
   applyPreset: preset => call('prefs-preset', preset),
   reset: group => call('prefs-reset', group),
