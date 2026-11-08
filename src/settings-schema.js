@@ -213,7 +213,7 @@ appendTo('downloads', [
 ]);
 appendTo('controls', [
   ['toolQuality','Toolbar: Current video quality','Display the currently playing resolution (4K when verified) and open YouTube’s native Quality menu.','toggle',true],
-  ['toolDownloads','Toolbar: Downloads manager','Open the downloads queue and offline library.','toggle',true],
+  ['toolDownloads','Show manager in download menu','Adds an optional Download Manager entry inside the right-hand Download options menu. The main video button never opens the manager.','toggle',true],
   ['toolSeekButtons','Toolbar: Seek back/forward','Replace navigation buttons with customizable time-skip controls on the floating toolbar.','toggle',false],
   ['confirmCast','Confirm before casting','Ask for confirmation before using YouTube Cast controls (where detectable).','toggle',false],
 ]);
