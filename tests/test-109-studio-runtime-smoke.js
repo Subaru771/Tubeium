@@ -48,11 +48,13 @@ async function test(){
   await Promise.resolve();
   await Promise.resolve();
   assert.equal(nodes['option-count'].textContent,'201');
-  assert.equal(nodes.navigation.children.length,17,'Overview, Favorites and all 15 categories');
+  const navItems=nodes.navigation.children.filter(el=>el.className?.startsWith('nav-item'));
+  assert.equal(navItems.length,17,'Overview, Favorites and all 15 categories remain accessible');
+  assert(nodes.navigation.children.some(el=>el.className==='nav-section-label'),'Navigation groups are visible');
   assert.equal(nodes['quick-controls'].children.length,6,'Dashboard controls are real switches');
   assert.equal(nodes['floating-quick'].children.length,2,'Two independent dock controls');
   assert.equal(nodes['category-cards'].children.length,6);
-  const downloads=nodes.navigation.children.find(button=>button.children.some(c=>c.textContent==='Downloads'));
+  const downloads=navItems.find(button=>button.children.some(c=>c.textContent==='Downloads'));
   assert(downloads,'Downloads category must remain accessible');
   downloads.onclick();
   assert.equal(nodes['category-heading'].textContent,'Downloads');
