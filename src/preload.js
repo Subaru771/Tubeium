@@ -558,6 +558,8 @@ function applyState() {
   if(btn)btn.hidden=state.showDownloadButton===false;
   const signinHelp=document.getElementById('tubeium-signin-help');
   if(signinHelp)signinHelp.hidden=state.showSigninHelpButton===false;
+  const managerEntry=document.getElementById('uyp-dl-manager');
+  if(managerEntry)managerEntry.hidden=state.toolDownloads===false;
   const rightActions=document.getElementById('tubeium-right-actions');
   if(rightActions)rightActions.hidden=state.showDownloadButton===false&&state.showSigninHelpButton===false;
   const audioButton = document.getElementById('uyp-audio-btn');
@@ -815,6 +817,8 @@ function initSponsorBlock() {
 
 // ---- Download button ----
 function initDownloadButton() {
+  // Retire any legacy left-side download widget from older app versions.
+  document.getElementById('uyp-dl-left')?.remove();
   if(document.getElementById('tubeium-right-actions'))return;
   const dock=document.createElement('div');dock.id='tubeium-right-actions';
   const signinHelp=document.createElement('button');
@@ -830,7 +834,7 @@ function initDownloadButton() {
   box.id = 'uyp-dl';
 
   const menu = document.createElement('div');
-  menu.className = 'uyp-menu';
+  menu.className = 'uyp-menu';menu.id='tubeium-download-options';menu.setAttribute('role','group');menu.setAttribute('aria-label','More download options');
   const main = document.createElement('button');
   main.className = 'uyp-main';main.type='button';
   main.textContent = '↓ Download video';
@@ -840,7 +844,7 @@ function initDownloadButton() {
   options.type='button';options.className='uyp-options';options.textContent='⌄';
   options.title='Choose video, audio, thumbnail or playlist download';
   options.setAttribute('aria-label','More download options');
-  options.setAttribute('aria-expanded','false');
+  options.setAttribute('aria-expanded','false');options.setAttribute('aria-controls','tubeium-download-options');
 
   let busy = false;
   const setLabel = (t) => { main.textContent = t; };
@@ -877,7 +881,7 @@ function initDownloadButton() {
       if(!response.ok)throw new Error(response.error);toast('Playlist added to queue',3000);
     }catch(e){toast('Playlist: '+String(e.message||e).slice(0,140),4000);}
   });menu.appendChild(playlistButton);
-  const managerButton=document.createElement('button');managerButton.type='button';managerButton.textContent='Open download manager ↗';
+  const managerButton=document.createElement('button');managerButton.type='button';managerButton.id='uyp-dl-manager';managerButton.textContent='Open download manager ↗';
   managerButton.addEventListener('click',event=>{
     event.preventDefault();event.stopPropagation();
     box.classList.remove('open');options.setAttribute('aria-expanded','false');
@@ -886,17 +890,23 @@ function initDownloadButton() {
   // Distinct actions: Download VIDEO only queues; chevron ONLY opens the menu;
   // only the explicit manager entry may open the manager.
   main.addEventListener('click',event=>{
-    event.preventDefault();event.stopPropagation();
+    event.preventDefault();event.stopImmediatePropagation();
+    // Never toggle the menu and never send open-download-manager here.
     void start('video');
   });
   options.addEventListener('click',event=>{
-    event.preventDefault();event.stopPropagation();
+    event.preventDefault();event.stopImmediatePropagation();
     if(busy)return;
     playlistButton.hidden=!new URLSearchParams(location.search).has('list');
     const open=box.classList.toggle('open');
     options.setAttribute('aria-expanded',String(open));
   });
   box.addEventListener('click',event=>event.stopPropagation());
+  box.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){
+      box.classList.remove('open');options.setAttribute('aria-expanded','false');options.focus();
+    }
+  });
   box.appendChild(menu);
   const actions=document.createElement('div');actions.className='uyp-download-actions';
   actions.append(main,options);box.appendChild(actions);
@@ -920,7 +930,7 @@ let toolbar;
 function updateTools() {
   if (!toolbar) return;
   toolbar.hidden = !state.showOverlayToolbar || !currentVideoId();
-  for (const [id,key] of [['mute','toolMute'],['speed','toolSpeed'],['pip','toolPiP'],['link','toolCopyLink'],['title','toolCopyTitle'],['full','toolFullscreen'],['theater','toolTheater'],['quality','toolQuality'],['downloads','toolDownloads'],['bookmark','showBookmarkButton'],['library','localLibraryEnabled'],['screenshot','showScreenshotButton'],['seekBack','toolSeekButtons'],['seekForward','toolSeekButtons']]) {
+  for (const [id,key] of [['mute','toolMute'],['speed','toolSpeed'],['pip','toolPiP'],['link','toolCopyLink'],['title','toolCopyTitle'],['full','toolFullscreen'],['theater','toolTheater'],['quality','toolQuality'],['bookmark','showBookmarkButton'],['library','localLibraryEnabled'],['screenshot','showScreenshotButton'],['seekBack','toolSeekButtons'],['seekForward','toolSeekButtons']]) {
     const button = toolbar.querySelector(`[data-tool="${id}"]`);
     if (button) button.hidden = !state[key] || (id==='bookmark'&&!state.localLibraryEnabled);
   }
@@ -1070,11 +1080,11 @@ function openNativeQualityMenu(){
 }
 function initToolbar() {
   toolbar = document.createElement('div');toolbar.id='uyp-toolbox';
-  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['diagnostics','Show playback diagnostics','Stats'],['downloads','Download manager','↓'],['bookmark','Bookmark or unbookmark video','★'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
+  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['diagnostics','Show playback diagnostics','Stats'],['bookmark','Bookmark or unbookmark video','★'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
   for (const [id,label,symbol] of entries){
     const b=document.createElement('button');b.type='button';b.dataset.tool=id;b.textContent=symbol;b.title=label;b.setAttribute('aria-label',label);
     b.addEventListener('click',async()=>{
-      const v=getVideo();if(!v && !['downloads','library','diagnostics'].includes(id)) return;
+      const v=getVideo();if(!v && !['library','diagnostics'].includes(id)) return;
       try{
         if(id==='mute') {v.muted=!v.muted;toast(v.muted?'Muted':'Unmuted');}
         else if(id==='speed') {const speeds=[0.5,0.75,1,1.25,1.5,1.75,2,2.5,3,4];const next=speeds.find(x=>x>v.playbackRate+0.01);v.playbackRate=next||speeds[0];toast('Speed '+v.playbackRate+'×');}
@@ -1084,7 +1094,6 @@ function initToolbar() {
         else if(id==='theater') document.querySelector('.ytp-size-button')?.click();
         else if(id==='quality') openNativeQualityMenu();
         else if(id==='diagnostics') togglePlaybackDiagnostics();
-        else if(id==='downloads') ipcRenderer.send('open-download-manager');
         else if(id==='library') ipcRenderer.send('open-local-library');
         else if(id==='bookmark'){const result=await ipcRenderer.invoke('library-bookmark',makeVideoRecord());toast(result?(result.bookmarked?'Video bookmarked':'Bookmark removed'):'Local library disabled');}
         else if(id==='screenshot'){const done=await ipcRenderer.invoke('player-screenshot');toast(done?'Screenshot saved':'Screenshot canceled');}
