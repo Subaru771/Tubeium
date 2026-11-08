@@ -1,1 +1,0 @@
-Publish Tubeium 1.08 (technical tag v1.0.8) for Windows x64 only after verifying the new tag is absent, source tests and audit pass, and both installer/portable binaries plus SHA-256 checksums are built. Release notes: docs/releases/v1.0.8.md. Do not overwrite any existing release.
