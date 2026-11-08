@@ -8,7 +8,7 @@ function migrationPlan(base,existingSubfolder,fs){
   const requested=typeof existingSubfolder==='string'?existingSubfolder.trim():'Tubeium';
   const legacy=isLegacyName(requested)?requested:null;
   const nextSubfolder=legacy?'Tubeium':requested;
-  const oldNames=legacy?[legacy]:LEGACY_NAMES.filter(n=>n!=='youplus pc');
+  const oldNames=legacy?[legacy]:(requested.toLowerCase()==='tubeium'?LEGACY_NAMES:[]);
   const destination=path.join(base,'Tubeium');
   let source=null;
   for(const n of oldNames){
