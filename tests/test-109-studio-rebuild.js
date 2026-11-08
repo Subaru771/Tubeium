@@ -37,6 +37,7 @@ for(const id of ['navigation','sidebar-resizer','actions-resizer','category-card
   'open-favorites','presets','search','overview-search','clear-cache','clear-cookies']){
   assert(html.includes('id="'+id+'"'),id+' is missing');
 }
-assert.match(css,/@media\(max-width:640px\)\{\.sidebar \.actions-resizer\{display:none\}\}/);
+assert.match(css,/@media\(max-width:640px\)\{\.sidebar \.actions-resizer\{display:none\}/);
+assert.match(css,/@media\(max-width:640px\)\{[^}]*\}[\s\S]*?\.sidebar-resizer\{display:none\}/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 console.log('PASS: New task-first Settings workspace, two-column panels, grouped navigation, all controls and resizers retained');
