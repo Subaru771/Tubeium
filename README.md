@@ -30,7 +30,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Development:** Tubeium 1.09 source includes the independent bottom-right Download/Sign-in Help controls and the fully rebuilt three-zone Settings Studio. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+**Development:** Tubeium 1.09 source includes the independent bottom-right Download/Sign-in Help controls and a rebuilt, compact two-column Settings workspace with task-first navigation and independent resize handles. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
 
 ## Screenshots
 
