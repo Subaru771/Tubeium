@@ -269,36 +269,54 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
 }
 #uyp-toast.show { opacity: 1; }
 
-/* Download button */
-#uyp-dl { display: none; position: fixed; right: 24px; bottom: 24px; z-index: 2147483646;
-  flex-direction: column; align-items: flex-end; gap: 8px; font: 500 13px Roboto, Arial, sans-serif; }
-html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl { display: flex; }
-#uyp-dl button { cursor: pointer; border: 0; color: #fff; font: inherit; }
-#uyp-dl .uyp-main { background: var(--uyp-accent, #aa7dff); padding: 10px 16px; border-radius: 999px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.4); }
-#uyp-dl .uyp-main:hover { filter: brightness(1.13); }
-#uyp-dl .uyp-menu { display: none; flex-direction: column; background: #1f1f23; border-radius: 12px;
-  overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.5); }
-#uyp-dl.open .uyp-menu { display: flex; }
-#uyp-dl .uyp-menu button { background: transparent; padding: 10px 18px; text-align: left; }
-#uyp-dl .uyp-menu button:hover { background: #2e2e34; }
-/* One-click download split control. The main action queues the video;
-   the smaller chevron reveals format/playlist options without extra clicks. */
-#uyp-dl .uyp-download-actions{display:flex;align-items:stretch;gap:2px;
-  overflow:hidden;border-radius:14px;background:var(--uyp-accent,#9d85ff);
-  border:1px solid #ffffff28;box-shadow:0 8px 30px #0009;}
-#uyp-dl .uyp-download-actions .uyp-main{border-radius:0;min-height:44px;
-  font-weight:750;font-size:13px;padding:12px 18px;background:transparent;box-shadow:none;}
-#uyp-dl .uyp-download-actions .uyp-options{min-width:40px;padding:9px;
-  background:#00000022;border-left:1px solid #ffffff35;
-  color:white;font-size:21px;font-weight:700;}
-#uyp-dl .uyp-download-actions button:hover,#uyp-dl .uyp-download-actions button:focus-visible{
-  background:#ffffff25;outline:2px solid #fff;outline-offset:-2px;}
-#uyp-dl .uyp-menu{min-width:240px;border:1px solid #6c6485;
-  background:#1c1c26;border-radius:13px;padding:6px;box-shadow:0 16px 45px #000a;}
-#uyp-dl .uyp-menu button{font-size:13px;border-radius:8px;padding:11px 12px;}
-
-html.uyp-dl-left #uyp-dl{right:auto!important;left:24px!important;align-items:flex-start!important;}
+/* Two independently dismissible actions. Fixed RIGHT, above the native bottom
+   tab view. Never use the legacy left-edge positioning setting. */
+#uyp-bottom-dock{
+  position:fixed;right:22px;bottom:74px;left:auto;z-index:2147483645;
+  display:flex;flex-direction:row;align-items:flex-end;justify-content:flex-end;
+  gap:10px;max-width:calc(100vw - 44px);
+  font:600 13px/1.2 "Segoe UI",Arial,sans-serif;
+}
+html.uyp-mini #uyp-bottom-dock,html.uyp-fs #uyp-bottom-dock{display:none!important}
+#uyp-bottom-dock button{cursor:pointer;font:inherit;color:#f8f6ff}
+#uyp-bottom-dock button:focus-visible{outline:2px solid #e7d4ff;outline-offset:2px}
+#uyp-signin-wrapper{display:flex;align-items:stretch;min-height:43px;
+  border-radius:12px;overflow:hidden;border:1px solid #8b7dbb65;
+  background:#201d2bef;box-shadow:0 8px 24px #0007}
+#uyp-signin-wrapper[hidden]{display:none!important}
+#uyp-signin-wrapper .uyp-signin-main{border:0;background:transparent;
+  padding:11px 14px;font-weight:710;font-size:12px;white-space:nowrap}
+#uyp-signin-wrapper .uyp-signin-main:hover{background:#ffffff18}
+#uyp-signin-wrapper .uyp-action-close{background:#ffffff0c}
+#uyp-dl{display:none;position:relative;inset:auto;z-index:auto;
+  flex-direction:column;align-items:flex-end;gap:8px}
+html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl{display:flex}
+#uyp-dl button{border:0;background:transparent}
+#uyp-dl .uyp-download-actions{display:flex;align-items:stretch;overflow:hidden;
+  min-height:43px;border:1px solid #ffffff34;border-radius:12px;
+  background:var(--uyp-accent,#aa7dff);box-shadow:0 8px 24px #0009}
+#uyp-dl .uyp-main{font-weight:850;font-size:12px;padding:11px 16px;
+  background:transparent;white-space:nowrap}
+#uyp-dl .uyp-options{width:34px;min-width:34px;background:#00000020;
+  border-left:1px solid #ffffff39;font-size:17px}
+#uyp-bottom-dock .uyp-action-close{width:26px;min-width:26px;
+  padding:6px;background:#00000024;border-left:1px solid #ffffff32;
+  font-size:14px;color:#e8e1f3}
+#uyp-bottom-dock .uyp-action-close:hover{background:#ffffff30}
+#uyp-dl .uyp-main:hover,#uyp-dl .uyp-options:hover{background:#ffffff25}
+#uyp-dl .uyp-menu{display:none;position:absolute;bottom:calc(100% + 9px);right:0;
+  z-index:10;min-width:230px;flex-direction:column;gap:3px;padding:7px;
+  border-radius:13px;border:1px solid #645b83;
+  background:#211e2beF;box-shadow:0 15px 48px #000b}
+#uyp-dl.open .uyp-menu{display:flex}
+#uyp-dl .uyp-menu button{text-align:left;padding:11px 12px;border-radius:8px;
+  font-size:12px;background:transparent}
+#uyp-dl .uyp-menu button:hover{background:#ffffff1c}
+@media(max-width:540px){
+  #uyp-bottom-dock{right:12px;bottom:69px;gap:6px;max-width:calc(100vw - 24px)}
+  #uyp-signin-wrapper .uyp-signin-main{font-size:10px;padding:10px 9px}
+  #uyp-dl .uyp-main{font-size:11px;padding:10px 9px}
+}
 /* Position above the native 42px tab strip instead of underneath it. */
 #uyp-prefs-btn{
   position:fixed;bottom:68px;left:18px;z-index:2147483645;
@@ -318,7 +336,7 @@ html.uyp-dl-left #uyp-dl{right:auto!important;left:24px!important;align-items:fl
 #uyp-prefs-btn:hover{background:#453353;box-shadow:0 8px 28px #000b;transform:translateY(-1px);}
 #uyp-prefs-btn:focus-visible{outline:3px solid #e3caff;outline-offset:3px;}
 html.uyp-mini #uyp-prefs-btn,html.uyp-fs #uyp-prefs-btn,html.uyp-hide-settings #uyp-prefs-btn{display:none!important;}
-html.uyp-dl-left #uyp-prefs-btn{left:auto;right:18px;}
+
 @media(prefers-reduced-motion:reduce){#uyp-prefs-btn{transition:none;}#uyp-prefs-btn:hover{transform:none;}}
 
 html.uyp-opt-hideChannelAvatars ytd-channel-name #avatar,
@@ -501,7 +519,7 @@ const FLAGS = {
   'uyp-hide-merch': 'hideMerch', 'uyp-hide-mixes': 'hideMixes',
   'uyp-hide-end': 'hideEndScreens', 'uyp-hide-cards': 'hideCards',
   'uyp-compact': 'compactDensity', 'uyp-no-scrollbars': 'hideScrollbars',
-  'uyp-reduced-motion': 'reduceAnimations', 'uyp-dl-left': null,
+  'uyp-reduced-motion': 'reduceAnimations',
 };
 const EXTRA_CSS_KEYS = ['hideChannelAvatars', 'hideVerifiedBadges', 'hideVideoBadges', 'hideHoverPreviews', 'hideMasthead', 'hideTopicChips', 'hideCommunityPosts', 'hideLiveStreams', 'hideUpcoming', 'hidePremiumUpsells', 'hidePaidPromotions', 'hideJoinButton', 'hideThanksButton', 'hideClipButton', 'hideShareButton', 'hideSaveButton', 'hideDownloadNative', 'hideChannelWatermark', 'hideRelatedSearches', 'hideDescription', 'hideVideoMetadata', 'hideSearchSuggestions', 'hidePlaylists', 'hideExplore', 'hideSubscriptionsNav', 'hideHistoryNav', 'shortsHideTitle', 'shortsHideChannel', 'shortsHideLike', 'shortsHideDislike', 'shortsHideComments', 'shortsHideShare', 'shortsHideRemix', 'shortsHideSubscribe', 'shortsHideAudio', 'shortsHideNav', 'hidePlayerNext', 'hidePlayerAutoplay', 'hidePlayerCaptions', 'hidePlayerSettings', 'hidePlayerMiniplayer', 'hidePlayerCast', 'hidePlayerFullscreen', 'hideVideoAnnotations', 'hidePlayerGradient', 'hideWatchedProgress', 'hideSuggestedSearches', 'dimPageBackground', 'highContrastText'];
 let youtubeNativeDark = null;
@@ -516,7 +534,7 @@ function applyState() {
   if(youtubeNativeDark === null) youtubeNativeDark = root.hasAttribute('dark');
   if(state.pageTheme && state.pageTheme !== 'native') root.toggleAttribute('dark', state.pageTheme !== 'light');
   else root.toggleAttribute('dark', youtubeNativeDark);
-  for (const [cls, key] of Object.entries(FLAGS)) root.classList.toggle(cls, key ? !!state[key] : state.downloadPosition === 'left');
+  for (const [cls, key] of Object.entries(FLAGS)) root.classList.toggle(cls, !!state[key]);
   if (!state.hideSidebar) root.classList.remove('uyp-guide-open');
   for (const key of EXTRA_CSS_KEYS) root.classList.toggle('uyp-opt-' + key, !!state[key]);
   root.style.setProperty('--uyp-thumbnail-radius', (Number(state.thumbnailRadius) || 0) + 'px');
@@ -535,7 +553,9 @@ function applyState() {
   if (!custom) { custom = document.createElement('style'); custom.id = 'uyp-custom-css'; (document.head || root).appendChild(custom); }
   if (custom.textContent !== (state.customCSS || '')) custom.textContent = state.customCSS || '';
   const btn = document.getElementById('uyp-dl');
-  if (btn) btn.style.display = state.showDownloadButton === false ? 'none' : '';
+  if (btn) btn.hidden = state.showDownloadButton === false;
+  const signin = document.getElementById('uyp-signin-wrapper');
+  if (signin) signin.hidden = state.showSignInHelpButton === false;
   const audioButton = document.getElementById('uyp-audio-btn');
   if (audioButton) audioButton.textContent = 'Audio (' + ((state.audioFormat || 'mp3') === 'best' ? 'original' : String(state.audioFormat).toUpperCase()) + ')';
   const videoButton = document.getElementById('uyp-video-btn');
@@ -790,7 +810,32 @@ function initSponsorBlock() {
 }
 
 // ---- Download button ----
+function initBottomDock(){
+  let dock=document.getElementById('uyp-bottom-dock');
+  if(dock)return dock;
+  dock=document.createElement('div');dock.id='uyp-bottom-dock';
+  const help=document.createElement('div');help.id='uyp-signin-wrapper';
+  const action=document.createElement('button');action.type='button';
+  action.className='uyp-signin-main';action.textContent='Having trouble signing in?';
+  action.title='Open the built-in Tubeium sign-in guide';
+  action.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();
+    ipcRenderer.send('tubeium-open-signin-help');
+  });
+  const hide=document.createElement('button');hide.type='button';
+  hide.className='uyp-action-close';hide.textContent='×';
+  hide.title='Hide sign-in help button';hide.setAttribute('aria-label','Hide sign-in help button');
+  hide.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();
+    help.hidden=true;ipcRenderer.send('tubeium-hide-floating-action','signin');
+  });
+  help.append(action,hide);dock.append(help);
+  document.body.append(dock);
+  help.hidden=state.showSignInHelpButton===false;
+  return dock;
+}
 function initDownloadButton() {
+  const dock=initBottomDock();
   if (document.getElementById('uyp-dl')) return;
   const box = document.createElement('div');
   box.id = 'uyp-dl';
@@ -799,6 +844,7 @@ function initDownloadButton() {
   menu.className = 'uyp-menu';
   const main = document.createElement('button');
   main.className = 'uyp-main';
+  main.type='button';
   main.textContent = '↓ Download video';
   main.title='One click: add this video to Tubeium’s download queue';
   main.setAttribute('aria-label','Download this video');
@@ -845,8 +891,12 @@ function initDownloadButton() {
   });menu.appendChild(playlistButton);
   const managerButton=document.createElement('button');managerButton.type='button';managerButton.textContent='Open download manager ↗';
   managerButton.addEventListener('click',()=>{box.classList.remove('open');ipcRenderer.send('open-download-manager');});menu.appendChild(managerButton);
-  main.addEventListener('click',()=>start('video'));
-  options.addEventListener('click',()=>{
+  main.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();
+    start('video'); // Only queue. Never reveal the options menu or manager here.
+  });
+  options.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();
     if(busy)return;
     playlistButton.hidden=!new URLSearchParams(location.search).has('list');
     const open=box.classList.toggle('open');
@@ -854,8 +904,16 @@ function initDownloadButton() {
   });
   box.appendChild(menu);
   const actions=document.createElement('div');actions.className='uyp-download-actions';
-  actions.append(main,options);box.appendChild(actions);
-  document.body.appendChild(box);
+  const dismiss=document.createElement('button');dismiss.type='button';
+  dismiss.className='uyp-action-close';dismiss.textContent='×';
+  dismiss.title='Hide Download button';dismiss.setAttribute('aria-label','Hide Download button');
+  dismiss.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();box.hidden=true;
+    ipcRenderer.send('tubeium-hide-floating-action','download');
+  });
+  actions.append(main,options,dismiss);box.appendChild(actions);
+  dock.appendChild(box);
+  box.hidden=state.showDownloadButton===false;
 
   document.addEventListener('pointerdown',event=>{
     if(box.classList.contains('open')&&!box.contains(event.target)){
@@ -1346,6 +1404,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!document.body) return;
     injectStyle();
     initSettingsButton();
+    initBottomDock();
   }
   document.addEventListener('yt-navigate-finish',()=>{
     activeViewingProfile='refresh';
@@ -1360,6 +1419,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 ipcRenderer.on('state', (_e, s) => {
   persistedState = { ...persistedState, ...s };
+  state={...state,...s};
+  if(document.documentElement)applyState();
   activeViewingProfile='refresh';
   if (document.documentElement) refreshSmartProfile();
 });
