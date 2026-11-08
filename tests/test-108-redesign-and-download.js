@@ -23,8 +23,8 @@ for(const key of [
 }
 assert.match(js,/\$\('overview-search'\)\.addEventListener\('keydown'/);
 assert.match(js,/\$\('open-download-folder'\)\.onclick=/);
-assert.match(css,/\/\* Tubeium Studio — rebuilt from a blank stylesheet/);
-assert.match(css,/\.workspace-columns\{/);
+assert.match(css,/\/\* Tubeium Workspace v1\.09 — rebuilt from an empty stylesheet/);
+assert.match(css,/\.workspace-grid\{/);
 assert.match(css,/\.presets\{/);
 assert.match(css,/body\[data-theme="light"\]/);
 assert.match(css,/\.setting-row\{/);
