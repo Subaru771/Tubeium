@@ -57,8 +57,8 @@ const groups = [
     ['sponsorToast', 'Sponsor skip notification', 'Show a short notification after SponsorBlock skips a segment.', 'toggle', true],
   ]},
   { id: 'downloads', title: 'Downloads', icon: '↓', subtitle: 'Formats, quality, location and metadata', settings: [
-    ['showDownloadButton', 'Show download button', 'Show a download menu on supported video pages.', 'toggle', true],
-    ['downloadPosition', 'Button location', 'Choose which bottom corner holds Download.', 'select', 'right', { options: [['right','Bottom-right'], ['left','Bottom-left']] }],
+    ['showDownloadButton', 'Show Download button', 'Show the one-click Download video button on supported video pages, in the right floating dock.', 'toggle', true],
+    ['showSignInHelpButton', 'Show sign-in help button', 'Show a Help button beside Download on the right. Both floating buttons can be hidden independently.', 'toggle', true],
     ['videoQuality', 'Maximum video resolution', 'Select the highest video resolution to download.', 'select', '1080', { options: [['480','480p'],['720','720p'],['1080','1080p'],['1440','1440p'],['2160','2160p / 4K'],['best','Best available']] }],
     ['videoContainer', 'Video container', 'Merge audio and video into this container when FFmpeg exists.', 'select', 'mp4', { options: [['mp4','MP4'], ['mkv','MKV']] }],
     ['audioFormat', 'Audio format', 'Audio extraction or conversion requires FFmpeg except original.', 'select', 'mp3', { options: [['mp3','MP3'], ['m4a','M4A'], ['opus','Opus'], ['best','Original audio']] }],
@@ -599,7 +599,7 @@ const taxonomy = [
         "title": "Download buttons",
         "keys": [
           "showDownloadButton",
-          "downloadPosition",
+          "showSignInHelpButton",
           "downloadThumbnailOnly"
         ]
       },
