@@ -204,6 +204,15 @@ for (const [channel, handler] of Object.entries(prefsHandlers)) {
   });
 }
 ipcMain.on('open-settings', e => { if (ytOnly(e)) openSettings(); });
+ipcMain.on('tubeium-open-signin-help', e => {
+  // Only the YouTube renderer may open the local guide.
+  if (ytOnly(e)) openWelcomeTab();
+});
+ipcMain.on('tubeium-hide-floating-action', (e, name) => {
+  if (!ytOnly(e)) return;
+  if (name === 'download') setSettings({showDownloadButton:false});
+  else if (name === 'signin') setSettings({showSignInHelpButton:false});
+});
 
 // ---- Welcome / sign-in help tab (local WebContentsView, not a notification) ----
 // This view sits over the original YouTube WebContents only while the user is
