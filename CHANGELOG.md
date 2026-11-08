@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.9] — 2026-11-08 (Tubeium 1.09)
+
+- **True Settings rebuild:** remove the marketing-style hero and replace the layout, stylesheet and interactions with a compact three-area Studio: resizable categories on the left, collapsible setting groups with search and modified-state labels in the center, and a useful quick-control/favorites inspector on the right.
+- **Functional Settings home:** six connected quick switches, navigable category tiles, four preserved presets, starred preferences, global Ctrl+K search, light and dark modes, keyboard navigation, import/export, and both existing independent resize handles.
+- **Download click regression:** the main Download video button now has a dedicated, non-bubbling handler that only adds a video to the queue. A separate chevron opens format choices, and the manager opens only through the explicit manager action.
+- **Right-only floating dock:** Download is no longer positioned on the left or underneath the native bottom tab bar. It sits beside **Having trouble signing in?**, which opens the existing sign-in guide.
+- **Independent control visibility:** dismiss either floating action with its own × or show/hide it from Settings; the preferences persist through restarts. The obsolete left/right download-position preference is retired.
+- **Regression coverage:** 201 settings retained, sandbox/IPC validation, cross-page YouTube navigation, both resizers, release safety, layout and download-action separation.
+
+**Limitations:** Tests cannot guarantee Google sign-in, ad skipping, or a working download on every video; these still require real Windows/YouTube testing. Windows builds remain unsigned.
+
+
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
 - **Control Room redesign:** Rebuilt the Settings layout and visual system with a modern dashboard, responsive light/dark themes, category navigation, preset cards, global search, revised control rows, and a redesigned quick actions panel.
