@@ -827,7 +827,7 @@ function initDownloadButton() {
   signinHelp.title='Open Tubeium sign-in help';
   signinHelp.setAttribute('aria-label','Have a problem signing in? Open Tubeium sign-in help');
   signinHelp.addEventListener('click',event=>{
-    event.preventDefault();event.stopPropagation();
+    event.preventDefault();event.stopImmediatePropagation();
     ipcRenderer.send('tubeium-open-signin-help');
   });
   const box = document.createElement('div');
@@ -868,12 +868,16 @@ function initDownloadButton() {
     b.id = mode === 'audio' ? 'uyp-audio-btn' : mode === 'thumbnail' ? 'uyp-thumb-btn' : 'uyp-video-btn';
     if (mode === 'thumbnail') b.hidden = !state.downloadThumbnailOnly;
     b.textContent = mode === 'thumbnail' ? 'Thumbnail image' : mode === 'audio' ? 'Audio (' + ((state.audioFormat || 'mp3') === 'best' ? 'original' : String(state.audioFormat).toUpperCase()) + ')' : label+' ('+String(state.videoContainer || 'mp4').toUpperCase()+')';
-    b.addEventListener('click', () => start(mode));
+    b.addEventListener('click', event => {
+      event.preventDefault();event.stopImmediatePropagation();
+      void start(mode);
+    });
     menu.appendChild(b);
   });
 
   const playlistButton=document.createElement('button');playlistButton.type='button';playlistButton.textContent='Download full playlist';
-  playlistButton.addEventListener('click',async()=>{
+  playlistButton.addEventListener('click',async event=>{
+    event.preventDefault();event.stopImmediatePropagation();
     const list=new URLSearchParams(location.search).get('list');
     if(!list){toast('Open a YouTube playlist first');return;}
     box.classList.remove('open');
@@ -883,7 +887,7 @@ function initDownloadButton() {
   });menu.appendChild(playlistButton);
   const managerButton=document.createElement('button');managerButton.type='button';managerButton.id='uyp-dl-manager';managerButton.textContent='Open download manager ↗';
   managerButton.addEventListener('click',event=>{
-    event.preventDefault();event.stopPropagation();
+    event.preventDefault();event.stopImmediatePropagation();
     box.classList.remove('open');options.setAttribute('aria-expanded','false');
     ipcRenderer.send('open-download-manager');
   });menu.appendChild(managerButton);
@@ -901,6 +905,7 @@ function initDownloadButton() {
     const open=box.classList.toggle('open');
     options.setAttribute('aria-expanded',String(open));
   });
+  // Shield the embedded player and YouTube page from click-through to native controls.
   box.addEventListener('click',event=>event.stopPropagation());
   box.addEventListener('keydown',event=>{
     if(event.key==='Escape'){
