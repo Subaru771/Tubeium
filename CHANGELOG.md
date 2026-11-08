@@ -1,6 +1,11 @@
 # Changelog
 
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
+- **Second-generation Settings workspace:** replace the interim three-zone Studio interface entirely. The new focused, two-column home and settings workspace removes the permanent inspector and hero treatment, uses grouped category navigation, live everyday controls, an accurate dock visibility preview, accessible presets, favorites, real cross-category search, and two-column collapsible settings cards.
+- **Download interaction regression fix:** the main right-side Download action only queues the current video; the adjacent chevron only opens extra formats; Download Manager opens only on an explicit selection. The duplicate floating-toolbar manager icon is gone, and a simulated click test checks this chain.
+- **Right-side actions stay independent:** Download and “Have a problem signing in?” may each be hidden or shown separately. The manager entry in the Download menu can be hidden through the existing toolbar-manager preference.
+- **Remove bottom-left manager shortcut in Settings:** the manager shortcut moves to the Settings header; the left sidebar remains dedicated to navigation, library, folders, backups and updates.
+
 
 - **Settings Studio rebuilt from scratch:** replace the old hero-style Overview with a compact three-zone workspace, a responsive settings inspector, collapsible groups, a keyboard-searchable preference center, live toggles, starred quick links and revised light/dark design. Preserve all 201 settings and both functional sidebar resizing handles.
 
