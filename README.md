@@ -48,18 +48,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**Tubeium 1.08 · v1.0.8 · Windows x64 · Free**
+**Tubeium 1.09 · v1.0.9 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/Tubeium-1.0.8-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/Tubeium-1.0.8-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/Tubeium-1.0.9-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/Tubeium-1.0.9-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/SHA256SUMS.txt) | Checking file integrity |
 
-[What's new in 1.08](docs/releases/v1.0.8.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.8) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[What's new in 1.09](docs/releases/v1.0.9.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.9) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.8 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.9 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -77,7 +77,8 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
 - **Playback Diagnostics:** open **Stats** from the floating toolbar or Player menu to see decoded resolution, estimated frames per second, dropped frames, buffering, and a local copyable report.
-- **Quick Download:** one prominent video button queues the current video in a single click; use the adjacent options button for audio, thumbnails and playlists. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
+- **Quick Download:** one prominent video button queues the current video in a single click; use the adjacent options button for audio, thumbnails and playlists.
+- **Right-side shortcuts:** the Download and Have a problem signing in? controls live together at the bottom-right. Hide either independently in Settings → Downloads; the manager opens only when explicitly requested. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
 - **Up to 4K (2160p) when supported:** the floating quality control displays the decoded video resolution (such as 1080p, 1440p or 4K) and opens YouTube’s real Quality menu. A preference for 4K is not a guarantee; the video, browser codec support and bandwidth determine available resolutions.
 - Remember volume and mute state; set default volume and caption preferences.
 - Theater mode, fullscreen preferences, video looping, and autoplay controls.

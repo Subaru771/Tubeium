@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.9] — 2026-11-08 (Tubeium 1.09)
+
+- Keep the **Download video** and **More options (⌄)** actions separate. Download queues the video once; More opens the format/playlist menu; only an explicit choice opens Download Manager. Prevent click bubbling into overlapping YouTube controls.
+- Enforce a **single bottom-right floating dock** for Download and **Have a problem signing in?**. The old bottom-left download position is retired; previous left-position preferences no longer create a duplicate.
+- Add independent **Show floating Download button** and **Show sign-in help shortcut** toggles in Settings → Downloads. Both can be hidden; the sign-in button opens the existing Help tab without changing account state.
+- Preserve the existing Settings shortcut, library/download queue, secure IPC, favorites, 4K display and the other 201 settings (one retired position option is replaced by a new visibility setting).
+- Add regression tests for button location, independent visibility and single-action click paths.
+
+**Limitations:** YouTube playback, login and advertisement behavior may vary. The release remains unsigned and needs live Windows UI verification.
+
+
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
 - **Control Room redesign:** Rebuilt the Settings layout and visual system with a modern dashboard, responsive light/dark themes, category navigation, preset cards, global search, revised control rows, and a redesigned quick actions panel.
