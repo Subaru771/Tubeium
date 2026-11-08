@@ -288,6 +288,7 @@ html.uyp-mini #uyp-bottom-dock,html.uyp-fs #uyp-bottom-dock{display:none!importa
   padding:11px 14px;font-weight:710;font-size:12px;white-space:nowrap}
 #uyp-signin-wrapper .uyp-signin-main:hover{background:#ffffff18}
 #uyp-signin-wrapper .uyp-action-close{background:#ffffff0c}
+#uyp-dl[hidden]{display:none!important}
 #uyp-dl{display:none;position:relative;inset:auto;z-index:auto;
   flex-direction:column;align-items:flex-end;gap:8px}
 html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl{display:flex}
