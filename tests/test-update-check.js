@@ -31,7 +31,7 @@ assert.match(src,/shell\.openExternal\(RELEASES_URL\)/);
 assert(!src.includes('Automatic releases are not configured yet.'),'Old nonfunctional update message must be removed');
 assert(manifest.build.files.includes('src/update-check.js'),'Bundle updater helper in packaged app');
 for(const id of ['go-player','go-downloads','go-library','backup-all','restore-all','check-updates']){
- assert.match(html,new RegExp('id="'+id+'" class="outline-full"[^>]*><span class="action-icon" aria-hidden="true">'));
+ assert.match(html,new RegExp('id="'+id+'"[^>]*class="[^"]*outline-full[^"]*"[^>]*><span class="action-icon" aria-hidden="true">'));
 }
 assert.match(css,/\.sidebar \.sidebar-bottom \.outline-full \.action-icon\{/);
 assert.match(css,/font-size:11px/);
