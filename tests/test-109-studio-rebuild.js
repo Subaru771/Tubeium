@@ -13,15 +13,18 @@ assert('showSigninHelpButton' in DEFAULTS,'Use the current main branch sign-in h
 assert(!('showSignInHelpButton' in DEFAULTS),'No case-mismatched duplicate sign-in option');
 assert.match(renderer,/buildQuickToggle\('showSigninHelpButton'/);
 assert.match(renderer,/\['showSigninHelpButton','Sign-in help'/);
-assert.match(css,/\/\* Tubeium Studio — rebuilt from a blank stylesheet, 1\.09/);
-assert.match(css,/\.workspace-columns\{display:grid;grid-template-columns:minmax\(0,1fr\) 245px/);
+assert.match(css,/\/\* Tubeium Workspace v1\.09 — rebuilt from an empty stylesheet/);
+assert.match(css,/\.workspace-grid\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/\.settings-panel\{/);
-assert.match(css,/\.inspector\{/);
+assert.doesNotMatch(css,/\.inspector\{/, 'The old permanent inspector column must be removed');
+assert.match(css,/\.settings-list\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/body\[data-theme="light"\]/);
 assert.doesNotMatch(css,/\.hero\{/,'Old marketing-style hero must actually be replaced');
 assert.match(renderer,/const panel=el\('details','settings-panel'\)/);
 assert.match(renderer,/const region=\$\('quick-controls'\)/);
 assert.match(renderer,/const region=\$\('floating-quick'\)/);
+assert.match(renderer,/const sections=\[/);
+assert.match(renderer,/nav-section-label/);
 assert.match(renderer,/\$\('global-search'\)\.oninput=/);
 assert.match(renderer,/\$\('inspector-downloads'\)\.onclick=/);
 assert.match(renderer,/star\.onclick=\(\)=>toggleFavorite\(m\.key\)/);
@@ -36,4 +39,4 @@ for(const id of ['navigation','sidebar-resizer','actions-resizer','category-card
 }
 assert.match(css,/@media\(max-width:640px\)\{\.sidebar \.actions-resizer\{display:none\}\}/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-console.log('PASS: Studio rebuilt structurally, 201 settings, live inspector, accordion and resizers retained');
+console.log('PASS: New task-first Settings workspace, two-column panels, grouped navigation, all controls and resizers retained');
