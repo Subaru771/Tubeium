@@ -177,6 +177,10 @@ npm run build:windows
 
 Build outputs are generated in `dist/`. Windows helper scripts are in [`scripts/`](scripts/). On Windows, run `scripts\BUILD_WINDOWS_EXE.cmd` for the installer and portable EXE, `scripts\FAST_BUILD_WINDOWS_EXE.cmd` for an installer-only build, or `scripts\RUN_WITHOUT_BUILDING.cmd` to launch from source.
 
+**Building unreleased 1.09:** Clone the repository with your GitHub account, then check out the `fix/109-settings-workspace-and-download-flow` branch before running `scripts\\BUILD_WINDOWS_EXE.cmd`. The generated executable files remain local in `dist/` and are **not** official 1.09 release binaries.
+
+**Actions usage:** The Windows packaging workflow is **manual-only** (Actions → Tubeium Windows build → Run workflow) so private-repository Windows runner minutes and large temporary artifacts are not consumed on every commit. Automatic source tests remain enabled. If GitHub rejects every job in seconds without starting steps, check the repository owner's **Settings → Billing and licensing** for Actions included usage, spending limits/budgets, payment warnings, and artifact storage. This is not fixed by changing the build commands. Local Windows builds via the scripts above do not require GitHub Actions.
+
 ## FAQ
 
 <details>
