@@ -1,59 +1,86 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
 <title>Tubeium — Settings</title>
-<link rel="stylesheet" href="settings.css" />
+<link rel="stylesheet" href="settings.css"/>
 </head>
 <body data-theme="dark">
 <div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-mark">▶</div><div><strong>Tubeium</strong><small>PERSONALIZATION STUDIO</small></div></div>
-    <div class="nav-label">WORKSPACE</div>
+  <aside class="sidebar" aria-label="Settings navigation">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><span>▶</span></div>
+      <div class="brand-copy"><strong>Tubeium</strong><small>THE CONTROL ROOM</small></div>
+      <span class="brand-version">1.08</span>
+    </div>
+    <div class="sidebar-intro">
+      <span class="sidebar-eyebrow">YOUR WORKSPACE</span>
+      <strong>Make it yours.</strong>
+      <p>Everything you love, just the way you like it.</p>
+    </div>
+    <div class="nav-label"><span>EXPLORE</span><span class="nav-label-dot" aria-hidden="true">✦</span></div>
     <nav id="navigation" aria-label="Settings categories"></nav>
-    <div id="actions-resizer" class="actions-resizer" role="separator" aria-label="Resize lower sidebar" aria-orientation="horizontal" aria-valuemin="160" aria-valuemax="680" aria-valuenow="370" tabindex="0" title="Drag to resize the lower sidebar section; double-click to reset."></div>
+    <div id="actions-resizer" class="actions-resizer" role="separator" aria-label="Resize lower sidebar" aria-orientation="horizontal" aria-valuemin="160" aria-valuemax="680" aria-valuenow="370" tabindex="0" title="Drag up/down to resize quick actions. Double-click to reset."></div>
     <div class="sidebar-bottom">
-      <div class="sidebar-info"><div class="pulse"></div><div><b>Live customization</b><small>Changes save automatically</small></div></div>
-      <button id="go-player" class="outline-full"><span class="action-icon" aria-hidden="true">↗</span><span>Return to YouTube</span></button><button id="go-downloads" class="outline-full"><span class="action-icon" aria-hidden="true">↓</span><span>Download manager</span></button><button id="go-library" class="outline-full"><span class="action-icon" aria-hidden="true">▣</span><span>Local library</span></button><button id="backup-all" class="outline-full"><span class="action-icon" aria-hidden="true">↥</span><span>Backup data</span></button><button id="restore-all" class="outline-full"><span class="action-icon" aria-hidden="true">↧</span><span>Restore backup</span></button><button id="check-updates" class="outline-full"><span class="action-icon" aria-hidden="true">↻</span><span>Check for updates</span></button>
-      <span class="version">Tubeium · Personalization Studio</span>
+      <div class="sidebar-info"><span class="pulse" aria-hidden="true"></span><div><b>All changes saved</b><small>Personalization is live</small></div></div>
+      <button id="go-player" type="button" class="outline-full primary-sidebar-action"><span class="action-icon" aria-hidden="true">↗</span><span>Back to YouTube</span></button>
+      <button id="go-downloads" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">↓</span><span>Download manager</span></button>
+      <button id="open-download-folder" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">▤</span><span>Downloads folder</span></button>
+      <button id="go-library" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">▣</span><span>Local library</span></button>
+      <div class="sidebar-action-divider"></div>
+      <button id="backup-all" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">↥</span><span>Back up data</span></button>
+      <button id="restore-all" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">↧</span><span>Restore backup</span></button>
+      <button id="check-updates" type="button" class="outline-full"><span class="action-icon" aria-hidden="true">↻</span><span>Check for updates</span></button>
+      <span class="version">Tubeium for Windows <span>·</span> Made for you</span>
     </div>
   </aside>
   <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-label="Resize settings sidebar" aria-orientation="vertical" aria-valuemin="205" aria-valuemax="480" aria-valuenow="249" tabindex="0" title="Drag to resize sidebar. Double-click to reset."></div>
   <main class="main">
     <header class="topbar">
-      <div class="crumb">YOUR WORKSPACE <span> / </span> <b id="crumb-name">Overview</b></div>
-      <div class="top-actions"><div class="font-tools" role="group" aria-label="Settings text size"><button id="font-smaller" type="button" title="Smaller settings font (Ctrl+-)" aria-label="Smaller settings font">A−</button><output id="font-percent" aria-label="Settings font size">125%</output><button id="font-larger" type="button" title="Larger settings font (Ctrl++)" aria-label="Larger settings font">A+</button></div><button id="export" class="header-action" title="Export settings">⇧ <span>Export</span></button><button id="import" class="header-action" title="Import settings">⇩ <span>Import</span></button></div>
+      <div class="breadcrumb"><span class="breadcrumb-root">Tubeium</span><span class="breadcrumb-separator">/</span><b id="crumb-name">Overview</b></div>
+      <div class="top-actions">
+        <span class="live-tag"><span class="status-dot" aria-hidden="true"></span>LIVE SETTINGS</span>
+        <div class="font-tools" role="group" aria-label="Settings text size"><button id="font-smaller" type="button" title="Smaller settings font (Ctrl+-)" aria-label="Smaller settings font">A−</button><output id="font-percent" aria-label="Settings font size">125%</output><button id="font-larger" type="button" title="Larger settings font (Ctrl++)" aria-label="Larger settings font">A+</button></div>
+        <button id="import" type="button" class="header-action" title="Import settings"><span aria-hidden="true">↧</span><span>Import</span></button>
+        <button id="export" type="button" class="header-action" title="Export settings"><span aria-hidden="true">↥</span><span>Export</span></button>
+      </div>
     </header>
     <div class="scroll-area" id="scroll-area">
       <div class="content">
         <div id="overview">
+          <div class="overview-heading"><div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> YOUR PERSONAL SPACE</div><h1>Made to feel <em>yours.</em></h1><p>One beautiful space for everything that makes Tubeium your favorite way to watch.</p></div>
           <div class="hero">
-            <div class="hero-text"><div class="eyebrow"><span class="star">✦</span> YOUR PLAYER. YOUR RULES.</div><h1>Make YouTube<br /><em>yours.</em></h1><p>Powerful customization for the desktop: player controls, downloads, Shorts, gestures and more.</p><button id="start-customizing" class="primary-button">Explore all options <span>↗</span></button></div>
-            <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="play-ring"><div class="play-shape">▶</div></div><div class="art-pill art-top"><span>◉</span> UP TO 4K</div><div class="art-pill art-bottom"><span>⌘</span> FULL CONTROL</div></div>
+            <div class="hero-text"><span class="hero-kicker">A BETTER WAY TO WATCH <span>✦</span></span><h2>Your player.<br/>Your rules.</h2><p>Fine-tune playback, clean up distractions and make downloading effortless—all in one place.</p><button id="start-customizing" type="button" class="primary-button">Explore settings <span aria-hidden="true">↗</span></button></div>
+            <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="play-ring"><span class="play-shape">▶</span></div><div class="art-pill art-top">◉ UP TO 4K</div><div class="art-pill art-bottom">✧ ALL YOURS</div></div>
           </div>
-          <div class="section-head"><div><div class="eyebrow light">QUICK START</div><h2>Find your vibe</h2><p>Use a preset as a starting point. Your other preferences stay intact.</p></div></div>
+          <div class="overview-quick">
+            <label class="overview-search-label" for="overview-search">Looking for something?</label>
+            <div class="overview-search-box"><span aria-hidden="true">⌕</span><input id="overview-search" type="search" placeholder="Search any of your settings..." autocomplete="off" aria-label="Search all settings"/><kbd>/</kbd></div>
+          </div>
+          <div class="section-head"><div><span class="eyebrow light">ONE CLICK TO TRANSFORM</span><h2>Choose your vibe</h2><p>Start with a look you love. Every detail stays customizable.</p></div><span class="section-flair" aria-hidden="true">✦</span></div>
           <div class="presets" id="presets">
-            <button data-preset="balanced" class="preset"><div class="preset-icon purple">◈</div><b>Balanced</b><span>The familiar YouTube experience, refined.</span><small>APPLY PRESET ↗</small></button>
-            <button data-preset="focus" class="preset"><div class="preset-icon blue">◎</div><b>Deep Focus</b><span>Fewer distractions, more intentional watching.</span><small>APPLY PRESET ↗</small></button>
-            <button data-preset="cinema" class="preset"><div class="preset-icon pink">▣</div><b>Cinema</b><span>AMOLED dark, theater-first viewing.</span><small>APPLY PRESET ↗</small></button>
-            <button data-preset="music" class="preset"><div class="preset-icon gold">♫</div><b>Music Lounge</b><span>Put the music first. Loop on, noise off.</span><small>APPLY PRESET ↗</small></button>
+            <button data-preset="balanced" class="preset" type="button"><div class="preset-icon purple">◈</div><b>Balanced</b><span>Comfortable, familiar and beautifully refined.</span><small>USE PRESET <span>↗</span></small></button>
+            <button data-preset="focus" class="preset" type="button"><div class="preset-icon blue">◎</div><b>Deep Focus</b><span>A quieter screen with fewer distractions.</span><small>USE PRESET <span>↗</span></small></button>
+            <button data-preset="cinema" class="preset" type="button"><div class="preset-icon pink">▣</div><b>Cinema</b><span>Immersive dark viewing, center stage.</span><small>USE PRESET <span>↗</span></small></button>
+            <button data-preset="music" class="preset" type="button"><div class="preset-icon gold">♫</div><b>Music Lounge</b><span>Set the mood and let the music flow.</span><small>USE PRESET <span>↗</span></small></button>
           </div>
-          <button id="open-favorites" class="favorites-open" type="button">★ Open my favorite settings <span>↗</span></button>
-          <div class="overview-bottom"><div><b id="option-count">—</b><small>Customizable options</small></div><div><b id="category-count">—</b><small>Settings categories</small></div><div><b>∞</b><small>Possible combinations</small></div></div>
+          <button id="open-favorites" class="favorites-open" type="button"><span><b>★ Your pinned favorites</b><small>All your frequently used controls in one place</small></span><span class="favorites-arrow" aria-hidden="true">↗</span></button>
+          <div class="overview-bottom"><div><b id="option-count">—</b><small>Settings to explore</small></div><div><b id="category-count">—</b><small>Categories</small></div><div><b>100%</b><small>Personalized by you</small></div></div>
         </div>
         <div id="category-view" hidden>
-          <div class="category-title"><div class="eyebrow light">PERSONALIZATION / <span id="category-number">01</span></div><h1 id="category-heading">Appearance</h1><p id="category-description"></p></div>
-          <div class="category-tools"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search all settings..." autocomplete="off" aria-label="Search settings"/><kbd>/</kbd></label><button id="reset-section" class="secondary-button">↺ Reset section</button></div>
+          <div class="category-title"><div class="eyebrow light">YOUR SETTINGS <span class="category-index">/ <span id="category-number">01</span></span></div><h1 id="category-heading">Appearance</h1><p id="category-description"></p></div>
+          <div class="category-tools"><label class="search" for="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search all options..." autocomplete="off" aria-label="Search settings"/><kbd>/</kbd></label><button id="reset-section" type="button" class="secondary-button"><span aria-hidden="true">↺</span> Reset category</button></div>
           <div id="settings-list" class="settings-list"></div>
           <div class="utilities" id="utilities" hidden>
-            <h3>Local browsing data</h3><p>These actions affect data stored on this computer. They do not stop YouTube or Google from recording activity while signed in. Clearing cookies will sign you out.</p>
-            <div class="utility-row"><div><b>Clear cached files</b><small>Delete cached website files. This does not remove Google watch history.</small></div><button id="clear-cache" class="secondary-button">Clear cache</button></div>
-            <div class="utility-row"><div><b>Clear cookies</b><small>Remove locally stored sign-in cookies, including Google and YouTube. You will be signed out.</small></div><button id="clear-cookies" class="danger-button">Clear cookies</button></div>
+            <h3>Local browsing data</h3><p>These actions affect data on this computer, not Google account history. Clearing cookies will sign you out.</p>
+            <div class="utility-row"><div><b>Clear cache</b><small>Remove temporary files, not your viewing history.</small></div><button id="clear-cache" class="secondary-button">Clear</button></div>
+            <div class="utility-row"><div><b>Clear cookies</b><small>Remove sign-in cookies from this app.</small></div><button id="clear-cookies" class="danger-button">Clear cookies</button></div>
           </div>
-          <div id="category-footer" class="category-footer"><span>Desktop controls apply live where possible. YouTube UI selectors are best-effort.</span><button id="reset-all" class="text-button">Restore all defaults ↗</button></div>
+          <div id="category-footer" class="category-footer"><span>Changes are applied live whenever supported.</span><button id="reset-all" type="button" class="text-button">Restore all defaults ↗</button></div>
         </div>
+        <footer class="studio-footer"><span>Tubeium · Thoughtfully yours.</span><span>Windows desktop client</span></footer>
       </div>
     </div>
   </main>
