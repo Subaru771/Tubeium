@@ -30,6 +30,8 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
+**Development:** Tubeium 1.09 source changes (independent bottom-right Download/Sign-in Help shortcuts) are merged but not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+
 ## Screenshots
 
 The screenshots below show **Tubeium's actual bundled interface pages**, captured directly from the project HTML and CSS on a clean Windows browser with no personal account data. They are UI captures, **not** proof of live YouTube playback, successful Google sign-in, or Windows desktop acceptance testing.
@@ -48,18 +50,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**Tubeium 1.09 · v1.0.9 · Windows x64 · Free**
+**Tubeium 1.08 · v1.0.8 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/Tubeium-1.0.9-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/Tubeium-1.0.9-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.9/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/Tubeium-1.0.8-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/Tubeium-1.0.8-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.8/SHA256SUMS.txt) | Checking file integrity |
 
-[What's new in 1.09](docs/releases/v1.0.9.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.9) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[What's new in 1.08](docs/releases/v1.0.8.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.8) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.9 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.8 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
