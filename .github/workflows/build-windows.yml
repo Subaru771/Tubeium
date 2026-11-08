@@ -1,9 +1,9 @@
 name: Tubeium Windows build
 on:
   workflow_dispatch:
-  # One-off 1.09 preview build: only a PR changing this workflow triggers it.
-  pull_request:
-    branches: [main]
+  # One-off 1.09 preview build from the development branch without requiring a mergeable PR.
+  push:
+    branches: ['fix/109-settings-workspace-and-download-flow']
     paths:
       - '.github/workflows/build-windows.yml'
 permissions:
