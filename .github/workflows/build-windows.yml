@@ -24,8 +24,15 @@ jobs:
           package-manager-cache: false
       - name: Verify committed dependency lockfile
         run: npm run verify:dependencies
-      - name: Install exact locked versions
-        run: npm ci --no-audit --no-fund
+      - name: Install exact locked versions (retry transient FFmpeg host failures)
+        shell: pwsh
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            npm ci --no-audit --no-fund
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "npm ci failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
       - name: Test source and release safety
         run: npm run verify:release
       - name: Audit all dependencies (including Electron and build tools)
