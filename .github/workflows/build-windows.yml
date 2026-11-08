@@ -24,20 +24,58 @@ jobs:
           package-manager-cache: false
       - name: Verify committed dependency lockfile
         run: npm run verify:dependencies
-      - name: Install exact locked versions
-        run: npm ci --no-audit --no-fund
+      - name: Install exact locked versions (retry transient FFmpeg host failures)
+        shell: pwsh
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            # ffmpeg-static supports this documented mirror. Only use it
+            # when its original release host has failed.
+            if ($attempt -gt 1) {
+              $env:FFMPEG_BINARIES_URL = 'https://cdn.npmmirror.com/binaries/ffmpeg-static'
+            }
+            npm ci --no-audit --no-fund
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "npm ci failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
       - name: Test source and release safety
         run: npm run verify:release
       - name: Audit all dependencies (including Electron and build tools)
         run: npm audit --audit-level=high
-      - name: Build Windows installer
+      - name: Build Windows installer (retry transient release host 504)
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:installer
-      - name: Build Windows portable application
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            if ($attempt -gt 1) {
+              # Electron/Builder official documented mirror options are
+              # only used after GitHub's original release hosts time out.
+              $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+              $env:ELECTRON_BUILDER_BINARIES_MIRROR = 'https://npmmirror.com/mirrors/electron-builder-binaries/'
+            }
+            npm run build:installer
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "installer packaging failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
+      - name: Build Windows portable (retry transient release host 504)
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:portable
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            if ($attempt -gt 1) {
+              # Electron/Builder official documented mirror options are
+              # only used after GitHub's original release hosts time out.
+              $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+              $env:ELECTRON_BUILDER_BINARIES_MIRROR = 'https://npmmirror.com/mirrors/electron-builder-binaries/'
+            }
+            npm run build:portable
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "portable packaging failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
       - name: Check binaries and write SHA256SUMS
         shell: pwsh
         run: |

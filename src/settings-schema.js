@@ -65,7 +65,7 @@ const groups = [
     ['audioQuality', 'Audio conversion quality', 'FFmpeg/VBR setting: 0 is best; 9 is smallest.', 'select', '0', { options: [['0','Best (0)'], ['2','High (2)'], ['5','Balanced (5)'], ['9','Smallest (9)']] }],
     ['filenameTemplate', 'File naming', 'Choose a safe filename format for saved media.', 'select', 'title-id', { options: [['title-id','Video title [ID]'], ['title','Video title'], ['channel-title','Channel - Video title'], ['date-title','Upload date - Video title']] }],
     ['downloadBaseFolder', 'Download base folder', 'By default uses your system Downloads folder.', 'folder', ''],
-    ['downloadSubfolder', 'Downloads subfolder', 'Folder under the chosen base path. Leave blank to save directly.', 'text', 'Tubeium', { maxLength: 40, placeholder: 'Tubeium' }],
+    ['downloadSubfolder', 'Downloads subfolder', 'By default videos go to Downloads\\Tubeium. Older uYouPlus folders are renamed only when safe; custom folders stay untouched.', 'text', 'Tubeium', { maxLength: 40, placeholder: 'Tubeium' }],
     ['openAfterDownload', 'Show finished download', 'Reveal the saved file in your file explorer.', 'toggle', true],
     ['downloadThumbnail', 'Save thumbnail', 'Save the video thumbnail alongside the media.', 'toggle', false],
     ['downloadSubtitles', 'Save subtitles', 'Download available subtitles as separate files.', 'toggle', false],

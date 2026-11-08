@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 const { DEFAULTS, normalize, publicGroups, metadata } = require('./settings-schema');
 const { newTask, normalizeQueue, formatArgs } = require('./download-queue');
+const { migrateLegacyDownloadFolder, remapDownloadJobPaths } = require('./download-folder-migration');
 const { migrateUserData } = require('./migration-userdata');
 const { importCookies, MAX_FILE_BYTES } = require('./signin-cookies');
 const { startTransfer } = require('./browser-session-transfer');
@@ -1498,12 +1499,26 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(async () => {
     migrateUserData(app.getPath('appData'), app.getPath('userData'));
     settings = normalize(readJson(settingsFile(), {}));
+    // Legacy uYouPlus download folders must not survive a brand upgrade when
+    // we can safely rename them. Never overwrite a user's existing Tubeium dir.
+    const downloadBase=settings.downloadBaseFolder||app.getPath('downloads');
+    const legacyDownloads=migrateLegacyDownloadFolder({
+      fs,base:downloadBase,subfolder:settings.downloadSubfolder,
+    });
+    if (legacyDownloads.nextSubfolder!==settings.downloadSubfolder){
+      settings=normalize({downloadSubfolder:legacyDownloads.nextSubfolder},settings);
+      saveSettings();
+    }
+    if (legacyDownloads.blocked)console.warn('Legacy downloads preserved because migration could not safely rename the old directory.');
     if (settings.autoClearCache) { try { await session.defaultSession.clearCache(); } catch {} }
     playerMemory = { ...playerMemory, ...readJson(memoryFile(), {}) };
     libraryStore = new LibraryStore(path.join(app.getPath('userData'),'local-library.json'));
     playlistStore = new PlaylistStore(path.join(app.getPath('userData'),'local-playlists.json'));
     setupWebsitePermissions();
     jobs=normalizeQueue(readJson(queueFile(),{jobs:[]}));
+    if(legacyDownloads.moved){
+      jobs=remapDownloadJobPaths(jobs,legacyDownloads.source,legacyDownloads.destination);
+    }
     if(!settings.autoRestoreDownloads){for(const job of jobs)if(job.status==='queued')job.status='paused';}
     sendDownloads(true);
     applyLoginSetting();

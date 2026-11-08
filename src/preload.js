@@ -282,6 +282,22 @@ html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl { display: flex; }
 #uyp-dl.open .uyp-menu { display: flex; }
 #uyp-dl .uyp-menu button { background: transparent; padding: 10px 18px; text-align: left; }
 #uyp-dl .uyp-menu button:hover { background: #2e2e34; }
+/* One-click download split control. The main action queues the video;
+   the smaller chevron reveals format/playlist options without extra clicks. */
+#uyp-dl .uyp-download-actions{display:flex;align-items:stretch;gap:2px;
+  overflow:hidden;border-radius:14px;background:var(--uyp-accent,#9d85ff);
+  border:1px solid #ffffff28;box-shadow:0 8px 30px #0009;}
+#uyp-dl .uyp-download-actions .uyp-main{border-radius:0;min-height:44px;
+  font-weight:750;font-size:13px;padding:12px 18px;background:transparent;box-shadow:none;}
+#uyp-dl .uyp-download-actions .uyp-options{min-width:40px;padding:9px;
+  background:#00000022;border-left:1px solid #ffffff35;
+  color:white;font-size:21px;font-weight:700;}
+#uyp-dl .uyp-download-actions button:hover,#uyp-dl .uyp-download-actions button:focus-visible{
+  background:#ffffff25;outline:2px solid #fff;outline-offset:-2px;}
+#uyp-dl .uyp-menu{min-width:240px;border:1px solid #6c6485;
+  background:#1c1c26;border-radius:13px;padding:6px;box-shadow:0 16px 45px #000a;}
+#uyp-dl .uyp-menu button{font-size:13px;border-radius:8px;padding:11px 12px;}
+
 html.uyp-dl-left #uyp-dl{right:auto!important;left:24px!important;align-items:flex-start!important;}
 /* Position above the native 42px tab strip instead of underneath it. */
 #uyp-prefs-btn{
@@ -783,7 +799,14 @@ function initDownloadButton() {
   menu.className = 'uyp-menu';
   const main = document.createElement('button');
   main.className = 'uyp-main';
-  main.textContent = '⬇ Download';
+  main.textContent = '↓ Download video';
+  main.title='One click: add this video to Tubeium’s download queue';
+  main.setAttribute('aria-label','Download this video');
+  const options=document.createElement('button');
+  options.type='button';options.className='uyp-options';options.textContent='⌄';
+  options.title='Choose video, audio, thumbnail or playlist download';
+  options.setAttribute('aria-label','More download options');
+  options.setAttribute('aria-expanded','false');
 
   let busy = false;
   const setLabel = (t) => { main.textContent = t; };
@@ -792,14 +815,14 @@ function initDownloadButton() {
     const id = currentVideoId();
     if (!id || busy) return;
     busy = true;
-    box.classList.remove('open');
+    box.classList.remove('open');options.setAttribute('aria-expanded','false');
     setLabel('Starting…');
     try {
       const res = await ipcRenderer.invoke('download', { id, mode });
       if (res.ok) {toast('Added to download queue · Ctrl+Shift+D to manage', 3500);setLabel('✓ Queued');}
       else toast('Download failed: ' + String(res.error || 'Unknown error').slice(0, 140), 5000);
     } catch (err) { toast('Download failed: ' + String(err.message || err).slice(0, 140), 5000); }
-    finally { busy = false; setLabel('⬇ Download'); }
+    finally { busy = false; setTimeout(()=>{if(!busy)setLabel('↓ Download video');},1250); }
   }
 
   [['Video', 'video'], ['Audio', 'audio'], ['Thumbnail', 'thumbnail']].forEach(([label, mode]) => {
@@ -822,11 +845,23 @@ function initDownloadButton() {
   });menu.appendChild(playlistButton);
   const managerButton=document.createElement('button');managerButton.type='button';managerButton.textContent='Open download manager ↗';
   managerButton.addEventListener('click',()=>{box.classList.remove('open');ipcRenderer.send('open-download-manager');});menu.appendChild(managerButton);
-  main.addEventListener('click', () => { if (!busy) {playlistButton.hidden=!new URLSearchParams(location.search).has('list');box.classList.toggle('open');} });
+  main.addEventListener('click',()=>start('video'));
+  options.addEventListener('click',()=>{
+    if(busy)return;
+    playlistButton.hidden=!new URLSearchParams(location.search).has('list');
+    const open=box.classList.toggle('open');
+    options.setAttribute('aria-expanded',String(open));
+  });
   box.appendChild(menu);
-  box.appendChild(main);
+  const actions=document.createElement('div');actions.className='uyp-download-actions';
+  actions.append(main,options);box.appendChild(actions);
   document.body.appendChild(box);
 
+  document.addEventListener('pointerdown',event=>{
+    if(box.classList.contains('open')&&!box.contains(event.target)){
+      box.classList.remove('open');options.setAttribute('aria-expanded','false');
+    }
+  },true);
   ipcRenderer.on('dl-progress', (_e, p) => {
     if (p.status) setLabel(p.status);
     else if (typeof p.pct === 'number') setLabel(`⬇ ${Math.round(p.pct)}%`);

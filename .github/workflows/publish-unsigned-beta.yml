@@ -6,10 +6,15 @@ on:
         description: 'New release tag matching package.json (for example v1.0.1)'
         required: true
         type: string
+  # One-time publication request for the reviewed Tubeium 1.08 release.
+  push:
+    branches: [main]
+    paths:
+      - '.github/release-requests/v1.0.8.txt'
 permissions:
   contents: write
 concurrency:
-  group: tubeium-unsigned-release-${{ inputs.release_tag }}
+  group: tubeium-unsigned-release-${{ github.event_name == 'push' && 'v1.0.8' || inputs.release_tag }}
   cancel-in-progress: false
 jobs:
   publish:
@@ -26,14 +31,14 @@ jobs:
           package-manager-cache: false
       - name: Validate requested tag, version and main branch
         env:
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.8' || inputs.release_tag }}
         run: node scripts/validate-unsigned-release.js
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.8' || inputs.release_tag }}
         run: |
           # Authenticated lookup works even when checkout has persist-credentials: false.
           # Treat only 404 as tag-not-found. All other API failures block publishing.
@@ -48,20 +53,58 @@ jobs:
           if ($response.StatusCode -ne 404) { throw "Could not verify remote tags (HTTP $($response.StatusCode)). Refusing to publish." }
       - name: Verify committed dependency lock
         run: npm run verify:dependencies
-      - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Install locked dependencies (retry temporary FFmpeg download errors)
+        shell: pwsh
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            # ffmpeg-static supports this documented mirror. Only use it
+            # when its original release host has failed.
+            if ($attempt -gt 1) {
+              $env:FFMPEG_BINARIES_URL = 'https://cdn.npmmirror.com/binaries/ffmpeg-static'
+            }
+            npm ci --no-audit --no-fund
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "npm ci failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
       - name: Run source and release safety checks
         run: npm run verify:release
       - name: Audit dependencies
         run: npm audit --audit-level=high
-      - name: Build unsigned Windows installer
+      - name: Build Windows installer (retry transient release host 504)
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:installer
-      - name: Build unsigned Windows portable EXE
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            if ($attempt -gt 1) {
+              # Electron/Builder official documented mirror options are
+              # only used after GitHub's original release hosts time out.
+              $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+              $env:ELECTRON_BUILDER_BINARIES_MIRROR = 'https://npmmirror.com/mirrors/electron-builder-binaries/'
+            }
+            npm run build:installer
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "installer packaging failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
+      - name: Build Windows portable (retry transient release host 504)
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:portable
+        run: |
+          for ($attempt=1; $attempt -le 3; $attempt++) {
+            if ($attempt -gt 1) {
+              # Electron/Builder official documented mirror options are
+              # only used after GitHub's original release hosts time out.
+              $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+              $env:ELECTRON_BUILDER_BINARIES_MIRROR = 'https://npmmirror.com/mirrors/electron-builder-binaries/'
+            }
+            npm run build:portable
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 3) { throw "portable packaging failed after three attempts" }
+            Start-Sleep -Seconds (5 * $attempt)
+          }
       - name: Verify both binaries and generate SHA-256 checksums
         shell: pwsh
         run: |
@@ -81,7 +124,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         continue-on-error: true
         with:
-          name: Tubeium-unsigned-${{ inputs.release_tag }}
+          name: Tubeium-unsigned-${{ github.event_name == 'push' && 'v1.0.8' || inputs.release_tag }}
           path: |
             dist/*.exe
             dist/SHA256SUMS.txt
@@ -91,7 +134,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.8' || inputs.release_tag }}
         run: |
           $tag = $env:TUBEIUM_RELEASE_TAG
           $version = (Get-Content package.json | ConvertFrom-Json).version
@@ -104,9 +147,9 @@ jobs:
           Automated source tests, dependency audits and packaging checks passed. Live Google sign-in is not guaranteed.
           Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
-          if ($tag -eq 'v1.0.7') {
-            $title = 'Tubeium 1.07'
-            $notes = Get-Content 'docs/releases/v1.0.7.md' -Raw
+          if ($tag -eq 'v1.0.8') {
+            $title = 'Tubeium 1.08'
+            $notes = Get-Content 'docs/releases/v1.0.8.md' -Raw
           } else {
             $title = "Tubeium $tag (unsigned)"
           }
