@@ -21,10 +21,10 @@ for(const key of [
 ]){
  assert(html.includes('id="'+key+'"'),key+' must stay accessible and wired');
 }
-assert.match(js,/\$\('overview-search'\)\.addEventListener\('input'/);
+assert.match(js,/\$\('overview-search'\)\.addEventListener\('keydown'/);
 assert.match(js,/\$\('open-download-folder'\)\.onclick=/);
-assert.match(css,/\/\* Tubeium Control Room — a complete Settings visual system/);
-assert.match(css,/\.hero\{/);
+assert.match(css,/\/\* Tubeium Studio — rebuilt from a blank stylesheet/);
+assert.match(css,/\.workspace-columns\{/);
 assert.match(css,/\.presets\{/);
 assert.match(css,/body\[data-theme="light"\]/);
 assert.match(css,/\.setting-row\{/);
@@ -42,4 +42,4 @@ assert.match(preload,/\['Audio', 'audio'\]/);
 assert.match(preload,/open-download-manager/);
 assert.match(main,/migrateLegacyDownloadFolder\(/);
 assert.match(main,/remapDownloadJobPaths\(/);
-console.log('PASS: completely redesigned Settings, compatibility IDs, light/dark, one-click download and folder shortcut');
+console.log('PASS: rebuilt Settings Studio, compatibility IDs, light/dark, one-click download and folder shortcut');
