@@ -125,8 +125,8 @@ const PRESETS = {
 function openSettings() {
   if (prefs && !prefs.isDestroyed()) { prefs.show(); prefs.focus(); return; }
   prefs = new BrowserWindow({
-    width: 1080, height: 760, minWidth: 750, minHeight: 560,
-    backgroundColor: '#111119', icon: ICON, title: 'Tubeium · Settings',
+    width: 1280, height: 820, minWidth: 760, minHeight: 590,
+    backgroundColor: '#0d1014', icon: ICON, title: 'Tubeium · Studio',
     autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'settings-preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
