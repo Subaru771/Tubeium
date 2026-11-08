@@ -57,6 +57,11 @@ jobs:
         shell: pwsh
         run: |
           for ($attempt=1; $attempt -le 3; $attempt++) {
+            # ffmpeg-static supports this documented mirror. Only use it
+            # when its original release host has failed.
+            if ($attempt -gt 1) {
+              $env:FFMPEG_BINARIES_URL = 'https://cdn.npmmirror.com/binaries/ffmpeg-static'
+            }
             npm ci --no-audit --no-fund
             if ($LASTEXITCODE -eq 0) { break }
             if ($attempt -eq 3) { throw "npm ci failed after three attempts" }
