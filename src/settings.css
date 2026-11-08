@@ -393,3 +393,6 @@ kbd{padding:2px 6px;border:1px solid var(--border);background:var(--raised);
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 }
+
+/* Keep the compact-rail divider contract explicitly testable. */
+@media(max-width:640px){.sidebar .actions-resizer{display:none}}
