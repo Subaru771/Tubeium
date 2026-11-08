@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.8] — 2026-11-08 (Tubeium 1.08)
+
+- **Control Room redesign:** Rebuilt the Settings layout and visual system with a modern dashboard, responsive light/dark themes, category navigation, preset cards, global search, revised control rows, and a redesigned quick actions panel.
+- **One-click video download:** The main Download video button now queues the video immediately. An adjacent chevron opens choices for audio, thumbnails, and playlists without extra clicks.
+- **Safe folder renaming:** Replaces legacy uYouPlus download subfolder names with Tubeium. When the old directory exists and the new one does not, rename the folder without overwriting files; remap download history paths after successful migration. User-selected unrelated folders remain unchanged.
+- **Open downloads folder:** A dedicated Settings sidebar shortcut opens the destination directly.
+- **Preserve behavior:** Existing 201 settings, Favorites, playback diagnostics, the two independent sidebar resizers, update checks, and Electron sandbox remain intact. New regression tests cover migration and the redesigned interface.
+
+**Limits:** If both legacy and Tubeium folders exist, Tubeium does not automatically merge or delete either one. Live YouTube playback and sign-in still require testing on Windows; the app remains unsigned.
+
+
 ## [1.0.7] — 2026-11-08 (Tubeium 1.07)
 
 - **Settings Favorites:** pin up to 24 existing preferences via an accessible star, access them from the new Favorites category or Overview, and preserve them in a separate validated local user-data file without duplicating settings.
