@@ -2,6 +2,8 @@
 
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
 
+- **Settings Studio rebuilt from scratch:** replace the old hero-style Overview with a compact three-zone workspace, a responsive settings inspector, collapsible groups, a keyboard-searchable preference center, live toggles, starred quick links and revised light/dark design. Preserve all 201 settings and both functional sidebar resizing handles.
+
 - Keep the **Download video** and **More options (⌄)** actions separate. Download queues the video once; More opens the format/playlist menu; only an explicit choice opens Download Manager. Prevent click bubbling into overlapping YouTube controls.
 - Enforce a **single bottom-right floating dock** for Download and **Have a problem signing in?**. The old bottom-left download position is retired; previous left-position preferences no longer create a duplicate.
 - Add independent **Show floating Download button** and **Show sign-in help shortcut** toggles in Settings → Downloads. Both can be hidden; the sign-in button opens the existing Help tab without changing account state.
