@@ -6,10 +6,15 @@ on:
         description: 'New release tag matching package.json (for example v1.0.1)'
         required: true
         type: string
+  # One-time, gated publication trigger for Tubeium 1.09.
+  push:
+    branches: [main]
+    paths:
+      - '.github/release-requests/v1.0.9.txt'
 permissions:
   contents: write
 concurrency:
-  group: tubeium-unsigned-release-${{ inputs.release_tag }}
+  group: tubeium-unsigned-release-${{ github.event_name == 'push' && 'v1.0.9' || inputs.release_tag }}
   cancel-in-progress: false
 jobs:
   publish:
@@ -26,14 +31,14 @@ jobs:
           package-manager-cache: false
       - name: Validate requested tag, version and main branch
         env:
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.9' || inputs.release_tag }}
         run: node scripts/validate-unsigned-release.js
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.9' || inputs.release_tag }}
         run: |
           # Authenticated lookup works even when checkout has persist-credentials: false.
           # Treat only 404 as tag-not-found. All other API failures block publishing.
@@ -119,7 +124,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         continue-on-error: true
         with:
-          name: Tubeium-unsigned-${{ inputs.release_tag }}
+          name: Tubeium-unsigned-${{ github.event_name == 'push' && 'v1.0.9' || inputs.release_tag }}
           path: |
             dist/*.exe
             dist/SHA256SUMS.txt
@@ -129,7 +134,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+          TUBEIUM_RELEASE_TAG: ${{ github.event_name == 'push' && 'v1.0.9' || inputs.release_tag }}
         run: |
           $tag = $env:TUBEIUM_RELEASE_TAG
           $version = (Get-Content package.json | ConvertFrom-Json).version
@@ -142,9 +147,9 @@ jobs:
           Automated source tests, dependency audits and packaging checks passed. Live Google sign-in is not guaranteed.
           Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
-          if ($tag -eq 'v1.0.8') {
-            $title = 'Tubeium 1.08'
-            $notes = Get-Content 'docs/releases/v1.0.8.md' -Raw
+          if ($tag -eq 'v1.0.9') {
+            $title = 'Tubeium 1.09'
+            $notes = Get-Content 'docs/releases/v1.0.9.md' -Raw
           } else {
             $title = "Tubeium $tag (unsigned)"
           }
