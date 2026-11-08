@@ -1,22 +1,15 @@
 # Changelog
 
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
-- **Second-generation Settings workspace:** replace the interim three-zone Studio interface entirely. The new focused, two-column home and settings workspace removes the permanent inspector and hero treatment, uses grouped category navigation, live everyday controls, an accurate dock visibility preview, accessible presets, favorites, real cross-category search, and two-column collapsible settings cards.
-- **Download interaction regression fix:** the main right-side Download action only queues the current video; the adjacent chevron only opens extra formats; Download Manager opens only on an explicit selection. The duplicate floating-toolbar manager icon is gone, and a simulated click test checks this chain.
-- **Right-side actions stay independent:** Download and “Have a problem signing in?” may each be hidden or shown separately. The manager entry in the Download menu can be hidden through the existing toolbar-manager preference.
-- **Remove bottom-left manager shortcut in Settings:** the manager shortcut moves to the Settings header; the left sidebar remains dedicated to navigation, library, folders, backups and updates.
 
+- **Genuinely rebuilt Settings interface:** a new two-column workspace replaces the interim three-zone Studio and permanent inspector. Includes a redesigned navigation hierarchy, live everyday controls, right-dock visibility preview, compact presets, favorite settings, cross-category search, and independent collapsible two-column settings sections.
+- **Fix Download-click cascade:** the main right-hand Download button queues exactly one video, the adjacent arrow only opens its options, and Download Manager opens only when explicitly selected. Remove the duplicate floating-toolbar Manager button.
+- **Right-hand controls only:** Download and “Have a problem signing in?” share one bottom-right dock and can each be hidden independently from Settings → Downloads. Retired legacy bottom-left download placement.
+- **Better download organization:** the Settings shortcut for Download Manager is moved from the bottom-left shortcuts area to the header. An optional Manager entry remains in Download's options menu.
+- **Preserved features:** retain all 201 existing settings, favorites, sign-in assistance, local library, download queue, playback diagnostics, 4K resolution badge, and both sidebar resizing handles.
+- **Regression coverage:** simulate actual Download, More, Manager and sign-in button clicks, and smoke-test category navigation, settings controls, layout invariants, and independent hide/show preferences.
 
-- **Settings Studio rebuilt from scratch:** replace the old hero-style Overview with a compact three-zone workspace, a responsive settings inspector, collapsible groups, a keyboard-searchable preference center, live toggles, starred quick links and revised light/dark design. Preserve all 201 settings and both functional sidebar resizing handles.
-
-- Keep the **Download video** and **More options (⌄)** actions separate. Download queues the video once; More opens the format/playlist menu; only an explicit choice opens Download Manager. Prevent click bubbling into overlapping YouTube controls.
-- Enforce a **single bottom-right floating dock** for Download and **Have a problem signing in?**. The old bottom-left download position is retired; previous left-position preferences no longer create a duplicate.
-- Add independent **Show floating Download button** and **Show sign-in help shortcut** toggles in Settings → Downloads. Both can be hidden; the sign-in button opens the existing Help tab without changing account state.
-- Preserve the existing Settings shortcut, library/download queue, secure IPC, favorites, 4K display and the other 201 settings (one retired position option is replaced by a new visibility setting).
-- Add regression tests for button location, independent visibility and single-action click paths.
-
-**Limitations:** YouTube playback, login and advertisement behavior may vary. The release remains unsigned and needs live Windows UI verification.
-
+**Limitations:** Source-level checks are green, but the GitHub Actions runner is currently failing before executing jobs. This release has not been packaged or tested on Windows. YouTube sign-in, playback and ad behavior require manual testing.
 
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
