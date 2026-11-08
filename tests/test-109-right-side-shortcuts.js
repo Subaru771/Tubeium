@@ -20,7 +20,8 @@ assert.equal(normalize({showDownloadButton:true,showSigninHelpButton:false}).sho
 assert.equal(normalize({downloadPosition:'left'}).downloadPosition,undefined,
   'Saved bottom-left position must no longer produce a left Download button');
 assert(!schema.includes('uyp-dl-left'));
-assert(!preload.includes('uyp-dl-left'));
+assert(!/\bid\s*=\s*['"]uyp-dl-left['"]/.test(preload),
+  'No legacy left-side widget may be created. Removing an old widget is permitted.');
 assert(!preload.includes('state.downloadPosition'));
 assert.match(preload,/#tubeium-right-actions\{position:fixed;right:18px;bottom:74px/);
 assert.match(preload,/#tubeium-signin-help\{display:inline-flex/);
