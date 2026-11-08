@@ -895,12 +895,12 @@ function initDownloadButton() {
   // only the explicit manager entry may open the manager.
   main.addEventListener('click',event=>{
     event.preventDefault();event.stopImmediatePropagation();
-    // Never toggle the menu and never send open-download-manager here.
+    // The primary action queues the video only; the menu and manager are separate controls.
     void start('video');
   });
   options.addEventListener('click',event=>{
     event.preventDefault();event.stopImmediatePropagation();
-    if(busy)return;
+    // Let users open format options even while a queued download is awaiting IPC.
     playlistButton.hidden=!new URLSearchParams(location.search).has('list');
     const open=box.classList.toggle('open');
     options.setAttribute('aria-expanded',String(open));
