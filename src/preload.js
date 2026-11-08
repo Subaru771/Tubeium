@@ -1406,6 +1406,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     injectStyle();
     initSettingsButton();
     initBottomDock();
+    document.documentElement.classList.toggle('uyp-watch',!!currentVideoId());
   }
   document.addEventListener('yt-navigate-finish',()=>{
     activeViewingProfile='refresh';
