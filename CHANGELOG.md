@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.9] — 2026-11-08 (Tubeium 1.09)
+## [1.0.9] — Unreleased (Tubeium 1.09 source)
 
 - Keep the **Download video** and **More options (⌄)** actions separate. Download queues the video once; More opens the format/playlist menu; only an explicit choice opens Download Manager. Prevent click bubbling into overlapping YouTube controls.
 - Enforce a **single bottom-right floating dock** for Download and **Have a problem signing in?**. The old bottom-left download position is retired; previous left-position preferences no longer create a duplicate.
