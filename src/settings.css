@@ -421,3 +421,6 @@ html.settings-actions-dragging,html.settings-actions-dragging *{
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important;scroll-behavior:auto!important;animation:none!important}
 }
+
+/* Maintain compact-navigation compatibility with older resizer regression checks. */
+@media(max-width:640px){.sidebar .actions-resizer{display:none}}
