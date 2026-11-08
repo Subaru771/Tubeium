@@ -9,9 +9,9 @@ const js=fs.readFileSync(path.join(root,'src/settings-renderer.js'),'utf8');
 const preload=fs.readFileSync(path.join(root,'src/preload.js'),'utf8');
 const main=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
 const pkg=require('../package.json');
-assert.equal(pkg.version,'1.0.8');
+assert.equal(pkg.version,'1.0.9');
 assert(pkg.build.files.includes('src/download-folder-migration.js'));
-assert.match(html,/<span class="brand-version">1\.08<\/span>/);
+assert.match(html,/<span class="brand-version">1\.09<\/span>/);
 for(const key of [
  'navigation','actions-resizer','sidebar-resizer','overview','category-view',
  'settings-list','start-customizing','presets','open-favorites','category-heading',
@@ -33,7 +33,7 @@ assert.match(css,/\.sidebar-resizer\{\s*position:relative/);
 assert.match(css,/flex:0 0 18px;width:18px;min-width:18px/);
 assert.match(css,/margin-left:-9px;margin-right:-9px/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-assert.match(preload,/main\.addEventListener\('click',\(\)=>start\('video'\)\)/,'Video must queue with one click');
+assert.match(preload,/main\.addEventListener\('click',event=>\{[\s\S]*?void start\('video'\)/,'Video must queue with one click and no manager popup');
 assert.match(preload,/options\.addEventListener\('click'/);
 assert.match(preload,/options\.setAttribute\('aria-expanded'/);
 assert.match(preload,/const actions=document\.createElement\('div'\);actions\.className='uyp-download-actions'/);
