@@ -1,10 +1,9 @@
 name: Tubeium Windows build
+# Windows packaging is intentionally manual: automatic PR/push builds quickly
+# exhaust the included GitHub Actions usage for this private repository.
+# The lightweight source tests still run on PRs and pushes to main.
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main, master]
-  push:
-    branches: [main, master]
 permissions:
   contents: read
 concurrency:
@@ -100,4 +99,4 @@ jobs:
             dist/*.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
