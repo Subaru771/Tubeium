@@ -72,10 +72,10 @@
     for(const [key,title,description] of [
       ['blockAds','Skip ads','Best effort'],
       ['sponsorBlock','SponsorBlock','Community segments'],
-      ['showDownloadButton','Download button','Right-side dock'],
-      ['showSigninHelpButton','Sign-in help','Right-side dock'],
       ['toolQuality','Quality badge','Actual stream'],
       ['autoCaptions','Subtitles','When available'],
+      ['showOverlayToolbar','Player tools','Floating toolbar'],
+      ['openAfterDownload','Reveal downloads','When finished'],
     ])region.append(buildQuickToggle(key,title,description));
     $('favorites-count').textContent=String(favorites.length);
     const tiles=$('category-cards');tiles.replaceChildren();
@@ -95,6 +95,10 @@
     const region=$('floating-quick');region.replaceChildren();
     region.append(buildQuickToggle('showDownloadButton','Download video','Quick action'),
       buildQuickToggle('showSigninHelpButton','Sign-in help','Separate button'));
+    const previewDownload=document.querySelector('.mock-download');
+    const previewHelp=document.querySelector('.mock-help');
+    if(previewDownload)previewDownload.hidden=data.settings.showDownloadButton===false;
+    if(previewHelp)previewHelp.hidden=data.settings.showSigninHelpButton===false;
     $('inspector-favorite-count').textContent=favorites.length+' pinned';
     const pinned=$('inspector-favorites');pinned.replaceChildren();
     if(!favorites.length){
@@ -114,13 +118,37 @@
   }
   function refreshPanels(){renderDashboard();renderInspector();}
   function nav() {
-    const n=$('navigation'); n.replaceChildren();
-    const items=[{id:'overview',title:'Overview',icon:'◇',settings:[]},{...favoriteGroup(),icon:'★'},...data.groups];
-    for(const g of items){
-      const b=el('button','nav-item'+(current===g.id?' active':'')); b.type='button';
+    const n=$('navigation');n.replaceChildren();
+    const overview={id:'overview',title:'Overview',icon:'◇',settings:[]};
+    const favorite={...favoriteGroup(),icon:'★'};
+    const all=[overview,favorite,...data.groups];
+    const seen=new Set();
+    const sections=[
+      ['WORKSPACE',['overview','favorites']],
+      ['WATCHING',['playback','blocking','controls','audio','shorts']],
+      ['YOUR LOOK',['appearance','layout','theme']],
+      ['YOUR MEDIA',['downloads','library','shortcuts','playlist']],
+      ['SYSTEM',['general','privacy','advanced','experimental']]
+    ];
+    const buildNavItem=(g)=>{
+      seen.add(g.id);
+      const b=el('button','nav-item'+(current===g.id?' active':''));
+      b.type='button';b.setAttribute('aria-current',current===g.id?'page':'false');
       b.append(el('span','nav-icon',g.icon),el('span','nav-title',g.title));
-      if(g.id!=='overview') b.append(el('span','nav-count',String(g.settings.length)));
-      b.onclick=()=>selectCategory(g.id); n.append(b);
+      if(g.id!=='overview')b.append(el('span','nav-count',String(g.settings.length)));
+      b.onclick=()=>selectCategory(g.id);
+      n.append(b);
+    };
+    for(const [label,ids] of sections){
+      const groups=ids.map(id=>all.find(x=>x.id===id)).filter(x=>x&&!seen.has(x.id));
+      if(!groups.length)continue;
+      n.append(el('div','nav-section-label',label));
+      for(const group of groups)buildNavItem(group);
+    }
+    const remaining=all.filter(g=>!seen.has(g.id));
+    if(remaining.length){
+      n.append(el('div','nav-section-label','MORE'));
+      remaining.forEach(buildNavItem);
     }
   }
   function selectCategory(id){
@@ -244,15 +272,33 @@
     $('search').oninput=renderCategory;
     $('global-search').oninput=e=>{
       const query=e.target.value.trim();
-      if(query.length<2)return;
+      if(query.length<2){
+        if(current!=='overview'){ $('search').value='';selectCategory(current); }
+        return;
+      }
       if(current==='overview'||current==='favorites')selectCategory('appearance');
       $('search').value=query;
+      $('category-heading').textContent='Search results';
+      $('category-description').textContent='Matching settings from every category';
+      $('category-number').textContent='⌕';
       renderCategory();
     };
     $('global-search').onkeydown=e=>{
-      if(e.key==='Escape'){e.target.value='';$('search').value='';renderCategory();}
-      if(e.key==='Enter'){e.preventDefault();if(current==='overview')selectCategory('appearance');
-        $('search').value=e.target.value.trim();renderCategory();}
+      if(e.key==='Escape'){
+        e.target.value='';
+        if(current!=='overview')selectCategory(current);
+      }
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const query=e.target.value.trim();
+        if(!query)return;
+        if(current==='overview'||current==='favorites')selectCategory('appearance');
+        $('search').value=query;
+        $('category-heading').textContent='Search results';
+        $('category-description').textContent='Matching settings from every category';
+        $('category-number').textContent='⌕';
+        renderCategory();
+      }
     };
     $('overview-search').addEventListener('keydown',e=>{
       if(e.key!=='Enter')return;
