@@ -76,6 +76,7 @@ click(main);
 assert.equal(actions.length,1,'Primary click queues exactly one video');
 assert.equal(actions[0].channel,'download');
 assert.equal(actions[0].args.mode,'video');
+assert.equal(getById('uyp-dl-left'),null,'A download widget must never be created on the left');
 assert.equal(manager.length,0,'Primary click never opens the manager');
 assert.equal(download.classList.contains('open'),false,'Primary click never opens the menu');
 // The first click's async IPC must settle before the next user action.
