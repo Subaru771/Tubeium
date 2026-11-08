@@ -819,9 +819,9 @@ function initDownloadButton() {
   const dock=document.createElement('div');dock.id='tubeium-right-actions';
   const signinHelp=document.createElement('button');
   signinHelp.type='button';signinHelp.id='tubeium-signin-help';
-  signinHelp.textContent='Having trouble signing in?';
+  signinHelp.textContent='Have a problem signing in?';
   signinHelp.title='Open Tubeium sign-in help';
-  signinHelp.setAttribute('aria-label','Having trouble signing in? Open Tubeium sign-in help');
+  signinHelp.setAttribute('aria-label','Have a problem signing in? Open Tubeium sign-in help');
   signinHelp.addEventListener('click',event=>{
     event.preventDefault();event.stopPropagation();
     ipcRenderer.send('tubeium-open-signin-help');
