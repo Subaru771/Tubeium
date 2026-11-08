@@ -80,7 +80,7 @@ assert.equal(getById('uyp-dl-left'),null,'A download widget must never be create
 assert.equal(manager.length,0,'Primary click never opens the manager');
 assert.equal(download.classList.contains('open'),false,'Primary click never opens the menu');
 // The first click's async IPC must settle before the next user action.
-await Promise.resolve();await Promise.resolve();
+await new Promise(resolve=>setImmediate(resolve));
 click(options);
 assert.equal(actions.length,1,'Chevron must not queue an extra video');
 assert.equal(manager.length,0,'Chevron must not open manager');
