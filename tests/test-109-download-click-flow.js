@@ -71,12 +71,15 @@ assert(getById('tubeium-right-actions'),'Only one right-side dock');
 assert.strictEqual(getById('uyp-dl-left'),null,'No left-side Download widget');
 assert.equal(download.hidden,false);
 assert.equal(options.getAttribute('aria-controls'),'tubeium-download-options');
+(async()=>{
 click(main);
 assert.equal(actions.length,1,'Primary click queues exactly one video');
 assert.equal(actions[0].channel,'download');
 assert.equal(actions[0].args.mode,'video');
 assert.equal(manager.length,0,'Primary click never opens the manager');
 assert.equal(download.classList.contains('open'),false,'Primary click never opens the menu');
+// The first click's async IPC must settle before the next user action.
+await Promise.resolve();await Promise.resolve();
 click(options);
 assert.equal(actions.length,1,'Chevron must not queue an extra video');
 assert.equal(manager.length,0,'Chevron must not open manager');
@@ -105,3 +108,4 @@ assert(!source.includes("['downloads','Download manager','↓']"),
   'Remove the redundant floating toolbar download button');
 assert.match(source,/if\(managerEntry\)managerEntry\.hidden=state\.toolDownloads===false/);
 console.log('PASS: single-click video, isolated More/Manager/Sign-in actions, right-only independently hideable dock');
+})().catch(e=>{console.error(e);process.exitCode=1;});
