@@ -9,7 +9,7 @@
 - **Preserved features:** retain all 201 existing settings, favorites, sign-in assistance, local library, download queue, playback diagnostics, 4K resolution badge, and both sidebar resizing handles.
 - **Regression coverage:** simulate actual Download, More, Manager and sign-in button clicks, and smoke-test category navigation, settings controls, layout invariants, and independent hide/show preferences.
 
-**Limitations:** Source-level checks are green, but the GitHub Actions runner is currently failing before executing jobs. This release has not been packaged or tested on Windows. YouTube sign-in, playback and ad behavior require manual testing.
+**Limitations:** Focused renderer and Download event smoke checks passed, but full GitHub Actions jobs are failing before executing their test steps. Tubeium 1.09 remains source-only, with no packaged or Windows-tested binaries. YouTube sign-in, playback and ad behavior still require live Windows verification.
 
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
