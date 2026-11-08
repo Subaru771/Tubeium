@@ -1416,6 +1416,12 @@ ipcMain.handle('downloads-health',async e=>{if(!managerOnly(e))throw new Error('
  return {downloader:bin?'Available':'Not installed — downloads install it when needed',ffmpeg:ff?'Available':'Unavailable — install FFmpeg for merging/conversion',verifiedLocal:fs.existsSync(local)};
 });
 ipcMain.handle('downloads-open-folder',e=>{if(!managerOnly(e))throw new Error('Forbidden');fs.mkdirSync(dlDir(),{recursive:true});return shell.openPath(dlDir());});
+// Dedicated non-destructive help shortcut; YouTube pages only.
+ipcMain.on('tubeium-open-signin-help',e=>{
+  if(!ytOnly(e))return;
+  showWindow();
+  openWelcomeTab();
+});
 ipcMain.on('open-download-manager',e=>{if(ytOnly(e))openDownloadManager();});
 ipcMain.handle('download',async(e,request)=>{
   if(!ytOnly(e))return{ok:false,error:'Forbidden'};
