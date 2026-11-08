@@ -153,6 +153,23 @@
     $('font-larger').onclick=()=>resizeFont(5);
     document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;if(e.key==='+'||e.key==='='){e.preventDefault();resizeFont(5);}else if(e.key==='-'){e.preventDefault();resizeFont(-5);}else if(e.key==='0'){e.preventDefault();update({dashboardFontSize:125});}});
     $('search').oninput=renderCategory;
+    $('overview-search').addEventListener('keydown',e=>{
+      if(e.key!=='Enter')return;
+      const query=e.currentTarget.value.trim();
+      if(!query)return;
+      selectCategory('appearance');
+      $('search').value=query;
+      renderCategory();
+      $('search').focus();
+    });
+    $('overview-search').addEventListener('input',e=>{
+      const query=e.currentTarget.value.trim();
+      if(!query||query.length<2)return;
+      selectCategory('appearance');
+      $('search').value=query;
+      renderCategory();
+      $('search').focus();
+    });
     $('search').onkeydown=e=>{if(e.key==='Escape'){$('search').value='';renderCategory();}};
     $('reset-section').onclick=async()=>{if(current==='favorites')return;if(!confirm('Restore defaults for this section?'))return;try{data.settings=await api.reset(current);renderCategory();theme();toast('Section restored to defaults');}catch(e){error(e);}};
     $('reset-all').onclick=async()=>{if(!confirm('Restore ALL Tubeium settings to defaults?'))return;try{data.settings=await api.reset('all');renderCategory();theme();toast('All options restored');}catch(e){error(e);}};
@@ -161,6 +178,7 @@
     $('import').onclick=async()=>{try{data.settings=await api.import();theme();renderCategory();toast('Settings imported');}catch(e){error(e);}};
     $('go-player').onclick=()=>api.openPlayer().catch(error);
     $('go-downloads').onclick=()=>api.openDownloads().catch(error);
+    $('open-download-folder').onclick=async()=>{try{const issue=await api.openFolder();if(issue)toast('Could not open downloads folder: '+issue);else toast('Downloads folder opened');}catch(e){error(e);}};
     $('go-library').onclick=()=>api.openLibrary().catch(error);
     $('backup-all').onclick=async()=>{try{if(await api.backup())toast('Backup saved — no Google cookies included');}catch(e){error(e);}};
     $('restore-all').onclick=async()=>{if(!confirm('Restore backed-up settings and merge local library / playlists? Google sign-in is not affected.'))return;try{const response=await api.restoreBackup();if(response.restored){data=await api.initialize();theme();selectCategory(current);toast('Backup restored');}}catch(e){error(e);}};
