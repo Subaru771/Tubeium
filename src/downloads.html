@@ -1,9 +1,68 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Tubeium · Download Manager</title><link rel="stylesheet" href="downloads.css"></head><body>
-<header><div class="brand"><span class="mark">▶</span><div><strong>Tubeium</strong><small>DOWNLOAD STUDIO</small></div></div><button type="button" id="health">Check tools</button><button type="button" id="folder">↗ Open downloads folder</button></header>
-<main>
-<div class="intro"><div><span class="eyebrow">THE LIBRARY IS YOURS</span><h1>Download manager<span>.</span></h1><p>Queue videos and playlists, pause transfers, and reopen downloaded media. Existing files stay on your PC.</p></div><div class="art">↓</div></div>
-<section class="form-panel" aria-labelledby="add-title"><h2 id="add-title">Add to queue</h2><form id="queue-form"><label for="url">YouTube video, playlist or channel Videos-tab link</label><input id="url" type="url" required placeholder="https://www.youtube.com/watch?v=…" autocomplete="off"><div class="form-row"><label>Download <select id="scope"><option value="video">One video</option><option value="playlist">Playlist (up to configured limit)</option><option value="channel">Channel Videos tab (limited)</option></select></label><label>Format <select id="mode"><option value="video">Video</option><option value="audio">Audio</option><option value="thumbnail">Thumbnail only</option></select></label><button class="primary" type="submit">+ Add download</button></div></form><p class="hint">Pause means stop yt-dlp and retain partial files; Resume asks yt-dlp to continue where supported. Playlist retries skip completed entries.</p></section>
-<section class="library" aria-labelledby="queue-title"><div class="list-head"><div><h2 id="queue-title">Your queue</h2><p id="stats">No tasks yet</p></div><div class="tabs" id="tabs" role="group" aria-label="Filter downloads"><button data-filter="all" class="selected">All</button><button data-filter="active">Active</button><button data-filter="completed">Completed</button></div></div><div id="jobs" aria-live="polite"></div><div class="empty" id="empty" hidden>No downloads in this view. Add a link above to get started.</div></section>
-</main><div id="notice" role="status" aria-live="polite"></div><script src="downloads-renderer.js"></script></body></html>
+<title>Tubeium · Downloads</title>
+<link rel="stylesheet" href="downloads.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="identity"><span class="logo" aria-hidden="true">▶</span><span><strong>Tubeium</strong><small>Downloads</small></span></div>
+    <span class="topbar-spacer"></span>
+    <button type="button" id="health" class="quiet-action" title="Check downloader and FFmpeg"><span aria-hidden="true">✓</span> Check tools</button>
+    <button type="button" id="folder" class="quiet-action" title="Open download folder"><span aria-hidden="true">↗</span> Open folder</button>
+  </header>
+  <main class="content">
+    <div class="page-heading">
+      <div><h1>Downloads</h1><p>Everything you're saving, in one place.</p></div>
+      <span id="path" class="folder-path" title="Download folder"></span>
+    </div>
+    <section class="add-panel" aria-label="Add download">
+      <form id="queue-form">
+        <label for="url" class="visually-hidden">YouTube URL</label>
+        <div class="add-line">
+          <span class="url-icon" aria-hidden="true">↗</span>
+          <input id="url" name="url" type="url" required autocomplete="off" spellcheck="false" placeholder="Paste a YouTube video, playlist, or channel link">
+          <button type="submit" class="primary add-button">+ Add</button>
+        </div>
+        <div class="options-line">
+          <label>Content
+            <select id="scope"><option value="video">Single video</option><option value="playlist">Playlist</option><option value="channel">Channel videos</option></select>
+          </label>
+          <label>Save as
+            <select id="mode"><option value="video">Video</option><option value="audio">Audio</option><option value="thumbnail">Thumbnail</option></select>
+          </label>
+          <span class="options-note">Your quality and format preferences are applied automatically.</span>
+        </div>
+      </form>
+    </section>
+    <section class="queue-section" aria-label="Download queue">
+      <div class="queue-toolbar">
+        <div class="queue-title">
+          <h2>Queue</h2>
+          <span class="queue-count" id="count">0</span>
+          <span class="summary" id="stats">Nothing queued</span>
+        </div>
+        <div id="tabs" class="filters" role="group" aria-label="Filter downloads">
+          <button type="button" data-filter="all" class="selected" aria-pressed="true">All</button>
+          <button type="button" data-filter="active" aria-pressed="false">In progress</button>
+          <button type="button" data-filter="completed" aria-pressed="false">Finished</button>
+        </div>
+      </div>
+      <div id="jobs" class="jobs" aria-live="polite"></div>
+      <div id="empty" class="empty-state" hidden>
+        <span class="empty-icon" aria-hidden="true">↓</span>
+        <h3>No downloads here</h3>
+        <p>Paste a link above, or download directly from a YouTube video in Tubeium.</p>
+      </div>
+    </section>
+    <footer class="footer">Downloads are stored on your PC. Pause and resume keep partial files where supported.</footer>
+  </main>
+</div>
+<div id="notice" class="toast" role="status" aria-live="polite"></div>
+<script src="downloads-renderer.js"></script>
+</body>
+</html>
