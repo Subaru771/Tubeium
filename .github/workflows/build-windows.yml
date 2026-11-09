@@ -1,10 +1,6 @@
 name: Tubeium Windows build
 on:
   workflow_dispatch:
-  # One-off verified hover-visibility build, reverted to manual-only afterward.
-  push:
-    branches: ['fix/109-settings-workspace-and-download-flow']
-    paths: ['.github/workflows/build-windows.yml']
 permissions:
   contents: read
 concurrency:
