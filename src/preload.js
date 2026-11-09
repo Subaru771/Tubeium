@@ -274,13 +274,13 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
   flex:0 0 auto;gap:0;margin-left:8px;z-index:2147483643;
   color:#fff;font:600 12px "Segoe UI",Roboto,Arial,sans-serif}
 #tubeium-right-actions[hidden],#tubeium-right-actions [hidden]{display:none!important}
-#tubeium-right-actions.tubeium-dock-fallback{position:fixed;left:0;top:0;
-  opacity:0;pointer-events:none;transition:opacity .14s}
-#tubeium-right-actions.tubeium-dock-fallback.tubeium-dock-active{opacity:1;pointer-events:auto}
+#tubeium-right-actions.tubeium-dock-fallback{position:fixed;left:0;top:74px;
+  opacity:1;pointer-events:auto;transition:none}
+#tubeium-right-actions.tubeium-dock-placed{margin-left:9px;min-width:max-content;align-self:center}
 html.uyp-mini #tubeium-right-actions,html.uyp-fs #tubeium-right-actions{display:none!important}
 #uyp-dl{display:none;position:relative;flex-direction:column;align-items:flex-end;
   font:600 12px "Segoe UI",Roboto,Arial,sans-serif}
-html.uyp-watch:not(.uyp-mini):not(.uyp-fs) #uyp-dl:not([hidden]){display:flex}
+#tubeium-right-actions:not([hidden]) #uyp-dl:not([hidden]){display:flex}
 #uyp-dl button { cursor: pointer; border: 0; color: #fff; font: inherit; }
 #uyp-dl .uyp-main { background: var(--uyp-accent, #aa7dff); padding: 10px 16px; border-radius: 999px;
   box-shadow: 0 2px 10px rgba(0,0,0,.4); }
@@ -773,19 +773,53 @@ function initSponsorBlock() {
 // Move Download into YouTube's current watch actions, avoiding thumbnails.
 function positionDownloadDock() {
   const dock=document.getElementById('tubeium-right-actions');
-  if(!dock || typeof document.querySelector!=='function')return;
-  const actions=document.querySelector('ytd-watch-metadata #actions #top-level-buttons-computed')
-    ||document.querySelector('ytd-watch-metadata #actions ytd-menu-renderer')
-    ||document.querySelector('ytd-watch-metadata #actions');
-  if(actions && currentVideoId()){
-    if(dock.parentElement!==actions)actions.appendChild(dock);
+  if(!dock || !document.body)return;
+  const videoId=currentVideoId();
+  dock.hidden=state.showDownloadButton===false || !videoId;
+  if(dock.hidden){dock.classList.remove('tubeium-dock-active');return;}
+
+  // Watch-page action markup varies with YouTube experiments and SPA navigation.
+  // Put the button directly in a visible actions container, never in an inner
+  // overflow-clipped group that YouTube might replace on the next render.
+  const selectors=[
+    'ytd-watch-metadata #actions',
+    'ytd-watch-flexy #actions',
+    'ytd-watch-metadata #menu',
+    'ytd-watch-flexy #top-row #actions'
+  ];
+  let target=null;
+  if(location.pathname==='/watch'||location.pathname.startsWith('/live/')){
+    for(const selector of selectors){
+      const node=document.querySelector(selector);
+      if(!node || !node.isConnected || node.closest('[hidden],[aria-hidden="true"]'))continue;
+      const rect=node.getBoundingClientRect();
+      if(rect.width>=100 && rect.height>=20 && rect.top<window.innerHeight && rect.bottom>0){
+        target=node;break;
+      }
+    }
+  }
+  if(target){
+    if(dock.parentElement!==target)target.appendChild(dock);
     dock.classList.add('tubeium-dock-placed');
     dock.classList.remove('tubeium-dock-fallback','tubeium-dock-active');
     dock.style.left='';dock.style.top='';
   }else{
     if(dock.parentElement!==document.body)document.body.appendChild(dock);
     dock.classList.remove('tubeium-dock-placed');
-    dock.classList.add('tubeium-dock-fallback');
+    dock.classList.add('tubeium-dock-fallback','tubeium-dock-active');
+    // The fallback is deliberately VISIBLE. Otherwise videos without an
+    // action row, Shorts, and fast SPA changes show no Download button.
+    const player=document.querySelector('#movie_player')||document.querySelector('.html5-video-player');
+    const rect=player?.getBoundingClientRect();
+    const safeWidth=window.innerWidth, safeHeight=window.innerHeight;
+    const left=rect?.width>120
+      ? Math.min(safeWidth-170,Math.max(8,rect.right-167))
+      : safeWidth-178;
+    const top=rect?.height>110
+      ? Math.min(safeHeight-76,Math.max(70,rect.top+16))
+      : 74;
+    dock.style.left=Math.max(8,Math.round(left))+'px';
+    dock.style.top=Math.max(8,Math.round(top))+'px';
   }
 }
 
@@ -934,8 +968,7 @@ function refreshTubeiumPlayerOverlays() {
     const dockWidth=dock.getBoundingClientRect().width||180;
     dock.style.left=Math.round(Math.max(8,rect.right-dockWidth-14))+'px';
     dock.style.top=Math.round(Math.max(8,rect.bottom-108))+'px';
-    dock.classList.toggle('tubeium-dock-active',hovering
-      ||dock.querySelector('#uyp-dl')?.classList.contains('open')||dock.matches(':focus-within'));
+    dock.classList.add('tubeium-dock-active'); // Always present when playing a video.
   }
 }
 function initPlayerOverlayPositioning(){
@@ -945,7 +978,12 @@ function initPlayerOverlayPositioning(){
   },{passive:true});
   window.addEventListener('scroll',refreshTubeiumPlayerOverlays,{passive:true,capture:true});
   window.addEventListener('resize',refreshTubeiumPlayerOverlays,{passive:true});
-  setInterval(()=>{positionDownloadDock();refreshTubeiumPlayerOverlays();},1200);
+  // Keep the action visible across watch/Shorts/live routes, including cases
+  // where a YouTube experiment replaces the metadata component after load.
+  const updateDock=()=>{positionDownloadDock();refreshTubeiumPlayerOverlays();};
+  document.addEventListener('yt-navigate-finish',updateDock);
+  window.addEventListener('popstate',updateDock);
+  setInterval(updateDock,750);
 }
 
 // Floating tools and gestures: desktop equivalents of uYou's overlay controls.
