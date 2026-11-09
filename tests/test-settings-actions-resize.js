@@ -8,18 +8,14 @@ const html=fs.readFileSync(path.join(base,'src/settings.html'),'utf8');
 const css=fs.readFileSync(path.join(base,'src/settings.css'),'utf8');
 const renderer=fs.readFileSync(path.join(base,'src/settings-renderer.js'),'utf8');
 const pkg=require('../package.json');
-assert.match(html,/<nav id="navigation"[^>]*><\/nav>\s*<div id="actions-resizer"/);
-assert.match(html,/id="actions-resizer"[^>]*role="separator"[^>]*aria-label="Resize lower sidebar"[^>]*aria-orientation="horizontal"/);
-assert.match(html,/id="actions-resizer"[^>]*tabindex="0"/);
-assert(html.indexOf('settings-actions-resize.js')<html.indexOf('settings-renderer.js'));
-assert(pkg.build.files.includes('src/settings-actions-resize.js'));
-assert.match(renderer,/window\.tubeiumActionsResize\?\.init/);
-assert.match(renderer,/panel: document\.querySelector\('\.sidebar-bottom'\)/);
-assert.match(css,/\.sidebar \.sidebar-bottom\{\s*flex:0 0 var\(--settings-actions-height,370px\)/);
-assert.match(css,/overflow-y:auto;overflow-x:hidden/);
-assert.match(css,/html\.settings-actions-dragging,html\.settings-actions-dragging \*/);
-assert.match(css, /@media\(max-width:640px\)\{\s*\.sidebar \.actions-resizer\{display:none\}/);
-
+// The old second resize divider and its shortcuts panel were a major
+// source of visual clutter. Keep the legacy resizer module compatible without
+// wiring it into new installations or displaying a redundant handle.
+assert.doesNotMatch(html,/id="actions-resizer"/);
+assert.doesNotMatch(html,/settings-actions-resize\.js/);
+assert.doesNotMatch(renderer,/tubeiumActionsResize\?\.init/);
+assert.match(html,/id="sidebar-resizer"/);
+assert(pkg.build.files.includes('src/settings-actions-resize.js'),'Keep legacy module available');
 const source=fs.readFileSync(path.join(base,'src/settings-actions-resize.js'),'utf8');
 function el(){
  const listeners={},attrs={},classes=new Set(),props=new Map();
