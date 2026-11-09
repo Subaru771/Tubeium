@@ -770,6 +770,25 @@ function initSponsorBlock() {
   }, 300);
 }
 
+// Move Download into YouTube's current watch actions, avoiding thumbnails.
+function positionDownloadDock() {
+  const dock=document.getElementById('tubeium-right-actions');
+  if(!dock || typeof document.querySelector!=='function')return;
+  const actions=document.querySelector('ytd-watch-metadata #actions #top-level-buttons-computed')
+    ||document.querySelector('ytd-watch-metadata #actions ytd-menu-renderer')
+    ||document.querySelector('ytd-watch-metadata #actions');
+  if(actions && currentVideoId()){
+    if(dock.parentElement!==actions)actions.appendChild(dock);
+    dock.classList.add('tubeium-dock-placed');
+    dock.classList.remove('tubeium-dock-fallback','tubeium-dock-active');
+    dock.style.left='';dock.style.top='';
+  }else{
+    if(dock.parentElement!==document.body)document.body.appendChild(dock);
+    dock.classList.remove('tubeium-dock-placed');
+    dock.classList.add('tubeium-dock-fallback');
+  }
+}
+
 // ---- Download button ----
 function initDownloadButton() {
   // Retire any legacy left-side download widget from older app versions.
@@ -876,6 +895,58 @@ function initDownloadButton() {
   });
 }
 
+
+// Contextual controls follow the actual player, not the recommendations.
+let tubeiumPointerX=-1,tubeiumPointerY=-1;
+function refreshTubeiumPlayerOverlays() {
+  const player=document.querySelector('#movie_player')||document.querySelector('.html5-video-player');
+  const dock=document.getElementById('tubeium-right-actions');
+  const visible=player&&currentVideoId()&&!state.mini;
+  if(!visible){
+    toolbar?.classList.remove('tubeium-tools-visible');
+    dock?.classList.remove('tubeium-dock-active');
+    return;
+  }
+  const rect=player.getBoundingClientRect();
+  if(rect.width<260||rect.height<150||rect.bottom<10||rect.top>window.innerHeight){
+    toolbar?.classList.remove('tubeium-tools-visible');
+    dock?.classList.remove('tubeium-dock-active');
+    return;
+  }
+  const hovering=tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
+    &&tubeiumPointerY>=rect.top&&tubeiumPointerY<=rect.bottom;
+  if(toolbar){
+    const width=Math.min(rect.width-20,window.innerWidth-20);
+    toolbar.style.maxWidth=Math.max(190,Math.round(width))+'px';
+    const toolbarWidth=Math.min(toolbar.getBoundingClientRect().width||390,width);
+    const left=Math.max(8,Math.min(window.innerWidth-toolbarWidth-8,rect.right-toolbarWidth-10));
+    const top=Math.max(8,rect.top+10);
+    toolbar.style.left=Math.round(left)+'px';
+    toolbar.style.top=Math.round(top)+'px';
+    toolbar.classList.toggle('tubeium-tools-visible',hovering||toolbar.matches(':focus-within'));
+    const diagnostics=document.getElementById('uyp-playback-diagnostics');
+    if(diagnostics){
+      diagnostics.style.left=Math.round(Math.max(8,Math.min(window.innerWidth-370,left)))+'px';
+      diagnostics.style.top=Math.round(Math.min(window.innerHeight-150,top+48))+'px';
+    }
+  }
+  if(dock?.classList.contains('tubeium-dock-fallback')){
+    const dockWidth=dock.getBoundingClientRect().width||180;
+    dock.style.left=Math.round(Math.max(8,rect.right-dockWidth-14))+'px';
+    dock.style.top=Math.round(Math.max(8,rect.bottom-108))+'px';
+    dock.classList.toggle('tubeium-dock-active',hovering
+      ||dock.querySelector('#uyp-dl')?.classList.contains('open')||dock.matches(':focus-within'));
+  }
+}
+function initPlayerOverlayPositioning(){
+  document.addEventListener('pointermove',event=>{
+    tubeiumPointerX=event.clientX;tubeiumPointerY=event.clientY;
+    refreshTubeiumPlayerOverlays();
+  },{passive:true});
+  window.addEventListener('scroll',refreshTubeiumPlayerOverlays,{passive:true,capture:true});
+  window.addEventListener('resize',refreshTubeiumPlayerOverlays,{passive:true});
+  setInterval(()=>{positionDownloadDock();refreshTubeiumPlayerOverlays();},1200);
+}
 
 // Floating tools and gestures: desktop equivalents of uYou's overlay controls.
 let toolbar;
@@ -1332,6 +1403,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initAdBlock();
   initSponsorBlock();
   initToolbar();
+  initPlayerOverlayPositioning();
   initPlaybackDiagnostics();
   initQuickNav();
   initShortsSeek();
@@ -1351,7 +1423,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   function restoreTubeiumControls() {
     if (!document.body) return;
     injectStyle();
-    }
+    positionDownloadDock();
+    refreshTubeiumPlayerOverlays();
+  }
   document.addEventListener('yt-navigate-finish',()=>{
     activeViewingProfile='refresh';
     refreshSmartProfile();
