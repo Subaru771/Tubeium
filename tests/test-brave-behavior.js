@@ -66,7 +66,7 @@ const YT='https://www.youtube.com';
  // The help tab remains available after clicking Go to YouTube.
  const slice=source.slice(source.indexOf('function updateTubeiumTabBar() {'),source.indexOf('function closeWelcomeTab() {'));
  const calls=[];
- const context={welcomeView:{setVisible:v=>calls.push(['visible',v])},activeTubeiumTab:'welcome',helpTabsVisible:true,tabBarView:{webContents:{isDestroyed:()=>false,send:(...a)=>calls.push(['send',...a])}},win:{isDestroyed:()=>false,webContents:{focus:()=>{}}}};
+ const context={welcomeView:{setVisible:v=>calls.push(['visible',v])},activeTubeiumTab:'welcome',helpTabsVisible:true,tabMenuOpen:false,settings:{showSigninHelpButton:true},tabBarView:{webContents:{isDestroyed:()=>false,send:(...a)=>calls.push(['send',...a])}},win:{isDestroyed:()=>false,webContents:{focus:()=>{}}}};
  vm.runInNewContext(slice+'\nshowYoutubeTab()',context);
  assert.equal(context.activeTubeiumTab,'youtube');assert.deepEqual(calls[0],['visible',false]);
  console.log('PASS: fresh signed-out browser profile shared by extensions/YouTube; Brave default retained; no signed-in fallback');

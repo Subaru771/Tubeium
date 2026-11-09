@@ -24,13 +24,13 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 - **Make YouTube yours:** themes, colors, layout tweaks, custom CSS, and extensive settings.
 - **Watch your way:** playback speed, volume memory, quality preferences, mini player, and audio presets.
 - **Cut distractions:** selectively hide Shorts, recommendations, comments, feeds, and other interface elements.
-- **Keep media organized:** local playlists, bookmarks, viewing progress, downloads, and offline playback.
+- **Keep media organized:** one-click local Watch Later, local playlists, bookmarks, viewing progress, downloads, and offline playback.
 - **Stay in control:** privacy-oriented local tools, configurable shortcuts, and optional sign-in assistance.
 
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Development:** Tubeium 1.09 source includes the independent bottom-right Download/Sign-in Help controls and the fully rebuilt three-zone Settings Studio. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+**Development:** Tubeium 1.09 source includes one compact Tubeium launcher, a Download button that stays visible on video pages even when YouTube replaces its action row, contextual player tools, and a streamlined six-category Settings workspace. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
 
 ## Screenshots
 
@@ -70,8 +70,8 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 - Light, dark, system-matched, and AMOLED-style page appearance options.
 - Custom accent colors, interface scaling, and separate YouTube text-size adjustments.
 - Adjustable feed density, grid columns, thumbnail corners, and sidebar behavior.
-- **Favorite Settings:** pin frequently used options, access them from the Favorites category, and keep their values synchronized with the original settings. Left navigation width and the lower actions section height resize independently.
-- **Completely redesigned Settings:** a modern Control Room with responsive dark/light design, rich preset cards, global search, clear option rows, and faster navigation.
+- **Simpler Settings:** six everyday categories plus a permanent **Advanced** sidebar tab at the bottom. Advanced divides less-used options into seven compact topics, without duplicating everyday settings. All 201 underlying preferences and saved values remain compatible.
+- **Compact Settings layout:** simple sidebar, grouped two-column controls, live search, no preset/favorites dashboard or duplicate action buttons, and maintenance tools tucked into an overflow menu.
 - Hide visual clutter such as badges, channel avatars, and hover previews.
 - Optional custom CSS for advanced page styling.
 
@@ -79,8 +79,8 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
 - **Playback Diagnostics:** open **Stats** from the floating toolbar or Player menu to see decoded resolution, estimated frames per second, dropped frames, buffering, and a local copyable report.
-- **Quick Download:** one prominent video button queues the current video in a single click; use the adjacent options button for audio, thumbnails and playlists.
-- **Right-side shortcuts:** the Download and Have a problem signing in? controls live together at the bottom-right. Hide either independently in Settings → Downloads; the manager opens only when explicitly requested. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
+- **Quick actions on videos:** Download and **◷ Watch Later** work in one click from the player and Home thumbnails (also on supported search/recommendation cards). Watch Later saves to Tubeium's local Library, independently of Google. The adjacent Download chevron still opens audio, thumbnail and playlist formats.
+- **Clean player controls:** Download sits in the video's action area (or inside the player as a fallback), and its menu/Manager never opens automatically. A single native Tubeium launcher provides Settings, Download Manager and optional Sign-in Help without duplicate floating prompts. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
 - **Up to 4K (2160p) when supported:** the floating quality control displays the decoded video resolution (such as 1080p, 1440p or 4K) and opens YouTube’s real Quality menu. A preference for 4K is not a guarantee; the video, browser codec support and bandwidth determine available resolutions.
 - Remember volume and mute state; set default volume and caption preferences.
 - Theater mode, fullscreen preferences, video looping, and autoplay controls.
@@ -101,24 +101,25 @@ Changes to YouTube's interface can affect individual filters.
 
 ### ⏭ Ads & SponsorBlock
 
-- **Best-effort ad skipping enabled by default**, with an immediate on/off toggle under **Settings → Ads & SponsorBlock**. YouTube changes can still cause ads or playback problems.
+- **Best-effort ad skipping enabled by default**, with an immediate on/off toggle under **Settings → Privacy & Ads**. YouTube changes can still cause ads or playback problems.
 - **SponsorBlock** integration with configurable segment categories, including sponsors, self-promotion, reminders, intros, and outros.
 - Optional notifications when segments are skipped.
 
-Ad skipping is enabled by default for new installs, but it is best-effort and **does not guarantee an ad-free experience**. Turn it off under **Settings → Ads & SponsorBlock** if playback fails. Existing saved OFF preferences remain OFF. SponsorBlock separately uses community-submitted segment data.
+Ad skipping is enabled by default for new installs, but it is best-effort and **does not guarantee an ad-free experience**. Turn it off under **Settings → Privacy & Ads** if playback fails. Existing saved OFF preferences remain OFF. SponsorBlock separately uses community-submitted segment data.
 
 ### 📥 Downloads & offline playback
 
-- Video and audio download options with a configurable download queue.
+- Video and audio downloads with a compact, modern queue showing real titles, requested quality from the moment a job is added, selected stream resolution when available, progress/ETA, and simple Pause/Resume/Retry controls.
 - Select a maximum video resolution, file naming format, and destination folder.
 - Supported container preferences include **MP4** and **MKV**; audio choices include **MP3**, **M4A**, and **Opus**.
-- Optional thumbnail, subtitle, and metadata handling.
+- Fast public title/creator lookup for pasted YouTube links (no Google cookies), with yt-dlp metadata verification before transfer; works offline using safe fallback labels. Optional thumbnail, subtitle, and file-metadata handling remains available.
 - Open supported downloaded media using Tubeium's offline player.
 
 Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256. **Update Downloader** asks before selecting the latest release. Some formats and conversions require FFmpeg; availability depends on the source. Download only content you have permission to save.
 
 ### 📚 Local library & playlists
 
+- **Tubeium Watch Later:** save a video without opening it, then find it in **Local Library → Watch Later** or the Tubeium menu. This list is stored on your PC and **does not sync to YouTube's account-based Watch Later**.
 - Organize saved videos and local playlists.
 - Bookmarks and playback-progress tracking.
 - Local library browsing and sorting options.
@@ -152,7 +153,7 @@ Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256.
 
 1. Download the **installer** or **portable EXE** from the links above.
 2. Launch Tubeium. The installer can create shortcuts; the portable edition runs directly.
-3. Open **⚙ Settings** with the floating shortcut just above the bottom bar, the bottom navigation button, or **Ctrl+,** to adjust your theme, layout, playback preferences, and downloads.
+3. Open **Settings** using the compact **◈ Tubeium** launcher or **Ctrl+,** to adjust your theme, layout, playback preferences, and downloads.
 4. Explore the local library, download manager, and optional sign-in guidance.
 
 > **Tip:** Start with the Appearance, Layout & Focus, and Playback sections to make the biggest difference immediately.
@@ -176,6 +177,10 @@ npm run build:windows
 ```
 
 Build outputs are generated in `dist/`. Windows helper scripts are in [`scripts/`](scripts/). On Windows, run `scripts\BUILD_WINDOWS_EXE.cmd` for the installer and portable EXE, `scripts\FAST_BUILD_WINDOWS_EXE.cmd` for an installer-only build, or `scripts\RUN_WITHOUT_BUILDING.cmd` to launch from source.
+
+**Building unreleased 1.09:** Clone the repository with your GitHub account, then check out the `fix/109-settings-workspace-and-download-flow` branch before running `scripts\\BUILD_WINDOWS_EXE.cmd`. The generated executable files remain local in `dist/` and are **not** official 1.09 release binaries.
+
+**Actions usage:** The Windows packaging workflow is **manual-only** (Actions → Tubeium Windows build → Run workflow) so private-repository Windows runner minutes and large temporary artifacts are not consumed on every commit. Automatic source tests remain enabled. If GitHub rejects every job in seconds without starting steps, check the repository owner's **Settings → Billing and licensing** for Actions included usage, spending limits/budgets, payment warnings, and artifact storage. This is not fixed by changing the build commands. Local Windows builds via the scripts above do not require GitHub Actions.
 
 ## FAQ
 

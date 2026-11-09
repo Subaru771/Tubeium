@@ -29,6 +29,7 @@
       "src/main.js",
       "src/signin-failure.js",
       "src/download-queue.js",
+      "src/download-metadata.js",
       "src/download-folder-migration.js",
       "src/downloads-preload.js",
       "src/downloads.html",

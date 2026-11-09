@@ -5,8 +5,13 @@ contextBridge.exposeInMainWorld('tubeiumTabs',Object.freeze({
  hide:()=>ipcRenderer.send('tubeium-tab-hide'),
  show:()=>ipcRenderer.send('tubeium-tab-show'),
  openSettings:()=>ipcRenderer.send('tubeium-tab-open-settings'),
+ openDownloads:()=>ipcRenderer.send('tubeium-tab-open-downloads'),
+ openLibrary:()=>ipcRenderer.send('tubeium-tab-open-library'),
+ toggleMenu:()=>ipcRenderer.send('tubeium-tab-menu-toggle'),
  onState:cb=>{if(typeof cb==='function')ipcRenderer.on('tubeium-tab-state',(_e,state)=>{
-   if(state && (state.tab==='youtube'||state.tab==='welcome') && typeof state.showHelpTabs==='boolean')
-     cb(Object.freeze({tab:state.tab,showHelpTabs:state.showHelpTabs}));
+   if(state && (state.tab==='youtube'||state.tab==='welcome') &&
+     typeof state.showHelpTabs==='boolean' && typeof state.menuOpen==='boolean')
+     cb(Object.freeze({tab:state.tab,showHelpTabs:state.showHelpTabs,
+       menuOpen:state.menuOpen,showSigninHelpButton:state.showSigninHelpButton!==false}));
  });},
 }));

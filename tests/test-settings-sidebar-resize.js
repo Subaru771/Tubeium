@@ -19,7 +19,7 @@ assert.match(css,/margin-left:-9px;margin-right:-9px/,'Grip must stay centered o
 assert.doesNotMatch(css,/\.sidebar-resizer\{\s*position:absolute/,'Detached divider caused the recording bug');
 assert.match(css,/html\.settings-sidebar-dragging,html\.settings-sidebar-dragging \*/);
 assert.match(css, /@media\(max-width:640px\)\{[\s\S]*?\.sidebar-resizer\{display:none\}/);
-assert.match(renderer,/sidebar: document\.querySelector\('\.sidebar'\)/,'Pass the actual flex child to the resizer');
+assert.match(renderer,/sidebar:\s*document\.querySelector\('\.sidebar'\)/,'Pass the actual flex child to the resizer');
 assert(pkg.build.files.includes('src/settings-sidebar-resize.js'));
 
 const source=fs.readFileSync(path.join(root,'src/settings-sidebar-resize.js'),'utf8');

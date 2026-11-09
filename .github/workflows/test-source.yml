@@ -7,6 +7,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Cancel obsolete checks from frequent design commits on the same PR.
+concurrency:
+  group: tubeium-source-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   source-tests:
     runs-on: ubuntu-24.04

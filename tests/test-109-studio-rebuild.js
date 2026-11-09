@@ -1,39 +1,30 @@
 'use strict';
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
-const root=path.join(__dirname,'..');
-const html=fs.readFileSync(path.join(root,'src/settings.html'),'utf8');
-const css=fs.readFileSync(path.join(root,'src/settings.css'),'utf8');
-const renderer=fs.readFileSync(path.join(root,'src/settings-renderer.js'),'utf8');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const read=f=>fs.readFileSync(path.join(__dirname,'../src',f),'utf8');
+const html=read('settings.html'),css=read('settings.css'),renderer=read('settings-renderer.js');
 const {DEFAULTS,publicGroups}=require('../src/settings-schema');
-assert.equal(Object.keys(DEFAULTS).length,201,'Preserve 201 validated preferences');
-assert.equal(publicGroups().length,15);
-assert('showSigninHelpButton' in DEFAULTS,'Use the current main branch sign-in help setting');
-assert(!('showSignInHelpButton' in DEFAULTS),'No case-mismatched duplicate sign-in option');
-assert.match(renderer,/buildQuickToggle\('showSigninHelpButton'/);
-assert.match(renderer,/\['showSigninHelpButton','Sign-in help'/);
-assert.match(css,/\/\* Tubeium Studio — rebuilt from a blank stylesheet, 1\.09/);
-assert.match(css,/\.workspace-columns\{display:grid;grid-template-columns:minmax\(0,1fr\) 245px/);
-assert.match(css,/\.settings-panel\{/);
-assert.match(css,/\.inspector\{/);
+assert.equal(Object.keys(DEFAULTS).length,201);
+assert.equal(publicGroups().length,15,'Keep existing schema/legacy preferences');
+assert.match(renderer,/const SECTIONS=\[/);
+for(const id of ['general','appearance','playback','downloads','privacy','library'])
+ assert(renderer.includes("{id:'"+id+"'"),id+' must be curated');
+assert.match(renderer,/const ADVANCED_TOPICS=\[/);
+assert.match(renderer,/mainKeys=new Set\(SECTIONS\.flatMap/);
+assert.match(renderer,/extra\.onclick=\(\)=>selectCategory\('advanced'\)/);
+assert.match(renderer,/current==='advanced'/);
+assert.match(renderer,/data\.groups\.flatMap\(group=>group\.settings\.filter\(meta=>!mainKeys\.has\(meta\.key\)\)/);
+assert.match(renderer,/function renderAdvancedTopics\(\)/);
+assert.match(html,/id="advanced-topics"/);
+assert.doesNotMatch(html,/id="toggle-advanced"/);
+assert.match(html,/id="global-search"/);
+assert.match(html,/id="reset-section"/);
+assert.match(html,/id="navigation"/);
+assert.match(html,/id="settings-list"/);
+assert.doesNotMatch(html,/id="overview"|id="presets"|id="open-favorites"|id="actions-resizer"/);
+assert.doesNotMatch(css,/\.stat-strip\{|\.workspace-grid\{|\.inspector\{/);
+assert.match(css,/\.settings-list\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/body\[data-theme="light"\]/);
-assert.doesNotMatch(css,/\.hero\{/,'Old marketing-style hero must actually be replaced');
-assert.match(renderer,/const panel=el\('details','settings-panel'\)/);
-assert.match(renderer,/const region=\$\('quick-controls'\)/);
-assert.match(renderer,/const region=\$\('floating-quick'\)/);
-assert.match(renderer,/\$\('global-search'\)\.oninput=/);
-assert.match(renderer,/\$\('inspector-downloads'\)\.onclick=/);
-assert.match(renderer,/star\.onclick=\(\)=>toggleFavorite\(m\.key\)/);
-assert.match(renderer,/window\.tubeiumSidebarResize\?\.init/);
-assert.match(renderer,/window\.tubeiumActionsResize\?\.init/);
-for(const id of ['navigation','sidebar-resizer','actions-resizer','category-cards',
-  'inspector-favorites','floating-quick','global-search','overview','category-view',
-  'quick-controls','settings-list','reset-section','reset-all','go-player','go-downloads',
-  'open-download-folder','go-library','backup-all','restore-all','import','export',
-  'open-favorites','presets','search','overview-search','clear-cache','clear-cookies']){
-  assert(html.includes('id="'+id+'"'),id+' is missing');
-}
-assert.match(css,/@media\(max-width:640px\)\{\.sidebar \.actions-resizer\{display:none\}\}/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-console.log('PASS: Studio rebuilt structurally, 201 settings, live inspector, accordion and resizers retained');
+assert.match(renderer,/window\.tubeiumSidebarResize\?\.init/);
+assert.doesNotMatch(renderer,/window\.tubeiumActionsResize\?\.init/);
+console.log('PASS: six everyday categories plus permanently visible, organized Advanced tab');

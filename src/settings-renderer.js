@@ -1,136 +1,78 @@
 'use strict';
 (() => {
-  const api = window.youplusSettings;
-  let data = null;
-  let current = 'overview';
-  let favorites = [];
-  const collapsedSections = new Set();
-  const favoriteSettings = () => data.groups.flatMap(g => g.settings.filter(setting => favorites.includes(setting.key)).map(setting => ({...setting, favoriteGroup:g.title}))).sort((a,b)=>favorites.indexOf(a.key)-favorites.indexOf(b.key));
-  const favoriteGroup = () => ({id:'favorites',title:'Favorite Settings',subtitle:'Your frequently used settings, all in one place.',settings:favoriteSettings()});
-  async function toggleFavorite(key){
-    const exists=favorites.includes(key);
-    if(!exists && favorites.length>=24){toast('You can pin up to 24 settings');return;}
-    const next=exists?favorites.filter(k=>k!==key):[...favorites,key];
-    try { favorites=await api.setFavorites(next);nav();renderCategory();refreshPanels();toast(exists?'Removed from favorites':'Added to favorites'); }
-    catch(e){error(e);}
+  const api=window.youplusSettings;
+  const $=id=>document.getElementById(id);
+  const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+  const SECTIONS=[
+    {id:'general',title:'General',icon:'⌂',subtitle:'Start-up, window behavior and updates',parts:[
+      ['App & window',['closeToTray','launchAtLogin','rememberWindow','startPage','showSettingsButton']],
+      ['Updates',['autoCheckUpdates','autoDownloadUpdates']]
+    ]},
+    {id:'appearance',title:'Appearance',icon:'◐',subtitle:'Theme, text and what you see on YouTube',parts:[
+      ['Theme & text',['settingsTheme','pageTheme','accentColor','dashboardFontSize','youtubeFontSize','pageZoom']],
+      ['YouTube layout',['compactDensity','gridColumns','hideShorts','hideComments','hideRelated','hideSidebar']]
+    ]},
+    {id:'playback',title:'Playback',icon:'▶',subtitle:'Video, sound and player controls',parts:[
+      ['Video & sound',['preferredQuality','defaultSpeed','rememberSpeed','defaultVolume','rememberVolume','autoplayNext','loopVideo','autoCaptions','autoTheater']],
+      ['Player tools',['showOverlayToolbar','toolQuality','wheelVolume','wheelSeek','doubleClickSeek']]
+    ]},
+    {id:'downloads',title:'Downloads',icon:'↓',subtitle:'One-click downloading, formats and file location',parts:[
+      ['Download button & formats',['showDownloadButton','videoQuality','videoContainer','audioFormat','audioQuality']],
+      ['Files & queue',['downloadBaseFolder','filenameTemplate','openAfterDownload','downloadSubtitles','parallelDownloads','autoRestoreDownloads']]
+    ]},
+    {id:'privacy',title:'Privacy & Ads',icon:'◇',subtitle:'Ad blocking, SponsorBlock and distraction controls',parts:[
+      ['Blocking',['blockAds','sponsorBlock','sbCategories','sponsorToast']],
+      ['Privacy & focus',['disableAutoplayPreviews','confirmExternalLinks','hideHomeFeed','reduceAnimations','hideLiveChat']]
+    ]},
+    {id:'library',title:'Library & Keys',icon:'★',subtitle:'Local library, keyboard and sign-in assistance',parts:[
+      ['Your library',['localLibraryEnabled','recordWatchProgress','resumeWatchedVideos','showBookmarkButton','showScreenshotButton']],
+      ['Keyboard',['enableSpeedKeys','enableSeekKeys','seekSeconds']],
+      ['Sign-in assistance',['showSigninHelpButton']]
+    ]}
+  ];
+  // Advanced is always available as a seventh sidebar tab. Its topics show
+  // only less-common settings; options in the six main tabs are not duplicated.
+  const ADVANCED_TOPICS=[
+    {id:'player',title:'Player & audio',icon:'▶',groups:['playback','controls','shorts']},
+    {id:'interface',title:'Appearance & feed',icon:'▦',groups:['appearance','accessibility','home','navigation','watch']},
+    {id:'downloads',title:'Download details',icon:'↓',groups:['downloads']},
+    {id:'privacy',title:'Privacy & blocking',icon:'◇',groups:['blocking','privacy']},
+    {id:'shortcuts',title:'Shortcuts & devices',icon:'⌘',groups:['shortcuts']},
+    {id:'library',title:'Local library',icon:'★',groups:['library']},
+    {id:'system',title:'Windows & tools',icon:'⚙',groups:['general','advanced']}
+  ];
+  const mainKeys=new Set(SECTIONS.flatMap(section=>section.parts.flatMap(([,keys])=>keys)));
+  const topicForGroup=groupId=>ADVANCED_TOPICS.find(t=>t.groups.includes(groupId))?.id||'system';
+  let data=null,current='general',advancedTopic='player',search='',toastTimer=null;
+  const allSettings=()=>data.groups.flatMap(g=>g.settings);
+  const metaByKey=key=>allSettings().find(m=>m.key===key);
+  const commonRows=sections=>sections.flatMap(category=>category.parts.flatMap(([part,keys])=>
+    keys.map(key=>({key,meta:metaByKey(key),category:category.title,section:part})).filter(item=>item.meta)));
+  const advancedRows=()=>data.groups.flatMap(group=>group.settings.filter(meta=>!mainKeys.has(meta.key))
+    .map(meta=>({key:meta.key,meta,category:group.title,section:meta.section||'Other',
+      topic:topicForGroup(group.id)})));
+  function notify(message){
+    const t=$('toast');t.textContent=message;t.classList.add('show');
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
   }
-  let timer = null;
-  const $ = (id) => document.getElementById(id);
-  function el(tag, className, text) { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; }
-  // Resizing is purely local to this Settings window and never changes YouTube.
-  window.tubeiumSidebarResize?.init({
-    shell: document.querySelector('.app-shell'),
-    sidebar: document.querySelector('.sidebar'),
-    handle: $('sidebar-resizer'),
-    root: document.documentElement,
-    win: window,
-  });
-  window.tubeiumActionsResize?.init({
-    sidebar: document.querySelector('.sidebar'),
-    navigation: $('navigation'),
-    panel: document.querySelector('.sidebar-bottom'),
-    handle: $('actions-resizer'),
-    root: document.documentElement,
-    win: window,
-  });
-  function toast(text) { const n=$('toast'); n.textContent=text; n.classList.add('show'); clearTimeout(timer); timer=setTimeout(()=>n.classList.remove('show'),2800); }
-  function error(err) { toast('Something went wrong: '+(err.message || String(err))); }
-  function theme() {
-    const s=data?.settings || {};
-    const choice=s.settingsTheme || 'dark';
-    const mode=choice==='system' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light':'dark') : choice;
+  function error(err){notify('Could not save: '+String(err?.message||err));}
+  function theme(){
+    const s=data?.settings||{},mode=s.settingsTheme==='system'
+      ?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')
+      :(s.settingsTheme||'dark');
     document.body.dataset.theme=mode;
-    document.documentElement.style.setProperty('--accent',s.accentColor || '#aa7dff');
-    document.documentElement.style.setProperty('--glow',(s.accentColor || '#aa7dff')+'25');
-    const fontPercent = Math.max(100,Math.min(170,Number(s.dashboardFontSize)||125));
-    document.documentElement.style.setProperty('--ui-font-scale', String(fontPercent/100));
-    const fontLabel=$('font-percent'); if(fontLabel) fontLabel.textContent=fontPercent+'%';
+    document.documentElement.style.setProperty('--accent',s.accentColor||'#aa7dff');
+    document.documentElement.style.setProperty('--ui-font-scale',
+      String(Math.max(100,Math.min(170,Number(s.dashboardFontSize)||125))/125));
   }
   matchMedia('(prefers-color-scheme: light)').addEventListener('change',theme);
-  async function update(patch, message) {
-    try {
-      data.settings=await api.update(patch);
-      theme();renderCategory();refreshPanels();
-      if(message)toast(message);
-    }catch(e){error(e);renderCategory();refreshPanels();}
-  }
-  function getMeta(key){return data.groups.flatMap(g=>g.settings).find(x=>x.key===key);}
-  function buildQuickToggle(key,title,description){
-    const meta=getMeta(key),row=el('label','quick-toggle');
-    const words=el('span','quick-toggle-words');
-    words.append(el('b',null,title||meta?.label||key),el('small',null,description||meta?.description||''));
-    const toggle=el('input');toggle.type='checkbox';toggle.checked=!!data.settings[key];
-    toggle.setAttribute('aria-label',title||meta?.label||key);
-    toggle.addEventListener('change',()=>update({[key]:toggle.checked}));
-    const track=el('span','quick-track');
-    row.append(words,toggle,track);
-    return row;
-  }
-  function renderDashboard(){
-    if(!data)return;
-    const region=$('quick-controls');region.replaceChildren();
-    for(const [key,title,description] of [
-      ['blockAds','Skip ads','Best effort'],
-      ['sponsorBlock','SponsorBlock','Community segments'],
-      ['showDownloadButton','Download button','Right-side dock'],
-      ['showSigninHelpButton','Sign-in help','Right-side dock'],
-      ['toolQuality','Quality badge','Actual stream'],
-      ['autoCaptions','Subtitles','When available'],
-    ])region.append(buildQuickToggle(key,title,description));
-    $('favorites-count').textContent=String(favorites.length);
-    const tiles=$('category-cards');tiles.replaceChildren();
-    const featured=['appearance','playback','downloads','blocking','privacy','controls'];
-    for(const id of featured){
-      const group=data.groups.find(g=>g.id===id);
-      if(!group)continue;
-      const button=el('button','category-tile');button.type='button';
-      button.append(el('span','category-tile-icon',group.icon),el('strong',null,group.title),
-        el('small',null,group.settings.length+' options'),el('span','category-tile-arrow','↗'));
-      button.addEventListener('click',()=>selectCategory(id));tiles.append(button);
-    }
-    $('nav-total').textContent=String(data.groups.length);
-  }
-  function renderInspector(){
-    if(!data)return;
-    const region=$('floating-quick');region.replaceChildren();
-    region.append(buildQuickToggle('showDownloadButton','Download video','Quick action'),
-      buildQuickToggle('showSigninHelpButton','Sign-in help','Separate button'));
-    $('inspector-favorite-count').textContent=favorites.length+' pinned';
-    const pinned=$('inspector-favorites');pinned.replaceChildren();
-    if(!favorites.length){
-      pinned.append(el('p','inspector-empty','Star settings to put them here.'));return;
-    }
-    for(const key of favorites.slice(0,7)){
-      const meta=getMeta(key);if(!meta)continue;
-      const link=el('button','inspector-favorite','★ '+meta.label);link.type='button';
-      link.onclick=()=>{
-        const group=data.groups.find(g=>g.settings.some(s=>s.key===key));
-        selectCategory(group?.id||'favorites');
-        const row=document.querySelector('[data-setting-key="'+key+'"]');
-        if(row){const section=row.closest('details');if(section)section.open=true;row.scrollIntoView({block:'center',behavior:'smooth'});}
-      };
-      pinned.append(link);
-    }
-  }
-  function refreshPanels(){renderDashboard();renderInspector();}
-  function nav() {
-    const n=$('navigation'); n.replaceChildren();
-    const items=[{id:'overview',title:'Overview',icon:'◇',settings:[]},{...favoriteGroup(),icon:'★'},...data.groups];
-    for(const g of items){
-      const b=el('button','nav-item'+(current===g.id?' active':'')); b.type='button';
-      b.append(el('span','nav-icon',g.icon),el('span','nav-title',g.title));
-      if(g.id!=='overview') b.append(el('span','nav-count',String(g.settings.length)));
-      b.onclick=()=>selectCategory(g.id); n.append(b);
-    }
-  }
-  function selectCategory(id){
-    const g=id==='favorites'?favoriteGroup():data.groups.find(x=>x.id===id);
-    if(id!=='overview'&&!g) return;
-    current=id; nav(); $('overview').hidden=id!=='overview'; $('category-view').hidden=id==='overview';
-    if(id==='overview')refreshPanels();
-    $('crumb-name').textContent=id==='overview'?'Overview':g.title;
-    if(g){$('category-number').textContent=id==='favorites'?'★':String(data.groups.indexOf(g)+1).padStart(2,'0');$('category-heading').textContent=g.title;$('category-description').textContent=g.subtitle;$('search').value='';$('reset-section').hidden=id==='favorites';renderCategory();}
-    $('scroll-area').scrollTop=0;
+  window.tubeiumSidebarResize?.init({
+    shell:document.querySelector('.app-shell'),sidebar:document.querySelector('.sidebar'),
+    handle:$('sidebar-resizer'),root:document.documentElement,win:window
+  });
+  async function update(patch,message){
+    try{data.settings=await api.update(patch);theme();render();if(message)notify(message);}
+    catch(e){error(e);render();}
   }
   function commitLater(input, key, ms=550){
     let previous=input.value; const save=()=>{if(input.value!==previous){previous=input.value;update({[key]:input.value});}};
@@ -171,125 +113,169 @@
     } else if(meta.type==='textarea'){
       const area=el('textarea','css-editor');area.spellcheck=false;area.maxLength=meta.maxLength;area.value=v;area.placeholder=meta.placeholder||'';area.setAttribute('aria-label',meta.label);const foot=el('div','editor-foot');const btn=el('button','secondary-button','Save custom CSS');btn.onclick=()=>update({[k]:area.value},'Custom CSS saved');foot.append(btn);wrap.append(area,foot);
     } else if(meta.type==='folder'){
-      const folder=el('div','folder-control');const display=el('span','folder-display',v||'Default: '+data.defaultDownloads);display.title=v||data.defaultDownloads;const choose=el('button','secondary-button','Browse…');choose.onclick=async()=>{try{data.settings=await api.chooseFolder();renderCategory();toast('Download location updated');}catch(e){error(e);}};const clear=el('button','text-button','Reset');clear.onclick=()=>update({[k]:''});folder.append(display,choose,clear);wrap.append(folder);
+      const folder=el('div','folder-control');const display=el('span','folder-display',v||'Default: '+data.defaultDownloads);display.title=v||data.defaultDownloads;const choose=el('button','secondary-button','Browse…');choose.onclick=async()=>{try{data.settings=await api.chooseFolder();theme();render();notify('Download location updated');}catch(e){error(e);}};const clear=el('button','text-button','Reset');clear.onclick=()=>update({[k]:''});folder.append(display,choose,clear);wrap.append(folder);
     }
     return wrap;
   }
-  function renderCategory(){
-    if(!data||current==='overview')return;
-    const g=current==='favorites'?favoriteGroup():data.groups.find(x=>x.id===current);
-    if(!g)return;
-    const query=$('search').value.trim().toLowerCase();
-    const searchGroups=current==='favorites'?[g]:(query?data.groups:[g]);
-    const matches=searchGroups.flatMap(group=>group.settings
-      .filter(m=>!query||(m.label+' '+m.description+' '+m.key+' '+(m.favoriteGroup||group.title)).toLowerCase().includes(query))
-      .map(m=>({...m,searchGroup:m.favoriteGroup||group.title})));
-    const list=$('settings-list');list.replaceChildren();
-    const maintenanceSearch=Boolean(query&&['clear cookies','cookies','sign out','clear cache','cached files','browsing data']
-      .some(word=>word.includes(query)||query.includes(word)));
-    if(!matches.length&&!maintenanceSearch){
-      list.append(el('div','empty-search',current==='favorites'&&!query
-        ?'Nothing pinned yet. Open a category and click ☆ beside a setting to save it here.'
-        :'No matching settings. Try a different search term.'));
+
+  function categoryRows(){
+    // Search finds every setting, even when its Advanced topic is not selected.
+    if(search.trim())return [...commonRows(SECTIONS),...advancedRows()];
+    if(current==='advanced')return advancedRows().filter(item=>item.topic===advancedTopic);
+    return commonRows(SECTIONS.filter(section=>section.id===current));
+  }
+  function nav(){
+    const region=$('navigation');region.replaceChildren();
+    for(const category of SECTIONS){
+      const button=el('button','nav-item'+(category.id===current?' active':''));
+      button.type='button';button.setAttribute('aria-current',category.id===current?'page':'false');
+      button.append(el('span','nav-icon',category.icon),el('span','nav-title',category.title));
+      button.onclick=()=>selectCategory(category.id);
+      region.append(button);
     }
-    const sections=new Map();
-    for(const m of matches){
-      const sectionName=(query||current==='favorites')
-        ?m.searchGroup+' / '+(m.section||'Other'):(m.section||'Other');
-      if(!sections.has(sectionName))sections.set(sectionName,[]);
-      sections.get(sectionName).push(m);
+    const separator=el('div','nav-section-divider');
+    separator.setAttribute('aria-hidden','true');
+    region.append(separator);
+    const extra=el('button','nav-item advanced-nav'+(current==='advanced'?' active':''));
+    extra.type='button';extra.setAttribute('aria-current',current==='advanced'?'page':'false');
+    extra.append(el('span','nav-icon','⚙'),el('span','nav-title','Advanced'));
+    extra.onclick=()=>selectCategory('advanced');
+    region.append(extra);
+  }
+  function renderAdvancedTopics(){
+    const region=$('advanced-topics');
+    region.hidden=current!=='advanced'||!!search.trim();
+    if(region.hidden){region.replaceChildren();return;}
+    const rows=advancedRows();
+    region.replaceChildren();
+    for(const topic of ADVANCED_TOPICS){
+      const count=rows.filter(item=>item.topic===topic.id).length;
+      if(!count)continue;
+      const button=el('button','topic-button'+(topic.id===advancedTopic?' active':''));
+      button.type='button';
+      button.setAttribute('aria-pressed',String(topic.id===advancedTopic));
+      button.append(el('span','topic-icon',topic.icon),
+        el('span','topic-name',topic.title),
+        el('small','topic-count',String(count)));
+      button.onclick=()=>{
+        advancedTopic=topic.id;
+        render();
+        $('scroll-area').scrollTop=0;
+      };
+      region.append(button);
     }
-    for(const [sectionName,items] of sections){
-      const panel=el('details','settings-panel');panel.open=!collapsedSections.has(sectionName);
-      const summary=el('summary','settings-panel-title');
-      summary.append(el('span','panel-caret','⌄'),el('strong',null,sectionName),
-        el('span','panel-count',items.length+' options'));
+  }
+  function selectCategory(id){
+    if(id!=='advanced'&&!SECTIONS.some(s=>s.id===id))return;
+    // Advanced is a permanent sidebar destination, not a hidden mode.
+    current=id;search='';$('global-search').value='';nav();render();
+    $('scroll-area').scrollTop=0;
+  }
+  function render(){
+    if(!data)return;
+    const topic=ADVANCED_TOPICS.find(t=>t.id===advancedTopic)||ADVANCED_TOPICS[0];
+    const group=current==='advanced'
+      ?{title:'Advanced',subtitle:topic.title+' · Less-used controls grouped by purpose. Everyday preferences stay in their main tabs.'}
+      :SECTIONS.find(g=>g.id===current)||SECTIONS[0];
+    const q=search.trim().toLowerCase();
+    const rows=categoryRows().filter(item=>!q||(
+      item.meta.label+' '+item.meta.description+' '+item.key+' '+item.category+' '+item.section
+    ).toLowerCase().includes(q));
+    $('crumb-name').textContent=group.title;
+    $('category-heading').textContent=q?'Search results':group.title;
+    $('category-description').textContent=q
+      ?rows.length+' matching settings'+(current==='advanced'?' (including advanced)':'')
+      :group.subtitle;
+    $('reset-section').hidden=current==='advanced'||!!q;
+    renderAdvancedTopics();
+    const root=$('settings-list');root.replaceChildren();
+    if(!rows.length){
+      root.append(el('p','empty-search',q?'No results. Try a different search term.':'Nothing to show here.'));
+      return;
+    }
+    const groups=new Map();
+    for(const item of rows){
+      const section=(q||current==='advanced'?item.category+' / ':'')+item.section;
+      if(!groups.has(section))groups.set(section,[]);
+      groups.get(section).push(item.meta);
+    }
+    let panelIndex=0;
+    for(const [title,settings] of groups){
+      const panel=el('details','settings-panel');
+      // Expose the first two Advanced groups, keep the rest neatly folded.
+      panel.open=current!=='advanced'||!!q||panelIndex<2;
+      panelIndex++;
+      const heading=el('summary','settings-panel-title');
+      heading.append(el('strong',null,title),el('small',null,String(settings.length)));
       const body=el('div','settings-panel-body');
-      for(const m of items){
-        const stacked=['multiselect','textarea'].includes(m.type);
-        const row=el('div','setting-row'+(stacked?' stacked':''));row.dataset.settingKey=m.key;
+      for(const meta of settings){
+        const row=el('div','setting-row'+(['multiselect','textarea'].includes(meta.type)?' stacked':''));
+        row.dataset.settingKey=meta.key;
         const info=el('div','setting-info');
-        info.append(el('b',null,m.label),el('p',null,m.description));
-        if(query&&m.searchGroup!==g.title)info.append(el('span','search-group-tag',m.searchGroup));
-        const star=el('button','favorite-star'+(favorites.includes(m.key)?' pinned':''),favorites.includes(m.key)?'★':'☆');
-        star.type='button';star.title=(favorites.includes(m.key)?'Unpin ':'Pin ')+m.label;
-        star.setAttribute('aria-label',star.title);
-        star.setAttribute('aria-pressed',String(favorites.includes(m.key)));
-        star.onclick=()=>toggleFavorite(m.key);
-        const changed=JSON.stringify(data.settings[m.key])!==JSON.stringify(m.defaultValue);
-        if(changed)info.append(el('span','modified-label','Modified'));
-        row.append(star,info,buildControl(m));
+        info.append(el('b',null,meta.label),el('p',null,meta.description));
+        row.append(info,buildControl(meta));
         body.append(row);
       }
-      panel.append(summary,body);
-      panel.addEventListener('toggle',()=>{if(panel.open)collapsedSections.delete(sectionName);else collapsedSections.add(sectionName);});
-      list.append(panel);
+      panel.append(heading,body);
+      root.append(panel);
     }
-    if(maintenanceSearch){
-      const link=el('button','maintenance-search-link','Open Privacy & Local Data → Clear cache / cookies');
-      link.type='button';link.onclick=()=>selectCategory('privacy');list.append(link);
-    }
-    $('utilities').hidden=current!=='privacy'||Boolean(query);
+  }
+  async function run(action,message){
+    try{const v=await action();if(message)notify(message);return v;}catch(e){error(e);return null;}
   }
   function wire(){
-    $('start-customizing').onclick=()=>selectCategory('appearance');
-    $('open-favorites').onclick=()=>selectCategory('favorites');
-    $('inspector-downloads').onclick=()=>selectCategory('downloads');
-    $('inspector-appearance').onclick=()=>selectCategory('appearance');
-    $('inspector-privacy').onclick=()=>selectCategory('privacy');
-    const resizeFont=(direction)=>{ const value=Math.max(100,Math.min(170,(Number(data.settings.dashboardFontSize)||125)+direction)); if(value!==data.settings.dashboardFontSize)update({dashboardFontSize:value}); };
-    $('font-smaller').onclick=()=>resizeFont(-5);
-    $('font-larger').onclick=()=>resizeFont(5);
-    document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;if(e.key==='+'||e.key==='='){e.preventDefault();resizeFont(5);}else if(e.key==='-'){e.preventDefault();resizeFont(-5);}else if(e.key==='0'){e.preventDefault();update({dashboardFontSize:125});}});
-    $('search').oninput=renderCategory;
-    $('global-search').oninput=e=>{
-      const query=e.target.value.trim();
-      if(query.length<2)return;
-      if(current==='overview'||current==='favorites')selectCategory('appearance');
-      $('search').value=query;
-      renderCategory();
+    $('global-search').oninput=e=>{search=e.target.value;render();};
+    $('global-search').onkeydown=e=>{if(e.key==='Escape'){e.target.value='';search='';render();}};
+    $('reset-section').onclick=async()=>{
+      const section=SECTIONS.find(g=>g.id===current);
+      if(!section||!confirm('Restore the visible '+section.title+' preferences to their defaults?'))return;
+      const patch=Object.fromEntries(section.parts.flatMap(([_,keys])=>keys).map(key=>[key,metaByKey(key)?.defaultValue]).filter(([,v])=>v!==undefined));
+      await update(patch,'Section restored');
     };
-    $('global-search').onkeydown=e=>{
-      if(e.key==='Escape'){e.target.value='';$('search').value='';renderCategory();}
-      if(e.key==='Enter'){e.preventDefault();if(current==='overview')selectCategory('appearance');
-        $('search').value=e.target.value.trim();renderCategory();}
+    $('reset-all').onclick=async()=>{
+      if(!confirm('Reset ALL 201 preferences, including the Advanced tab?'))return;
+      const result=await run(()=>api.reset('all'));
+      if(result){data.settings=result;theme();render();notify('All preferences reset');}
     };
-    $('overview-search').addEventListener('keydown',e=>{
-      if(e.key!=='Enter')return;
-      const query=e.currentTarget.value.trim();
-      if(!query)return;
-      selectCategory('appearance');
-      $('search').value=query;
-      renderCategory();
-      $('search').focus();
-    });
-    $('search').onkeydown=e=>{if(e.key==='Escape'){$('search').value='';renderCategory();}};
-    $('reset-section').onclick=async()=>{if(current==='favorites')return;if(!confirm('Restore defaults for this section?'))return;try{data.settings=await api.reset(current);renderCategory();theme();toast('Section restored to defaults');}catch(e){error(e);}};
-    $('reset-all').onclick=async()=>{if(!confirm('Restore ALL Tubeium settings to defaults?'))return;try{data.settings=await api.reset('all');renderCategory();theme();refreshPanels();toast('All options restored');}catch(e){error(e);}};
-    $('presets').addEventListener('click',async e=>{const b=e.target.closest('[data-preset]');if(!b)return;try{data.settings=await api.applyPreset(b.dataset.preset);theme();refreshPanels();toast('Preset applied. Fine-tune your settings any time.');}catch(e){error(e);}});
-    $('export').onclick=async()=>{try{const ok=await api.export();if(ok)toast('Settings exported');}catch(e){error(e);}};
-    $('import').onclick=async()=>{try{data.settings=await api.import();theme();renderCategory();refreshPanels();toast('Settings imported');}catch(e){error(e);}};
-    $('go-player').onclick=()=>api.openPlayer().catch(error);
-    $('go-downloads').onclick=()=>api.openDownloads().catch(error);
-    $('open-download-folder').onclick=async()=>{try{const issue=await api.openFolder();if(issue)toast('Could not open downloads folder: '+issue);else toast('Downloads folder opened');}catch(e){error(e);}};
-    $('go-library').onclick=()=>api.openLibrary().catch(error);
-    $('backup-all').onclick=async()=>{try{if(await api.backup())toast('Backup saved — no Google cookies included');}catch(e){error(e);}};
-    $('restore-all').onclick=async()=>{if(!confirm('Restore backed-up settings and merge local library / playlists? Google sign-in is not affected.'))return;try{const response=await api.restoreBackup();if(response.restored){data=await api.initialize();theme();selectCategory(current);toast('Backup restored');}}catch(e){error(e);}};
-    $('check-updates').onclick=()=>api.checkUpdates().catch(error);
-    $('clear-cache').onclick=async()=>{if(!confirm('Clear YouTube cached files?'))return;try{await api.clearCache();toast('Cache cleared');}catch(e){error(e);}};
-    $('clear-cookies').onclick=async()=>{if(!confirm('Clear cookies? You will be signed out of Google/YouTube in this app.'))return;try{await api.clearCookies();toast('Cookies cleared. Reload YouTube to see the result.');}catch(e){error(e);}};
+    $('go-downloads').onclick=()=>run(()=>api.openDownloads());
+    $('go-player').onclick=()=>run(()=>api.openPlayer());
+    $('open-download-folder').onclick=()=>run(()=>api.openFolder(),'Downloads folder opened');
+    $('import').onclick=async()=>{
+      const next=await run(()=>api.import());
+      if(next){data.settings=next;theme();render();notify('Settings imported');}
+    };
+    $('export').onclick=()=>run(()=>api.export(),'Export complete');
+    $('backup-all').onclick=()=>run(()=>api.backup(),'Backup saved');
+    $('restore-all').onclick=async()=>{
+      if(!confirm('Restore the saved backup?'))return;
+      const res=await run(()=>api.restoreBackup());
+      if(res?.restored){data=await api.initialize();theme();render();notify('Backup restored');}
+    };
+    $('check-updates').onclick=()=>run(()=>api.checkUpdates());
+    $('clear-cache').onclick=async()=>{
+      if(confirm('Clear YouTube temporary cached files?'))await run(()=>api.clearCache(),'Cache cleared');
+    };
+    $('clear-cookies').onclick=async()=>{
+      if(confirm('Clear cookies and sign out of YouTube?'))await run(()=>api.clearCookies(),'Cookies cleared');
+    };
     document.addEventListener('keydown',e=>{
-      const tag=document.activeElement?.tagName||'';
       if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){
         e.preventDefault();$('global-search').focus();$('global-search').select();
       }
     });
-    document.addEventListener('keydown',e=>{if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)&&current!=='overview'){e.preventDefault();$('search').focus();}});
-    api.onSettings(s=>{if(!data)return;data.settings=s;theme();if(!document.querySelector('.hotkey-control.recording')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))renderCategory();refreshPanels();});
+    api.onSettings(s=>{
+      if(!data)return;
+      data.settings=s;theme();
+      if(!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))render();
+    });
   }
   async function boot(){
-    try {data=await api.initialize();favorites=Array.isArray(data.favorites)?data.favorites:[];$('option-count').textContent=String(data.groups.reduce((n,g)=>n+g.settings.length,0));$('category-count').textContent=String(data.groups.length);theme();wire();selectCategory('overview');refreshPanels();}
-    catch(e){error(e);}
+    try{
+      data=await api.initialize();
+      const missing=SECTIONS.flatMap(g=>g.parts.flatMap(([_,keys])=>keys)).filter(k=>!metaByKey(k));
+      if(missing.length)throw Error('Unknown settings: '+missing.join(', '));
+      theme();wire();nav();render();
+    }catch(e){error(e);}
   }
   boot();
 })();

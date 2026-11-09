@@ -1,1 +1,34 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'"><link rel="stylesheet" href="tab-strip.css"><title>Tubeium tabs</title></head><body><nav aria-label="Tubeium tabs"><span class="brand" aria-label="Tubeium"><span class="brand-mark" aria-hidden="true">◈</span><span class="brand-name">Tubeium</span></span><button id="yt" class="active" type="button">▶ YouTube</button><button id="help" type="button">✦ Sign-in Help</button><span class="hint">Switch tabs anytime</span><button id="open-settings" class="settings-shortcut" type="button" aria-label="Open Tubeium settings" title="Open Settings (Ctrl+,)">⚙ Settings</button><button id="hide-tabs" type="button" aria-label="Collapse Tubeium bottom tabs" title="Collapse tabs to a small Show tabs button">×</button><button id="show-tabs" type="button" aria-label="Show Tubeium tabs" title="Restore Tubeium tabs">↑ Show tabs</button></nav><script src="tab-strip.js"></script></body></html>
+<!doctype html>
+<html lang="en" class="collapsed">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="tab-strip.css">
+  <title>Tubeium controls</title>
+</head>
+<body>
+  <nav id="tab-strip" aria-label="Tubeium navigation">
+    <span class="brand" aria-label="Tubeium"><span class="brand-mark" aria-hidden="true">◈</span><span class="brand-name">Tubeium</span></span>
+    <button id="yt" type="button" class="active">YouTube</button>
+    <button id="help" type="button">Sign-in Help</button>
+    <span class="tab-spacer"></span>
+    <button id="open-settings" class="settings-shortcut" type="button" aria-label="Open Tubeium settings" title="Settings · Ctrl+,">⚙ <span>Settings</span></button>
+    <button id="hide-tabs" type="button" aria-label="Collapse Tubeium bottom tabs" title="Use compact Tubeium launcher">×</button>
+  </nav>
+  <section id="compact" aria-label="Tubeium quick menu">
+    <div id="launcher-menu" hidden role="group" aria-label="Tubeium shortcuts">
+      <div class="menu-heading"><span class="brand-mark" aria-hidden="true">◈</span><span><strong>Tubeium</strong><small>Your desktop companion</small></span></div>
+      <button id="menu-youtube" type="button"><span class="menu-icon">▶</span> YouTube</button>
+      <button id="menu-settings" type="button"><span class="menu-icon">⚙</span> Settings <kbd>Ctrl+,</kbd></button>
+      <button id="menu-downloads" type="button"><span class="menu-icon">↓</span> Download Manager</button>
+      <button id="menu-watch-later" type="button" title="Saved locally on this PC, not in YouTube"><span class="menu-icon">◷</span> Watch Later <small>Local</small></button>
+      <button id="menu-help" type="button"><span class="menu-icon">?</span> Sign-in Help</button>
+      <div class="menu-divider"></div>
+      <button id="show-tabs" type="button"><span class="menu-icon">▤</span> Show navigation bar</button>
+    </div>
+    <button id="launcher" type="button" aria-label="Open Tubeium menu" aria-controls="launcher-menu" aria-expanded="false" title="Tubeium · Settings, Downloads and Help">◈</button>
+  </section>
+  <script src="tab-strip.js"></script>
+</body>
+</html>

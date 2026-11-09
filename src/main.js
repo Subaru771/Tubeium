@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 const { DEFAULTS, normalize, publicGroups, metadata } = require('./settings-schema');
 const { newTask, normalizeQueue, formatArgs } = require('./download-queue');
+const {applyVerifiedMetadata,fetchPublicVideoMetadata}=require('./download-metadata');
 const { migrateLegacyDownloadFolder, remapDownloadJobPaths } = require('./download-folder-migration');
 const { migrateUserData } = require('./migration-userdata');
 const { importCookies, MAX_FILE_BYTES } = require('./signin-cookies');
@@ -54,6 +55,7 @@ let tabBarView = null;
 let activeTubeiumTab = 'youtube';
 let helpTabsVisible = true;
 let tabBarFullscreen = false;
+let tabMenuOpen = false;
 let prefs = null;
 let downloadsWindow = null;
 let libraryWindow = null;
@@ -106,6 +108,8 @@ function setSettings(patch) {
   if(updateClient)updateClient.autoDownload=!!settings.autoDownloadUpdates;
   if(mini && win && process.platform==='win32')win.setOpacity(settings.miniOpacity/100);
   sendState();
+  updateHelpTabsVisibility();
+  updateTubeiumTabBar();
   buildMenu();
   queueDrain();
   return settings;
@@ -213,7 +217,8 @@ const welcomeStatePath = () => path.join(app.getPath('userData'), 'welcome-tab.j
 const WELCOME_GUIDE_REVISION = 458;
 function showHelpTabsPreference() {
   const saved = readJson(welcomeStatePath(), {});
-  return !saved || saved.showHelpTabs !== false;
+  // A single 44px Tubeium launcher is the default; the full tab bar is opt-in.
+  return !!saved && saved.showHelpTabs === true;
 }
 function showWelcomeOnStartup() {
   // Opt-in only: Tubeium opens on YouTube. Earlier versions opened this tab at
@@ -229,8 +234,10 @@ function welcomeSender(event) {
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
 const TAB_STRIP_HEIGHT = 42;
-const COLLAPSED_TAB_WIDTH = 244;
-const COLLAPSED_TAB_HEIGHT = 38;
+const COLLAPSED_TAB_WIDTH = 48;
+const COLLAPSED_TAB_HEIGHT = 48;
+const TUBEIUM_MENU_WIDTH = 244;
+const TUBEIUM_MENU_HEIGHT = 344;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
   const [width, height] = win.getContentSize();
@@ -239,8 +246,8 @@ function sizeWelcomeTab() {
   if (tabBarView) {
     // Collapsed: keep an obvious, compact native restore handle instead of hiding
     // the entire strip with no discoverable way back.
-    const compactWidth = Math.min(COLLAPSED_TAB_WIDTH, Math.max(width,1));
-    const compactHeight = Math.min(COLLAPSED_TAB_HEIGHT, Math.max(height,1));
+    const compactWidth = Math.min(tabMenuOpen ? TUBEIUM_MENU_WIDTH : COLLAPSED_TAB_WIDTH, Math.max(width,1));
+    const compactHeight = Math.min(tabMenuOpen ? TUBEIUM_MENU_HEIGHT : COLLAPSED_TAB_HEIGHT, Math.max(height,1));
     tabBarView.setBounds(helpTabsVisible
       ? {x:0,y:Math.max(0,height-TAB_STRIP_HEIGHT),width:Math.max(width,1),height:TAB_STRIP_HEIGHT}
       : {x:Math.max(0,width-compactWidth-12),y:Math.max(0,height-compactHeight-10),
@@ -249,11 +256,13 @@ function sizeWelcomeTab() {
 }
 function updateHelpTabsVisibility() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
-    tabBarView.setVisible(!tabBarFullscreen);
+    const available = helpTabsVisible || settings.showSettingsButton !== false || activeTubeiumTab === 'welcome';
+    tabBarView.setVisible(!tabBarFullscreen && available);
   }
 }
 function setHelpTabsVisible(value) {
   helpTabsVisible = value === true;
+  tabMenuOpen = false;
   const saved = readJson(welcomeStatePath(), {});
   // When the bar is dismissed, do not reopen the instructions on next launch.
   writeJson(welcomeStatePath(), {
@@ -269,10 +278,12 @@ function setHelpTabsVisible(value) {
 }
 function updateTubeiumTabBar() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
-    tabBarView.webContents.send('tubeium-tab-state', {tab: activeTubeiumTab, showHelpTabs: helpTabsVisible});
+    tabBarView.webContents.send('tubeium-tab-state', {tab: activeTubeiumTab, showHelpTabs: helpTabsVisible,
+      menuOpen: tabMenuOpen, showSigninHelpButton: settings.showSigninHelpButton !== false});
   }
 }
 function showYoutubeTab() {
+  if(tabMenuOpen){tabMenuOpen=false;sizeWelcomeTab();}
   activeTubeiumTab = 'youtube';
   if (welcomeView) welcomeView.setVisible(false); // keep it available, don't destroy it
   updateTubeiumTabBar();
@@ -294,8 +305,8 @@ function closeWelcomeTab() {
 }
 function openWelcomeTab() {
   if (!win || win.isDestroyed()) return;
-  // An explicit request to view help always restores its tabs if previously hidden.
-  if (!helpTabsVisible) setHelpTabsVisible(true);
+  // Help is reachable from the compact menu; do not force a second bottom tab bar.
+  if(tabMenuOpen){tabMenuOpen=false;sizeWelcomeTab();}
   activeTubeiumTab = 'welcome';
   if (welcomeView) {
     welcomeView.setVisible(true);
@@ -334,7 +345,7 @@ function openTubeiumTabBar() {
     webSecurity:true,partition:'tubeium-tabbar-local',
   }});
   tabBarView = view;
-  view.setBackgroundColor('#171521');
+  view.setBackgroundColor('#00000000');
   updateHelpTabsVisibility();
   view.webContents.setWindowOpenHandler(() => ({action:'deny'}));
   view.webContents.on('will-navigate', e=>e.preventDefault());
@@ -356,10 +367,25 @@ ipcMain.on('tubeium-tab-show', event => {
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
   setHelpTabsVisible(true);
 });
-// Restrict the new Settings action to the trusted local tab-strip view.
-ipcMain.on('tubeium-tab-open-settings', event => {
-  if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
-  openSettings();
+// Each native Tubeium launcher command is restricted to the local tab strip.
+function trustedTabEvent(event){return !!tabBarView && !tabBarView.webContents.isDestroyed() && event.sender===tabBarView.webContents;}
+function closeTabMenu(){if(!tabMenuOpen)return;tabMenuOpen=false;sizeWelcomeTab();updateTubeiumTabBar();}
+ipcMain.on('tubeium-tab-menu-toggle',event=>{
+  if(!trustedTabEvent(event))return;
+  tabMenuOpen=!tabMenuOpen && !helpTabsVisible;
+  sizeWelcomeTab();updateTubeiumTabBar();
+});
+ipcMain.on('tubeium-tab-open-settings',event=>{
+  if(!trustedTabEvent(event))return;
+  closeTabMenu();openSettings();
+});
+ipcMain.on('tubeium-tab-open-downloads',event=>{
+  if(!trustedTabEvent(event))return;
+  closeTabMenu();openDownloadManager();
+});
+ipcMain.on('tubeium-tab-open-library',event=>{
+  if(!trustedTabEvent(event))return;
+  closeTabMenu();openLocalLibrary();
 });
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');
@@ -800,8 +826,14 @@ const requireLibrary=()=>{if(!libraryStore)throw new Error('Library not ready');
 ipcMain.handle('library-init',e=>{if(!libOnly(e))throw new Error('Forbidden');return {accent:settings.accentColor,fontPercent:settings.dashboardFontSize,defaultSort:settings.librarySort};});
 ipcMain.handle('library-offline-list',e=>{if(!libOnly(e))throw new Error('Forbidden');return jobs.filter(j=>j.status==='completed').flatMap(j=>playableFiles(j).map((file,i)=>({id:j.id,index:i,title:path.basename(file),scope:j.scope})));});
 ipcMain.handle('library-offline-open',(e,id,index)=>{if(!libOnly(e))throw new Error('Forbidden');openOfflinePlayer(id,index);return true;});
-ipcMain.handle('library-list',(e,filter,query)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().list(['all','bookmarks','continue'].includes(filter)?filter:'all',query);});
+ipcMain.handle('library-list',(e,filter,query)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().list(['all','bookmarks','continue','watch-later'].includes(filter)?filter:'all',query);});
 ipcMain.handle('library-open',(e,id)=>{if(!libOnly(e)||!validId(id))throw new Error('Invalid request');showWindow();win.loadURL('https://www.youtube.com/watch?v='+id);return true;});
+ipcMain.handle('library-watch-later-edit',(e,id,add)=>{
+  if(!libOnly(e)||!validId(id)||typeof add!=='boolean')throw new Error('Forbidden');
+  const record=requireLibrary().get(id);
+  if(!record)return null;
+  return requireLibrary().watchLater(record,add);
+});
 ipcMain.handle('library-remove',(e,id)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().remove(id);});
 ipcMain.handle('library-clear',(e,mode)=>{if(!libOnly(e)||!['history','all'].includes(mode))throw new Error('Forbidden');return requireLibrary().clear(mode);});
 ipcMain.handle('library-settings',e=>{if(!libOnly(e))throw new Error('Forbidden');openSettings();return true;});
@@ -837,6 +869,17 @@ ipcMain.handle('library-record',(e,record)=>{
 ipcMain.handle('library-bookmark',(e,record)=>{
  if(!ytOnly(e)||!settings.localLibraryEnabled||!validId(record?.id))return null;
  return requireLibrary().bookmark(record);
+});
+// One-click local Watch Later is intentionally independent from passive
+// watch-history tracking and Google authentication. Explicit user saves work
+// even when the automatic local-library preference is disabled.
+ipcMain.handle('library-watch-later',(e,record)=>{
+  if(!ytOnly(e)||!validId(record?.id))throw new Error('Invalid Watch Later video');
+  return requireLibrary().watchLater(record,true);
+});
+ipcMain.handle('library-watch-later-has',(e,id)=>{
+  if(!ytOnly(e)||!validId(id))return false;
+  return requireLibrary().get(id)?.watchLater===true;
 });
 ipcMain.handle('library-position',(e,id)=>{
  if(!ytOnly(e)||!settings.localLibraryEnabled||!validId(id))return null;
@@ -1293,14 +1336,27 @@ async function updateYtDlp() {
   try{note('Updating downloader…');await ensureYtDlp(()=>{},{useLatest:true});note('Downloader updated');}
   catch(e){note('Update failed: '+e.message);}
 }
-function addJob(raw,scope,mode) {
-  const task=newTask(raw,scope,mode);
+async function enrichQueuedTitle(task) {
+  if(task.scope!=='video')return;
+  const result=await fetchPublicVideoMetadata(task.source,(...args)=>net.fetch(...args));
+  if(!result || !jobs.includes(task) || task._ytDlpMetadataVerified)return;
+  task.title=result.title;
+  if(result.channel)task.channel=result.channel;
+  task.updatedAt=new Date().toISOString();
+  sendDownloads();
+}
+function addJob(raw,scope,mode,hints={}) {
+  const task=newTask(raw,scope,mode,{...hints,settings});
   if(jobs.length>=200){
     const i=jobs.findIndex(j=>['completed','cancelled'].includes(j.status));
     if(i<0)throw new Error('Queue full. Remove old entries.');
     jobs.splice(i,1);
   }
-  jobs.unshift(task);sendDownloads(true);queueDrain();return task;
+  jobs.unshift(task);sendDownloads(true);queueDrain();
+  // Populate the title from a public YouTube lookup while yt-dlp prepares.
+  // This cannot hold up the queue, requires no cookies, and is best-effort.
+  void enrichQueuedTitle(task);
+  return task;
 }
 function setJobStatus(job,status,detail) {
   job.status=status;job.detail=detail||status;job.updatedAt=new Date().toISOString();sendDownloads(true);
@@ -1364,6 +1420,10 @@ async function runJob(job) {
     running.set(job.id,child);
     job.detail='Connecting…';sendDownloads();
     const consumeLine=line=>{
+      if(applyVerifiedMetadata(job,line)){
+        job._ytDlpMetadataVerified=true;
+        job.updatedAt=new Date().toISOString();sendDownloads();return;
+      }
       const pct=/\[download\]\s+(\d+(?:\.\d+)?)%/.exec(line);
       if(pct){job.progress=Math.min(100,Number(pct[1]));
         const details=line.match(/at\s+([^\s]+)\s+ETA\s+([^\s]+)/);
@@ -1426,8 +1486,9 @@ ipcMain.on('open-download-manager',e=>{if(ytOnly(e))openDownloadManager();});
 ipcMain.handle('download',async(e,request)=>{
   if(!ytOnly(e))return{ok:false,error:'Forbidden'};
   try {const {id,mode,scope}=request||{};const raw=scope==='playlist'?request.url:id;
-    const task=addJob(raw,scope==='playlist'?'playlist':'video',mode);
-    return {ok:true,queued:true,id:task.id};
+    const task=addJob(raw,scope==='playlist'?'playlist':'video',mode,
+      {title:request?.title,channel:request?.channel});
+    return {ok:true,queued:true,id:task.id,title:task.title,quality:task.quality};
   }catch(err){return{ok:false,error:String(err.message||err)};}
 });
 // Pause active operations on shutdown; they can be restarted from their .part files.

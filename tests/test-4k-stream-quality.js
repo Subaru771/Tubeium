@@ -33,5 +33,6 @@ assert.equal(schema.DEFAULTS.preferredQuality,'auto','Do not silently force 4K f
 assert.equal(schema.metadata.preferredQuality.options.find(x=>x[0]==='hd2160')[0],'hd2160');
 assert.equal(schema.metadata.toolQuality.defaultValue,true,'Existing quality toolbar control stays enabled by default');
 assert.equal(schema.publicGroups().reduce((n,g)=>n+g.settings.length,0),201,'No surprise changes to the existing 201 settings');
-assert(settings.includes('UP TO 4K'),'Hero must not imply every video plays at 4K');
+assert.doesNotMatch(settings,/\b(?:every|all)\s+videos?\s+(?:play|at|in)\s+4K\b/i,
+  'Settings must not claim universal 4K playback');
 console.log('PASS: accurate 4K playback indicator, dynamic updates, 201 settings preserved, native quality menu');

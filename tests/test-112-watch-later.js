@@ -1,0 +1,57 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {LibraryStore,sanitize}=require('../src/library-store');
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'tubeium-watch-later-'));
+try{
+ const store=new LibraryStore(path.join(tmp,'library.json'));
+ const first={id:'ABCDEFGHIJK',title:'Save from Tubeium Home',channel:'Channel One'};
+ const second={id:'ZXCVBNMasdf',title:'Watch from the player',channel:'Channel Two'};
+ assert.equal(store.list('watch-later').length,0);
+ assert.throws(()=>store.watchLater({id:'bad!!'},true),/Invalid video identifier/);
+ const saved=store.watchLater(first,true);
+ assert.equal(saved.watchLater,true);
+ assert(saved.watchLaterAt>0);
+ assert.equal(saved.bookmarked,false);
+ assert.equal(store.list('watch-later').length,1);
+ assert.equal(store.watchLater(first,true).watchLaterAt,saved.watchLaterAt,'Second click must not reorder saved video');
+ store.watchLater(second,true);
+ assert.equal(store.list('watch-later').length,2);
+ assert.equal(new LibraryStore(store.file).list('watch-later').length,2,'Watch Later survives restart');
+ store.record({...first,position:28,duration:200});
+ // Saving again from a Home card has zero playback position: do not erase resume.
+ store.watchLater({...first,position:0,duration:0},true);
+ assert.equal(store.get(first.id).position,28,'Home save preserves previous resume position');
+ assert.equal(store.get(first.id).duration,200,'Home save preserves known video duration');
+ assert.equal(store.get(first.id).watchLater,true,'Passive watch progress never removes Watch Later');
+ assert.equal(store.get(first.id).watchLaterAt,saved.watchLaterAt,'Passive playback must not reorder Watch Later');
+ store.bookmark(first);
+ assert.equal(store.get(first.id).watchLater,true,'Bookmark toggle must preserve Watch Later');
+ store.clear('history');
+ assert.equal(store.list('watch-later').length,2,'Clear history does not delete explicitly saved Watch Later');
+ assert.equal(store.list('bookmarks').length,1);
+ const backup=store.export();
+ assert.equal(backup.items.find(x=>x.id===first.id).watchLater,true);
+ const restored=new LibraryStore(path.join(tmp,'restored.json'));
+ assert.equal(restored.import(backup),2);
+ assert.equal(restored.list('watch-later').length,2);
+ restored.watchLater(first,false);
+ assert.equal(restored.get(first.id).watchLater,false);
+ assert.equal(restored.get(first.id).bookmarked,true,'Removing from Watch Later preserves bookmark');
+ assert.equal(restored.list('watch-later').length,1);
+ assert.equal(restored.list('bookmarks').length,1);
+ // Backward compatibility: older files had no watchLater or watchLaterAt.
+ const old=sanitize([{id:'ABCDEFGHIJK',title:'Legacy bookmark',bookmarked:true,lastWatched:12345}]);
+ assert.equal(old.length,1);assert.equal(old[0].watchLater,false);assert.equal(old[0].watchLaterAt,0);
+ const main=fs.readFileSync(path.join(__dirname,'../src/main.js'),'utf8');
+ const preload=fs.readFileSync(path.join(__dirname,'../src/preload.js'),'utf8');
+ const html=fs.readFileSync(path.join(__dirname,'../src/library.html'),'utf8');
+ const renderer=fs.readFileSync(path.join(__dirname,'../src/library-renderer.js'),'utf8');
+ assert.match(main,/ipcMain\.handle\('library-watch-later'/);
+ assert.match(main,/ipcMain\.handle\('library-watch-later-has'/);
+ assert.match(main,/ipcMain\.handle\('library-watch-later-edit'/);
+ assert.match(main,/\['all','bookmarks','continue','watch-later'\]/);
+ assert.match(preload,/laterButton\.id='tubeium-player-watch-later'/);
+ assert.match(html,/data-filter="watch-later" class="selected"/);
+ assert.match(renderer,/api\.watchLaterEdit\(v\.id,!v\.watchLater\)/);
+ console.log('PASS: Watch Later saves instantly, survives restart, preserves bookmarks/history and migration');
+}finally{fs.rmSync(tmp,{recursive:true,force:true});}

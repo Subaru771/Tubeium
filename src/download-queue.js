@@ -3,6 +3,7 @@
 // queue transitions can be tested without Electron or network connectivity.
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {cleanTitle,cleanChannel,requestedQuality,fallbackTitle}=require('./download-metadata');
 const SAFE_ID = /^[\w-]{11}$/;
 const SAFE_LIST = /^[\w-]{10,80}$/;
 
@@ -47,7 +48,9 @@ function formatArgs(task, settings, folder, ffmpeg, archivePath) {
   const template=templates[settings.filenameTemplate]||templates['title-id'];
   const playlistPrefix=task.scope==='playlist'||task.scope==='channel' ? '%(playlist_title).70B/%(playlist_index)03d - ' : '';
   const args=['--ignore-config','--continue','--part','--newline','--progress','--no-simulate',
-    '--print','after_move:filepath','--windows-filenames',
+    '--print','after_move:filepath',
+    '--print','before_dl:TUBEIUM_META:%(.{title,channel,height,resolution,format_id})j',
+    '--windows-filenames',
     '--paths', folder, '-o', playlistPrefix+template,
     '--retries',String(settings.downloadRetries||'5')];
   if (ffmpeg && ffmpeg !== 'ffmpeg') args.push('--ffmpeg-location',ffmpeg);
@@ -86,11 +89,19 @@ function formatArgs(task, settings, folder, ffmpeg, archivePath) {
   return args;
 }
 
-function newTask(source,scope,mode) {
+function newTask(source,scope,mode,extras={}) {
   if (!['video','audio','thumbnail'].includes(mode)) throw new Error('Unknown download mode');
   const parsed=parseSource(source,scope);
-  return {id:crypto.randomUUID(),source:parsed.source,scope:parsed.scope,mode,status:'queued',
-    progress:0,detail:'Waiting',files:[],error:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  const settings=extras.settings||{};
+  const task={id:crypto.randomUUID(),source:parsed.source,scope:parsed.scope,mode,status:'queued',
+    progress:0,detail:'Queued',files:[],error:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+    title:cleanTitle(extras.title)||'',channel:cleanChannel(extras.channel)||'',
+    quality:requestedQuality(mode,settings),resolvedQuality:'',
+    container:mode==='video'?String(settings.videoContainer||'mp4').toLowerCase():'',
+  };
+  // Human-readable URL/id fallback while yt-dlp resolves the real title.
+  task.title=task.title||fallbackTitle(task);
+  return task;
 }
 function normalizeQueue(data) {
   const jobs=Array.isArray(data?.jobs)?data.jobs:[];
@@ -102,6 +113,9 @@ function normalizeQueue(data) {
         const status=['completed','error','paused','cancelled','queued'].includes(j.status)?j.status:'paused';
         return [{id:j.id,source:parsed.source,scope:parsed.scope,mode:j.mode,status,
           progress:Math.max(0,Math.min(100,Number(j.progress)||0)),detail:String(j.detail||'').slice(0,250),
+          title:cleanTitle(j.title)||fallbackTitle(j),channel:cleanChannel(j.channel),
+          quality:cleanTitle(j.quality).slice(0,55),resolvedQuality:cleanTitle(j.resolvedQuality).slice(0,55),
+          container:['mp4','mkv'].includes(j.container)?j.container:'',
           error:String(j.error||'').slice(0,600), files:Array.isArray(j.files)?j.files.filter(f=>typeof f==='string'&&f.length<1000).slice(-200):[],
           createdAt:String(j.createdAt||''),updatedAt:String(j.updatedAt||'')}];
       } catch {return [];} });

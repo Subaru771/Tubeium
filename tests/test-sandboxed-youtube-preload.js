@@ -34,6 +34,8 @@ vm.runInNewContext(preload,{
 },{timeout:2000});
 assert.equal(typeof bootHandler,'function','YouTube preload must survive sandbox initialization');
 assert(ipcChannels.includes('state'),'Live state handler must register');
-assert.match(preload,/initSettingsButton\(\);/);
+assert.doesNotMatch(preload,/initSettingsButton\(\);/,'Settings belongs to one trusted native launcher');
+assert.match(preload,/initDownloadButton\(\);/);
+assert.match(main,/tubeium-tab-open-settings/);
 assert.match(preload,/initAdBlock\(\);/);
 console.log('PASS: sandboxed YouTube preload initializes Settings and ad-skipping entry points');
