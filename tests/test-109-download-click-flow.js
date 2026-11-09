@@ -46,12 +46,11 @@ const ipcRenderer={
 let state={showDownloadButton:true,showSigninHelpButton:true,downloadThumbnailOnly:true,toolDownloads:true,videoContainer:'mp4',audioFormat:'mp3'};
 const applyState=()=>{
   getById('uyp-dl').hidden=state.showDownloadButton===false;
-  getById('tubeium-signin-help').hidden=state.showSigninHelpButton===false;
-  getById('tubeium-right-actions').hidden=!state.showDownloadButton&&!state.showSigninHelpButton;
+  getById('tubeium-right-actions').hidden=!state.showDownloadButton;
   getById('uyp-dl-manager').hidden=state.toolDownloads===false;
 };
 const ctx={document:doc,ipcRenderer,state,location:{search:'?v=ABCDEFGHIJK'},
-  URLSearchParams,applyState,currentVideoId:()=> 'ABCDEFGHIJK',
+  URLSearchParams,applyState,positionDownloadDock:()=>{},currentVideoId:()=> 'ABCDEFGHIJK',
   toast:x=>toasts.push(x),setTimeout:()=>0};
 vm.runInNewContext(snippet+'\ninitDownloadButton();',ctx);
 function click(el){
@@ -92,17 +91,13 @@ assert.equal(download.classList.contains('open'),false,'Download closes open opt
 assert.equal(manager.length,0);
 click(managerButton);
 assert.deepEqual(manager,['open-download-manager'],'Only explicit manager action opens it');
-click(getById('tubeium-signin-help'));
-assert.deepEqual(manager,['open-download-manager','tubeium-open-signin-help']);
-state.showDownloadButton=false;state.showSigninHelpButton=true;applyState();
-assert.equal(download.hidden,true);
-assert.equal(getById('tubeium-signin-help').hidden,false);
-assert.equal(getById('tubeium-right-actions').hidden,false);
-state.showDownloadButton=true;state.showSigninHelpButton=false;applyState();
-assert.equal(download.hidden,false);
-assert.equal(getById('tubeium-signin-help').hidden,true);
 state.showDownloadButton=false;applyState();
+assert.equal(download.hidden,true);
 assert.equal(getById('tubeium-right-actions').hidden,true);
+state.showDownloadButton=true;applyState();
+assert.equal(download.hidden,false);
+assert.equal(getById('tubeium-right-actions').hidden,false);
+assert.equal(getById('tubeium-signin-help'),null,'Only one sign-in help entry: inside Tubeium menu');
 state.toolDownloads=false;applyState();
 assert.equal(managerButton.hidden,true);
 assert(!source.includes("['downloads','Download manager','↓']"),
