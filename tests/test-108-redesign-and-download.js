@@ -1,45 +1,27 @@
 'use strict';
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
-const root=path.join(__dirname,'..');
-const html=fs.readFileSync(path.join(root,'src/settings.html'),'utf8');
-const css=fs.readFileSync(path.join(root,'src/settings.css'),'utf8');
-const js=fs.readFileSync(path.join(root,'src/settings-renderer.js'),'utf8');
-const preload=fs.readFileSync(path.join(root,'src/preload.js'),'utf8');
-const main=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
-const pkg=require('../package.json');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+const html=read('src/settings.html'),css=read('src/settings.css'),renderer=read('src/settings-renderer.js'),preload=read('src/preload.js'),main=read('src/main.js'),pkg=require('../package.json');
 assert.equal(pkg.version,'1.0.9');
 assert(pkg.build.files.includes('src/download-folder-migration.js'));
 assert.match(html,/<span class="brand-version">1\.09<\/span>/);
-for(const key of [
- 'navigation','actions-resizer','sidebar-resizer','overview','category-view',
- 'settings-list','start-customizing','presets','open-favorites','category-heading',
- 'search','overview-search','reset-section','reset-all','go-player','go-downloads',
- 'open-download-folder','go-library','check-updates','font-smaller','font-larger',
- 'export','import','clear-cache','clear-cookies','backup-all','restore-all'
-]){
- assert(html.includes('id="'+key+'"'),key+' must stay accessible and wired');
+for(const id of ['navigation','sidebar-resizer','settings-list','category-heading','reset-section','toggle-advanced','global-search','go-player','go-downloads','open-download-folder','check-updates','import','export','clear-cache','clear-cookies','backup-all','restore-all','reset-all']){
+  assert(html.includes('id="'+id+'"'),id+' must stay wired');
 }
-assert.match(js,/\$\('overview-search'\)\.addEventListener\('keydown'/);
-assert.match(js,/\$\('open-download-folder'\)\.onclick=/);
-assert.match(css,/\/\* Tubeium Workspace v1\.09 — rebuilt from an empty stylesheet/);
-assert.match(css,/\.workspace-grid\{/);
-assert.match(css,/\.presets\{/);
+for(const obsolete of ['overview','actions-resizer','presets','open-favorites','overview-search','font-smaller','font-larger']){
+  assert(!html.includes('id="'+obsolete+'"'),obsolete+' clutters the new interface');
+}
+assert.match(renderer,/const SECTIONS=\[/);
+assert.match(renderer,/\{id:'downloads',title:'Downloads'/);
+assert.match(renderer,/advanced=!advanced/);
+assert.match(css,/\.settings-list\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/body\[data-theme="light"\]/);
-assert.match(css,/\.setting-row\{/);
-assert.match(css,/\.sidebar \.sidebar-bottom\{\s*flex:0 0 var\(--settings-actions-height,370px\)/);
-assert.match(css,/\.sidebar-resizer\{\s*position:relative/);
-assert.match(css,/flex:0 0 18px;width:18px;min-width:18px/);
-assert.match(css,/margin-left:-9px;margin-right:-9px/);
-assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-assert.match(preload,/main\.addEventListener\('click',event=>\{[\s\S]*?void start\('video'\)/,'Video must queue with one click and no manager popup');
+assert.match(preload,/function positionDownloadDock\(\)/);
+assert.match(preload,/dock\.hidden=state\.showDownloadButton===false \|\| !videoId/);
+assert.match(preload,/dock\.classList\.add\('tubeium-dock-fallback','tubeium-dock-active'\)/);
+assert.match(preload,/main\.addEventListener\('click',event=>\{[\s\S]*?void start\('video'\)/);
 assert.match(preload,/options\.addEventListener\('click'/);
-assert.match(preload,/options\.setAttribute\('aria-expanded'/);
-assert.match(preload,/const actions=document\.createElement\('div'\);actions\.className='uyp-download-actions'/);
-assert.match(preload,/\['\s*Video'|\[\['Video', 'video'\]/);
-assert.match(preload,/\['Audio', 'audio'\]/);
-assert.match(preload,/open-download-manager/);
+assert.match(preload,/managerButton\.addEventListener\('click'/);
 assert.match(main,/migrateLegacyDownloadFolder\(/);
 assert.match(main,/remapDownloadJobPaths\(/);
-console.log('PASS: rebuilt Settings Studio, compatibility IDs, light/dark, one-click download and folder shortcut');
+console.log('PASS: simplified Settings, original downloads and migration preserved, visible fallback');
