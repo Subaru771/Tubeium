@@ -9,7 +9,7 @@ assert(start>0 && end>start);
 const snippet=source.slice(start,end);
 const classes=new Set();
 const dock={
- hidden:false,style:{},parentElement:null,
+ hidden:false,style:{},parentElement:null,querySelector:()=>null,
  classList:{add(...a){for(const x of a)classes.add(x);},remove(...a){for(const x of a)classes.delete(x);},contains:k=>classes.has(k)}
 };
 function append(parent,child){child.parentElement=parent;return child;}
@@ -52,10 +52,10 @@ assert.equal(dock.hidden,false,'Live video still gets a Download action');
 showPlayer=false;positionDownloadDock();
 assert.equal(dock.hidden,false,'Metadata and player loading must not hide the video action');
 state.showDownloadButton=false;positionDownloadDock();
-assert.equal(dock.hidden,true,'Hide preference remains respected');
+assert.equal(dock.hidden,false,'Watch Later stays available even when Download is hidden');
 state.showDownloadButton=true;id=null;positionDownloadDock();
 assert.equal(dock.hidden,true,'Do not show Download on non-video routes');
 assert.match(source,/document\.addEventListener\('yt-navigate-finish',updateDock\)/);
 assert.match(source,/window\.addEventListener\('popstate',updateDock\)/);
 assert.match(source,/setInterval\(updateDock,750\)/);
-console.log('PASS: Download is visible for watch, Shorts and live videos, survives hidden/missing action rows and SPA changes');
+console.log('PASS: video action dock supports Watch Later on Shorts/live even when Download preference is disabled');
