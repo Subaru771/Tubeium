@@ -20,9 +20,10 @@ assert.match(preload,/function positionDownloadDock\(\)/);
 assert.match(preload,/ytd-watch-metadata #actions/);
 assert.match(preload,/dock\.classList\.add\('tubeium-dock-fallback','tubeium-dock-active'\)/);
 assert.match(preload,/setInterval\(updateDock,750\)/);
-assert.match(preload,/dock\.append\(box\);document\.body\.appendChild\(dock\)/);
+assert.match(preload,/dock\.append\(box,laterButton\);document\.body\.appendChild\(dock\)/);
+assert.match(preload,/laterButton\.id='tubeium-player-watch-later'/);
 assert.match(preload,/if\(btn\)btn\.hidden=state\.showDownloadButton===false/);
-assert.match(preload,/rightActions\.hidden=state\.showDownloadButton===false/);
+assert.match(preload,/rightActions\.hidden=!currentVideoId\(\)/,'Watch Later stays available if Download is hidden');
 assert.match(html,/id="menu-help"/);
 assert.match(html,/id="menu-settings"/);
 assert.match(tabScript,/showSigninHelpButton!==false/);
@@ -35,4 +36,4 @@ const more=preload.match(/options\.addEventListener\('click',event=>\{([\s\S]*?)
 assert(more);assert.match(more[1],/classList\.toggle\('open'\)/);
 const manager=preload.match(/managerButton\.addEventListener\('click',event=>\{([\s\S]*?)\n  \}\)/);
 assert(manager);assert.match(manager[1],/ipcRenderer\.send\('open-download-manager'\)/);
-console.log('PASS: no floating Settings, no redundant sign-in prompt, Download in video actions and one native menu');
+console.log('PASS: single launcher, player Download and local Watch Later remain separate actions');
