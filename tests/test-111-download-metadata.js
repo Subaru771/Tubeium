@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {newTask,formatArgs,normalizeQueue}=require('../src/download-queue');
-const {cleanTitle,cleanChannel,requestedQuality,applyVerifiedMetadata}=require('../src/download-metadata');
+const {cleanTitle,cleanChannel,requestedQuality,applyVerifiedMetadata,fetchPublicVideoMetadata}=require('../src/download-metadata');
 const {DEFAULTS}=require('../src/settings-schema');
 const source='https://www.youtube.com/watch?v=ABCDEFGHIJK';
 const task=newTask(source,'video','video',{title:'My test video - YouTube',channel:'Uploader',settings:DEFAULTS});
@@ -47,4 +47,23 @@ assert.match(main,/title:request\?\.title,channel:request\?\.channel/);
 assert.match(main,/quality:task\.quality/);
 assert.match(preload,/title:safeTitle,channel:String\(channelNode\?\.textContent/);
 assert.match(preload,/res\.quality/);
-console.log('PASS: video title/quality present at queue creation, confirmed resolution before transfer, safe persistence');
+(async()=>{
+ let request=null;
+ const fetcher=async(url,options)=>{
+   request={url,options};
+   return{ok:true,headers:{get:()=>null},text:async()=>JSON.stringify({
+     provider_name:'YouTube',title:'Verified title from paste link',author_name:'Public channel'
+   })};
+ };
+ const details=await fetchPublicVideoMetadata(source,fetcher);
+ assert.deepEqual(details,{title:'Verified title from paste link',channel:'Public channel'});
+ assert.equal(request.options.credentials,'omit','Public lookup must never send Google cookies');
+ assert.equal(request.options.method,'GET');
+ assert(request.url.startsWith('https://www.youtube.com/oembed?format=json&url='));
+ assert.equal(await fetchPublicVideoMetadata('https://evil.example/watch?v=ABCDEFGHIJK',fetcher),null);
+ assert.equal(await fetchPublicVideoMetadata(source,async()=>{throw new Error('offline');}),null,
+   'Offline lookup cannot block the download');
+ assert.equal(await fetchPublicVideoMetadata(source,async()=>({
+   ok:false,headers:{get:()=>null},text:async()=>''})),null);
+ console.log('PASS: immediate requested quality, yt-dlp verified resolution, optional safe public metadata lookup');
+})().catch(error=>{console.error(error);process.exitCode=1;});
