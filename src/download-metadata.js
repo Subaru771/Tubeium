@@ -41,4 +41,26 @@ function applyVerifiedMetadata(job,output){
   }
   return true;
 }
-module.exports={cleanTitle,cleanChannel,requestedQuality,fallbackTitle,applyVerifiedMetadata};
+// Fast, unauthenticated public title lookup. No browser cookies or third-party
+// service. This never blocks the actual download and is optional if offline.
+async function fetchPublicVideoMetadata(source,fetchFn){
+  if(typeof source!=='string'||!/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/.test(source)||
+     typeof fetchFn!=='function')return null;
+  const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(source);
+  try{
+    const res=await fetchFn(url,{
+      method:'GET',credentials:'omit',signal:AbortSignal.timeout(4000),
+      headers:{accept:'application/json'}
+    });
+    if(!res?.ok)return null;
+    const size=Number(res.headers?.get?.('content-length')||0);
+    if(size>65536)return null;
+    const raw=await res.text();
+    if(typeof raw!=='string'||raw.length>65536)return null;
+    const info=JSON.parse(raw);
+    if(info?.provider_name!=='YouTube')return null;
+    const title=cleanTitle(info.title),channel=cleanChannel(info.author_name);
+    return title?{title,channel}:null;
+  }catch{return null;}
+}
+module.exports={cleanTitle,cleanChannel,requestedQuality,fallbackTitle,applyVerifiedMetadata,fetchPublicVideoMetadata};
