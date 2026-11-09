@@ -286,12 +286,12 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
 .tubeium-quick-thumbnail{position:relative!important;overflow:visible!important}
 .tubeium-quick-thumbnail:has(>.tubeium-card-actions):hover,
 .tubeium-quick-thumbnail:has(>.tubeium-card-actions):focus-within{isolation:isolate}
+/* Persistent controls: YouTube moves hover-preview layers and can drop :hover
+   from the video card while the mouse is still visibly over its thumbnail.
+   Never make these essential actions depend on that transient pseudo-state. */
 .tubeium-card-actions{position:absolute!important;left:6px;top:6px;z-index:2147483000!important;display:flex;gap:5px;
-  align-items:center;max-width:calc(100% - 12px);opacity:0;pointer-events:none;
-  transition:opacity .13s;isolation:isolate}
-.tubeium-quick-thumbnail:hover>.tubeium-card-actions,
-.tubeium-quick-thumbnail:focus-within>.tubeium-card-actions,
-.tubeium-card-actions:hover{opacity:1!important;pointer-events:auto!important;visibility:visible!important}
+  align-items:center;max-width:calc(100% - 12px);opacity:1!important;visibility:visible!important;
+  pointer-events:auto!important;isolation:isolate}
 .tubeium-card-actions button{appearance:none;min-width:0;white-space:nowrap;
   border:1px solid #ffffff5c;border-radius:7px;background:#1b1926ed;color:#fff;
   box-shadow:0 2px 9px #0009;cursor:pointer;font:700 10px "Segoe UI",Roboto,Arial,sans-serif;
@@ -300,7 +300,7 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
   background:#3d2f54;border-color:#c3a7ff;outline:1px solid #c3a7ff}
 .tubeium-card-actions button[data-saved="true"]{color:#d5c1ff}
 .tubeium-card-actions button:disabled{opacity:.65;cursor:wait}
-@media(hover:none){.tubeium-card-actions{opacity:1;pointer-events:auto}}
+/* Desktop, keyboard and touch all receive the same always-visible actions. */
 @media(prefers-reduced-motion:reduce){.tubeium-card-actions{transition:none}}
 html.uyp-mini #tubeium-right-actions,html.uyp-fs #tubeium-right-actions{display:none!important}
 #uyp-dl{display:none;position:relative;flex-direction:column;align-items:flex-end;
