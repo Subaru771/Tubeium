@@ -30,7 +30,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Development:** Tubeium 1.09 source includes the independent bottom-right Download/Sign-in Help controls and a rebuilt, compact two-column Settings workspace with task-first navigation and independent resize handles. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+**Development:** Tubeium 1.09 source includes a single compact Tubeium launcher for Settings, Downloads and Sign-in Help; a player-aligned Download action; contextual player tools; and a rebuilt two-column Settings workspace. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
 
 ## Screenshots
 
@@ -80,7 +80,7 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
 - **Playback Diagnostics:** open **Stats** from the floating toolbar or Player menu to see decoded resolution, estimated frames per second, dropped frames, buffering, and a local copyable report.
 - **Quick Download:** one prominent video button queues the current video in a single click; use the adjacent options button for audio, thumbnails and playlists.
-- **Right-side shortcuts:** the Download and Have a problem signing in? controls live together at the bottom-right. Hide either independently in Settings → Downloads; the manager opens only when explicitly requested. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
+- **Clean player controls:** Download sits in the video's action area (or inside the player as a fallback), and its menu/Manager never opens automatically. A single native Tubeium launcher provides Settings, Download Manager and optional Sign-in Help without duplicate floating prompts. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
 - **Up to 4K (2160p) when supported:** the floating quality control displays the decoded video resolution (such as 1080p, 1440p or 4K) and opens YouTube’s real Quality menu. A preference for 4K is not a guarantee; the video, browser codec support and bandwidth determine available resolutions.
 - Remember volume and mute state; set default volume and caption preferences.
 - Theater mode, fullscreen preferences, video looping, and autoplay controls.
@@ -152,7 +152,7 @@ Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256.
 
 1. Download the **installer** or **portable EXE** from the links above.
 2. Launch Tubeium. The installer can create shortcuts; the portable edition runs directly.
-3. Open **⚙ Settings** with the floating shortcut just above the bottom bar, the bottom navigation button, or **Ctrl+,** to adjust your theme, layout, playback preferences, and downloads.
+3. Open **Settings** using the compact **◈ Tubeium** launcher or **Ctrl+,** to adjust your theme, layout, playback preferences, and downloads.
 4. Explore the local library, download manager, and optional sign-in guidance.
 
 > **Tip:** Start with the Appearance, Layout & Focus, and Playback sections to make the biggest difference immediately.
