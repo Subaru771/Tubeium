@@ -5,7 +5,7 @@ const groups = [
     ['closeToTray', 'Close to tray', 'Keep audio playing when the window is closed.', 'toggle', true],
     ['startMinimized', 'Start minimized', 'Open Tubeium in the system tray.', 'toggle', false],
     ['launchAtLogin', 'Launch at login', 'Start a packaged app with Windows/macOS; may require OS approval.', 'toggle', false],
-    ['showSettingsButton', 'Quick settings button', 'Show a floating settings shortcut in YouTube.', 'toggle', true],
+    ['showSettingsButton', 'Show Tubeium launcher', 'Show one compact Tubeium menu for Settings, Downloads and Help. Ctrl+, always opens Settings.', 'toggle', true],
     ['rememberWindow', 'Restore window size', 'Remember position and size between sessions.', 'toggle', true],
     ['startPage', 'Startup page', 'Page shown when launching Tubeium.', 'select', 'home', { options: [['home','YouTube Home'], ['subscriptions','Subscriptions'], ['history','History'], ['explore','Explore']] }],
     ['miniWidth', 'Mini player width', 'Width of the floating video window, in pixels.', 'range', 480, { min: 320, max: 720, step: 20, unit: 'px' }],
@@ -58,7 +58,7 @@ const groups = [
   ]},
   { id: 'downloads', title: 'Downloads', icon: '↓', subtitle: 'Formats, quality, location and metadata', settings: [
     ['showDownloadButton', 'Show floating Download button', 'Show the one-click video download button in the bottom-right corner. The adjacent arrow opens extra download options.', 'toggle', true],
-    ['showSigninHelpButton', 'Show sign-in help shortcut', 'Show Have a problem signing in? beside Download in the bottom-right corner. Both buttons can be hidden independently.', 'toggle', true],
+    ['showSigninHelpButton', 'Sign-in Help in Tubeium menu', 'Show one Sign-in Help entry in the Tubeium launcher. No extra login prompt covers the video.', 'toggle', true],
     ['videoQuality', 'Maximum video resolution', 'Select the highest video resolution to download.', 'select', '1080', { options: [['480','480p'],['720','720p'],['1080','1080p'],['1440','1440p'],['2160','2160p / 4K'],['best','Best available']] }],
     ['videoContainer', 'Video container', 'Merge audio and video into this container when FFmpeg exists.', 'select', 'mp4', { options: [['mp4','MP4'], ['mkv','MKV']] }],
     ['audioFormat', 'Audio format', 'Audio extraction or conversion requires FFmpeg except original.', 'select', 'mp3', { options: [['mp3','MP3'], ['m4a','M4A'], ['opus','Opus'], ['best','Original audio']] }],
