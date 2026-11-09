@@ -283,13 +283,15 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
 #tubeium-player-watch-later:hover,#tubeium-player-watch-later:focus-visible{border-color:var(--uyp-accent,#aa7dff);background:#363147}
 #tubeium-player-watch-later[data-saved="true"]{border-color:#7864a9;color:#cebaff}
 #tubeium-player-watch-later:disabled{opacity:.6;cursor:wait}
-.tubeium-quick-thumbnail{position:relative!important}
-.tubeium-card-actions{position:absolute;left:6px;top:6px;z-index:2150;display:flex;gap:5px;
+.tubeium-quick-thumbnail{position:relative!important;overflow:visible!important}
+.tubeium-quick-thumbnail:has(>.tubeium-card-actions):hover,
+.tubeium-quick-thumbnail:has(>.tubeium-card-actions):focus-within{isolation:isolate}
+.tubeium-card-actions{position:absolute!important;left:6px;top:6px;z-index:2147483000!important;display:flex;gap:5px;
   align-items:center;max-width:calc(100% - 12px);opacity:0;pointer-events:none;
   transition:opacity .13s;isolation:isolate}
 .tubeium-quick-thumbnail:hover>.tubeium-card-actions,
 .tubeium-quick-thumbnail:focus-within>.tubeium-card-actions,
-.tubeium-card-actions:hover{opacity:1;pointer-events:auto}
+.tubeium-card-actions:hover{opacity:1!important;pointer-events:auto!important;visibility:visible!important}
 .tubeium-card-actions button{appearance:none;min-width:0;white-space:nowrap;
   border:1px solid #ffffff5c;border-radius:7px;background:#1b1926ed;color:#fff;
   box-shadow:0 2px 9px #0009;cursor:pointer;font:700 10px "Segoe UI",Roboto,Arial,sans-serif;
@@ -576,7 +578,10 @@ function tubeiumInstallCardActions() {
     if(card.matches?.('yt-lockup-view-model')&&
        card.closest?.('ytd-rich-grid-media,ytd-video-renderer,ytd-grid-video-renderer,ytd-compact-video-renderer'))continue;
     const record=tubeiumCardRecord(card);
-    const host=card.querySelector('ytd-thumbnail')||card;
+    // YouTube replaces/hides ytd-thumbnail children when hover previews start.
+    // Mount the controls on the stable outer video card instead. The hover
+    // preview may destroy the thumbnail subtree, but these actions survive.
+    const host=card;
     const previous=host.querySelector(':scope > .tubeium-card-actions');
     if(!record){
       previous?.remove();
