@@ -3,7 +3,7 @@
 // when YouTube's watch metadata/action row is absent or replaced mid-navigation.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'../src/preload.js'),'utf8');
-const start=source.indexOf('function positionDownloadDock() {');
+const start=source.indexOf('function findTubeiumVisiblePlayer() {');
 const end=source.indexOf('// ---- Download button ----',start);
 assert(start>0 && end>start);
 const snippet=source.slice(start,end);
