@@ -6,8 +6,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 const { DEFAULTS, normalize, publicGroups, metadata } = require('./settings-schema');
-const { newTask, normalizeQueue, formatArgs } = require('./download-queue');
-const {applyVerifiedMetadata,fetchPublicVideoMetadata}=require('./download-metadata');
+const { newTask, normalizeQueue, formatArgs, snapshotDownloadOptions } = require('./download-queue');
+const {applyVerifiedMetadata,fetchPublicVideoMetadata,requestedQuality}=require('./download-metadata');
 const { migrateLegacyDownloadFolder, remapDownloadJobPaths } = require('./download-folder-migration');
 const { migrateUserData } = require('./migration-userdata');
 const { importCookies, MAX_FILE_BYTES } = require('./signin-cookies');
@@ -1295,6 +1295,8 @@ let jobs=[];
 const running=new Map();
 let queueTimer=null;
 let draining=false;
+// Retain an attempt's slot until its preparation/process has fully stopped.
+const downloadAttempts=new Map();
 function sendDownloads(force=false) {
   if (force) { clearTimeout(queueTimer);queueTimer=null;writeJson(queueFile(),{version:1,jobs}); }
   else if (!queueTimer) queueTimer=setTimeout(()=>{queueTimer=null;writeJson(queueFile(),{version:1,jobs});},650);
@@ -1362,15 +1364,17 @@ function setJobStatus(job,status,detail) {
   job.status=status;job.detail=detail||status;job.updatedAt=new Date().toISOString();sendDownloads(true);
 }
 function queueDrain() {
-  if(draining)return;
+  if(quitting||draining)return;
   draining=true;
   try {
-    while(jobs.filter(j=>j.status==='running').length<Number(settings.parallelDownloads||1)) {
-      const job=jobs.find(j=>j.status==='queued');
+    while(!quitting&&downloadAttempts.size<Number(settings.parallelDownloads||1)) {
+      const job=jobs.find(j=>j.status==='queued'&&!downloadAttempts.has(j.id));
       if(!job)break;
       // Mark synchronously before awaiting any fetch or process startup.
+      const attempt=Symbol(job.id);
+      downloadAttempts.set(job.id,attempt);
       setJobStatus(job,'running','Preparing…');
-      void runJob(job);
+      void runJob(job,attempt);
     }
   }finally{draining=false;}
 }
@@ -1407,19 +1411,26 @@ function pushFile(job,file) {
   if(!candidate || !path.isAbsolute(candidate) || job.files.includes(candidate) || !fs.existsSync(candidate))return;
   job.files.push(candidate);job.files=job.files.slice(-200);sendDownloads();
 }
-async function runJob(job) {
+async function runJob(job,attempt) {
+  const isCurrent=()=>!quitting&&downloadAttempts.get(job.id)===attempt&&job.status==='running';
+  if(!job.options){
+    job.options=snapshotDownloadOptions(settings);
+    job.quality=requestedQuality(job.mode,job.options);
+    job.container=job.mode==='video'?job.options.videoContainer:'';
+  }
   let child=null,err='',stdoutBuf='',stderrBuf='';
   try {
-    const bin=await ensureYtDlp(t=>{job.detail=t;sendDownloads();});
-    if(job.status!=='running')return;
+    const bin=await ensureYtDlp(t=>{if(isCurrent()){job.detail=t;sendDownloads();}});
+    if(!isCurrent())return;
     const ffmpeg=bundledFfmpeg()||((await canRun('ffmpeg',['-version']))?'ffmpeg':null);
-    if(job.status!=='running')return;
+    if(!isCurrent())return;
     fs.mkdirSync(dlDir(),{recursive:true});
     const args=formatArgs(job,settings,dlDir(),ffmpeg,archiveFile());
     child=spawn(bin,args,{windowsHide:true});
     running.set(job.id,child);
     job.detail='Connecting…';sendDownloads();
     const consumeLine=line=>{
+      if(!isCurrent())return;
       if(applyVerifiedMetadata(job,line)){
         job._ytDlpMetadataVerified=true;
         job.updatedAt=new Date().toISOString();sendDownloads();return;
@@ -1448,14 +1459,15 @@ async function runJob(job) {
       child.on('error',reject);child.on('close',resolve);
     });
     if(stdoutBuf)consumeLine(stdoutBuf.trim());
-    if(job.status!=='running')return;
+    if(!isCurrent())return;
     if(code===0) {job.progress=100;setJobStatus(job,'completed',job.files.length?`Saved ${job.files.length} file(s)`:'Download finished');
       if(settings.openAfterDownload){const file=job.files.find(x=>fs.existsSync(x));if(file)shell.showItemInFolder(file);}
     }else{job.error=err||`yt-dlp exited with code ${code}`;setJobStatus(job,'error','Download failed');}
   } catch(e) {
-    if(job.status==='running'){job.error=String(e.message||e).slice(0,600);setJobStatus(job,'error','Download failed');}
+    if(isCurrent()){job.error=String(e.message||e).slice(0,600);setJobStatus(job,'error','Download failed');}
   } finally {
     if(child&&running.get(job.id)===child)running.delete(job.id);
+    if(downloadAttempts.get(job.id)===attempt)downloadAttempts.delete(job.id);
     sendDownloads(true);queueDrain();
   }
 }
@@ -1493,6 +1505,7 @@ ipcMain.handle('download',async(e,request)=>{
 });
 // Pause active operations on shutdown; they can be restarted from their .part files.
 app.on('before-quit',()=>{
+  quitting=true;
   for(const j of jobs)if(j.status==='running') {j.status='paused';j.detail='Paused on exit';}
   for(const p of running.values())try{p.kill();}catch{}
   sendDownloads(true);
@@ -1593,6 +1606,7 @@ if (!app.requestSingleInstanceLock()) {
     void verifyImportedSessionOnce();
     buildMenu();
     buildTray();
+    queueDrain();
     if(settings.autoCheckUpdates)setTimeout(()=>void checkTubeiumUpdates(false),12000);
   });
 }

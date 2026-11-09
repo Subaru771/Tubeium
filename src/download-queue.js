@@ -4,6 +4,17 @@
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {cleanTitle,cleanChannel,requestedQuality,fallbackTitle}=require('./download-metadata');
+const {normalize}=require('./settings-schema');
+const DOWNLOAD_OPTION_KEYS=[
+  'filenameTemplate','downloadRetries','maxPlaylistItems','downloadThumbnail',
+  'downloadDescription','downloadInfoJson','downloadRateLimit','downloadSubtitles',
+  'downloadSubLanguage','convertSubtitles','embedSubtitles','embedMetadata',
+  'embedThumbnail','audioFormat','audioQuality','videoQuality','videoContainer'
+];
+function snapshotDownloadOptions(input){
+  const normalized=normalize(input);
+  return Object.fromEntries(DOWNLOAD_OPTION_KEYS.map(key=>[key,normalized[key]]));
+}
 const SAFE_ID = /^[\w-]{11}$/;
 const SAFE_LIST = /^[\w-]{10,80}$/;
 
@@ -39,6 +50,7 @@ function parseSource(raw, requestedScope='video') {
 
 function formatArgs(task, settings, folder, ffmpeg, archivePath) {
   if (!task || !['video','audio','thumbnail'].includes(task.mode)) throw new Error('Invalid download mode');
+  settings=task.options?snapshotDownloadOptions(task.options):settings;
   const templates={
     'title-id':'%(title).150B [%(id)s].%(ext)s',
     title:'%(title).170B.%(ext)s',
@@ -80,10 +92,10 @@ function formatArgs(task, settings, folder, ffmpeg, archivePath) {
     }
   } else if (ffmpeg) {
     const q=settings.videoQuality==='best'?'':`[height<=${settings.videoQuality}]`;
-    args.push('-f',`bv*${q}+ba/b${q}/b`,'--merge-output-format',settings.videoContainer);
+    args.push('-f',`bv*${q}+ba/b${q}`,'--merge-output-format',settings.videoContainer);
   } else {
     const q=settings.videoQuality==='best'?'':`[height<=${settings.videoQuality}]`;
-    args.push('-f',`b${q}/b`);
+    args.push('-f',`b${q}`);
   }
   args.push('--',task.source);
   return args;
@@ -92,11 +104,12 @@ function formatArgs(task, settings, folder, ffmpeg, archivePath) {
 function newTask(source,scope,mode,extras={}) {
   if (!['video','audio','thumbnail'].includes(mode)) throw new Error('Unknown download mode');
   const parsed=parseSource(source,scope);
-  const settings=extras.settings||{};
+  const settings=snapshotDownloadOptions(extras.settings);
   const task={id:crypto.randomUUID(),source:parsed.source,scope:parsed.scope,mode,status:'queued',
     progress:0,detail:'Queued',files:[],error:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
     title:cleanTitle(extras.title)||'',channel:cleanChannel(extras.channel)||'',
     quality:requestedQuality(mode,settings),resolvedQuality:'',
+    ...(extras.settings?{options:settings}:{}),
     container:mode==='video'?String(settings.videoContainer||'mp4').toLowerCase():'',
   };
   // Human-readable URL/id fallback while yt-dlp resolves the real title.
@@ -116,8 +129,9 @@ function normalizeQueue(data) {
           title:cleanTitle(j.title)||fallbackTitle(j),channel:cleanChannel(j.channel),
           quality:cleanTitle(j.quality).slice(0,55),resolvedQuality:cleanTitle(j.resolvedQuality).slice(0,55),
           container:['mp4','mkv'].includes(j.container)?j.container:'',
+          ...(j.options&&typeof j.options==='object'&&!Array.isArray(j.options)?{options:snapshotDownloadOptions(j.options)}:{}),
           error:String(j.error||'').slice(0,600), files:Array.isArray(j.files)?j.files.filter(f=>typeof f==='string'&&f.length<1000).slice(-200):[],
           createdAt:String(j.createdAt||''),updatedAt:String(j.updatedAt||'')}];
       } catch {return [];} });
 }
-module.exports={parseSource,formatArgs,newTask,normalizeQueue};
+module.exports={parseSource,formatArgs,newTask,normalizeQueue,snapshotDownloadOptions};
