@@ -52,9 +52,9 @@ assert.equal(api.tubeiumVideoIdFromHref('https://evil.invalid/watch?v=ABCDEFGHIJ
 assert.equal(api.tubeiumVideoIdFromHref('/watch?v=../invalid'),null);
 assert.equal(api.tubeiumCardRecord(card).title,'Home video title');
 api.tubeiumInstallCardActions();
-let row=host.children[0];
+let row=card.children[0];
 assert(row,'Video thumbnail must get quick action row');
-assert.equal(host.children.length,1);
+assert.equal(card.children.length,1);
 assert.equal(row.children.length,2);
 const [download,later]=row.children;
 assert.equal(download.textContent,'↓ Download');
@@ -78,17 +78,29 @@ async function run(){
  assert.equal(calls[1].record.channel,'Video channel');
  assert.equal(later.textContent,'✓ Saved');
  assert.equal(later.dataset.saved,'true');
+ // YouTube destroys and rebuilds the thumbnail subtree on mouse hover.
+ // Both controls must survive in the stable card, retaining their state.
+ host.children.length=0;
+ const hoverPreview=new Node('ytd-moving-thumbnail-renderer');
+ host.appendChild(hoverPreview);
+ assert.equal(card.children[0],row,'Hover preview replacement cannot destroy action overlay');
+ assert.equal(row.children[0].textContent,'✓ Queued');
+ assert.equal(row.children[1].textContent,'✓ Saved');
  api.tubeiumInstallCardActions();
- assert.equal(host.children.length,1,'Re-render must not duplicate buttons');
+ assert.equal(card.children.length,1,'Re-render must not duplicate buttons');
  state.showDownloadButton=false;api.tubeiumInstallCardActions();
  assert.equal(download.hidden,true,'Hide Download preference respected without hiding Watch Later');
  assert.equal(later.hidden,false);
  link.href='/watch?v=ZXCVBNMasdf';api.tubeiumInstallCardActions();
- assert.equal(host.children.length,1,'Virtualized thumbnail replaces rather than stacks actions');
- assert.equal(host.children[0].dataset.videoId,'ZXCVBNMasdf');
+ assert.equal(card.children.length,1,'Virtualized thumbnail replaces rather than stacks actions');
+ assert.equal(card.children[0].dataset.videoId,'ZXCVBNMasdf');
  link.href='/playlist?list=PL123';api.tubeiumInstallCardActions();
- assert.equal(host.children.length,0,'Never add a video action to playlist-only entries');
+ assert.equal(card.children.length,0,'Never add a video action to playlist-only entries');
  assert.match(source,/initTubeiumCardActions\(\)/);
+ const css=source.slice(source.indexOf('.tubeium-quick-thumbnail{'),source.indexOf('#uyp-dl{'));
+ assert.match(css,/\.tubeium-quick-thumbnail:hover>\.tubeium-card-actions/);
+ assert.match(css,/z-index:2147483000!important/);
+ assert.match(source,/const host=card;/,'Buttons must mount outside the volatile thumbnail component');
  assert.match(source,/document\.addEventListener\('yt-navigate-finish',update\)/);
  console.log('PASS: Home quick Download/Watch Later, no duplicate jobs, no click-through, dynamic cards');
 }
