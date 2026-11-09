@@ -2,12 +2,12 @@
 
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
 
-- **Genuinely rebuilt Settings interface:** a new two-column workspace replaces the interim three-zone Studio and permanent inspector. Includes a redesigned navigation hierarchy, live everyday controls, right-dock visibility preview, compact presets, favorite settings, cross-category search, and independent collapsible two-column settings sections.
-- **Fix Download-click cascade:** the main right-hand Download button queues exactly one video, the adjacent arrow only opens its options, and Download Manager opens only when explicitly selected. Remove the duplicate floating-toolbar Manager button.
+- **Decluttered Settings:** replace the Studio dashboard, presets, favorites cards and 15-category navigation with six focused everyday categories, compact two-column groups, one search field and a small overflow menu for maintenance. Less-used preferences are hidden behind opt-in Advanced; all 201 underlying settings and existing saved values remain supported.
+- **Reliable downloads on all video layouts:** Download queues one video; the chevron opens options without opening Manager. The watch action follows visible metadata on standard videos; an always-visible fallback appears near the active player on Shorts, live videos, or layouts without a usable actions row. Recreate the button if YouTube detaches it during SPA navigation.
 - **Unified Tubeium launcher:** replace the duplicate left floating Settings button and the two bottom-right pills with one compact native menu for Settings, Download Manager and optional Sign-in Help. The Help tab remains available on request but no extra sign-in prompt overlays the page. Downloads sit in the current video's action row, with an in-player fallback. Retired the legacy bottom-left download placement.
 - **Contextual controls:** the player toolbar now follows the actual player and appears on hover or keyboard focus rather than covering suggested videos. The Download Manager remains available in Settings, the single Tubeium menu, and Download's options menu.
-- **Preserved features:** retain all 201 existing settings, favorites, sign-in assistance, local library, download queue, playback diagnostics, 4K resolution badge, and both sidebar resizing handles.
-- **Regression coverage:** simulate actual Download, More, Manager and sign-in button clicks, and smoke-test category navigation, settings controls, layout invariants, and independent hide/show preferences.
+- **Preserved functionality:** retain all 201 saved settings, existing favorites data (without a default Favorites dashboard), sign-in assistance, local library, download queue, diagnostics, 4K resolution badge and the sidebar width resizer. The redundant lower actions resizer is retired from the new interface.
+- **Regression coverage:** exercise Download/More/Manager clicks and independent visibility settings; test missing/hidden action rows, Shorts/live fallbacks, SPA reattachment and the six-category Settings layout with optional 201-setting Advanced.
 
 **Verification:** GitHub Actions runners are working again. The full source regression suite and integrity checks passed for the new consolidated UI. A fresh Windows installer build and live YouTube/Google sign-in tests are still required for this revision.
 
