@@ -571,6 +571,10 @@ async function tubeiumQuickAction(type,record,button) {
 function tubeiumInstallCardActions() {
   if(!document.body || !document.querySelectorAll)return;
   for(const card of document.querySelectorAll(TUBEIUM_VIDEO_CARDS)){
+    // Some newer cards contain a nested lockup view-model; the outer
+    // renderer owns the actions, so never inject a second overlapping row.
+    if(card.matches?.('yt-lockup-view-model')&&
+       card.closest?.('ytd-rich-grid-media,ytd-video-renderer,ytd-grid-video-renderer,ytd-compact-video-renderer'))continue;
     const record=tubeiumCardRecord(card);
     const host=card.querySelector('ytd-thumbnail')||card;
     const previous=host.querySelector(':scope > .tubeium-card-actions');
@@ -971,7 +975,7 @@ function positionDownloadDock() {
       const node=document.querySelector(selector);
       if(!node || !node.isConnected || node.closest('[hidden],[aria-hidden="true"]'))continue;
       const rect=node.getBoundingClientRect();
-      if(rect.width>=100 && rect.height>=20 && rect.top<window.innerHeight && rect.bottom>0){
+      if(rect.width>=340 && rect.height>=20 && rect.top<window.innerHeight && rect.bottom>0){
         target=node;break;
       }
     }
@@ -990,9 +994,10 @@ function positionDownloadDock() {
     const player=findTubeiumVisiblePlayer();
     const rect=player?.getBoundingClientRect();
     const safeWidth=window.innerWidth, safeHeight=window.innerHeight;
+    const dockWidth=Math.max(170,Math.min(safeWidth-16,dock.getBoundingClientRect?.().width||292));
     const left=rect?.width>120
-      ? Math.min(safeWidth-170,Math.max(8,rect.right-167))
-      : safeWidth-178;
+      ? Math.min(safeWidth-dockWidth-8,Math.max(8,rect.right-dockWidth-14))
+      : safeWidth-dockWidth-12;
     const top=rect?.height>110
       ? Math.min(safeHeight-76,Math.max(70,rect.top+16))
       : 74;
