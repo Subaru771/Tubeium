@@ -30,11 +30,12 @@ assert.match(src,/if\(!client\)return checkGitHubUpdates\(interactive\)/);
 assert.match(src,/shell\.openExternal\(RELEASES_URL\)/);
 assert(!src.includes('Automatic releases are not configured yet.'),'Old nonfunctional update message must be removed');
 assert(manifest.build.files.includes('src/update-check.js'),'Bundle updater helper in packaged app');
-for(const id of ['go-player','go-library','backup-all','restore-all','check-updates']){
- assert.match(html,new RegExp('id="'+id+'"[^>]*class="[^"]*outline-full[^"]*"[^>]*><span class="action-icon" aria-hidden="true">'));
+for(const id of ['go-player','go-downloads','backup-all','restore-all','check-updates']){
+ assert(html.includes('id="'+id+'"'),id+' must be available');
 }
-assert.match(html,/id="go-downloads"[^>]*class="header-action header-downloads"/, 'Download Manager moves to header and is no longer a bottom-left floating shortcut');
-assert.match(css,/\.sidebar \.sidebar-bottom \.outline-full \.action-icon\{/);
+assert.match(html,/id="go-downloads"[^>]*class="top-button"/, 'Download Manager belongs in the header');
+assert.match(html,/<details class="tools-menu">/,'Uncommon actions belong in a compact overflow menu');
+assert.match(css,/\.sidebar-action\{/);
 assert.match(css,/font-size:11px/);
 const reply=(body,status=200,headers={})=>({
  ok:status>=200&&status<300,
