@@ -2,6 +2,9 @@
 
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
 
+- **Home and player quick actions:** one-click Download and **◷ Watch Later** directly on supported video thumbnails (Home, search and recommendations) and in the video action area. Thumbnail actions are hover/focus accessible and do not navigate the page. Duplicate quick downloads are suppressed per card.
+- **Local Watch Later:** add to Tubeium's persistent offline-capable Library list without a Google login. A new Watch Later library tab and an entry in the single Tubeium menu make saved videos easy to find. Original bookmarks, local playback history, and existing saved data remain intact. Clearly labeled local-only; it does not silently modify YouTube's account Watch Later.
+
 - **Download Manager rebuilt:** eliminate the oversized hero and decorative Download Studio layout. Add a compact link field, scope/format selectors, queue filters, and stable title-first cards with requested/selected quality, progress, speed/ETA, and Pause/Resume/Retry/Play/Folder actions.
 - **Download title and quality from the start:** every new task snapshots the selected quality and format immediately. Direct video clicks supply the current YouTube title; pasted public URLs receive a fast anonymous title/creator lookup. yt-dlp prints verified title and selected resolution before transfer, updating the queue without losing focus or opening the manager automatically. Existing queued jobs and download files are preserved.
 
