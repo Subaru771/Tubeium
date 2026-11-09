@@ -875,8 +875,25 @@ function initDownloadButton() {
     box.classList.remove('open');options.setAttribute('aria-expanded','false');
     setLabel('Starting…');
     try {
-      const res = await ipcRenderer.invoke('download', { id, mode });
-      if (res.ok) {toast('Added to download queue · Ctrl+Shift+D to manage', 3500);setLabel('✓ Queued');}
+      const titleNode=typeof document.querySelector==='function' && (
+        document.querySelector('ytd-watch-metadata h1 yt-formatted-string')
+        ||document.querySelector('ytd-watch-metadata h1')
+        ||document.querySelector('meta[property="og:title"]'));
+      const channelNode=typeof document.querySelector==='function' &&
+        (document.querySelector('ytd-watch-metadata ytd-channel-name a')
+        ||document.querySelector('ytd-watch-metadata #owner-name a'));
+      const rawTitle=String(titleNode?.content||titleNode?.textContent||document.title||'')
+        .replace(/\\s*[-–—]\\s*YouTube\\s*$/i,'').trim();
+      const safeTitle=/^(YouTube|YouTube Music)$/i.test(rawTitle)?'':rawTitle.slice(0,190);
+      const res = await ipcRenderer.invoke('download', { id, mode,
+        title:safeTitle,channel:String(channelNode?.textContent||'').trim().slice(0,90) });
+      if (res.ok) {
+        const quality=String(res.quality||'');
+        const label=String(res.title||safeTitle||'Video').slice(0,70);
+        toast('Queued: '+label+(quality?' · '+quality:'')+' · Open Download Manager',4500);
+        main.title=String(res.title||label).slice(0,190)+(quality?' · '+quality:'');
+        setLabel('✓ Queued'+(quality?' · '+quality.replace('Up to ',''):''));
+      }
       else toast('Download failed: ' + String(res.error || 'Unknown error').slice(0, 140), 5000);
     } catch (err) { toast('Download failed: ' + String(err.message || err).slice(0, 140), 5000); }
     finally { busy = false; setTimeout(()=>{if(!busy)setLabel('↓ Download video');},1250); }
