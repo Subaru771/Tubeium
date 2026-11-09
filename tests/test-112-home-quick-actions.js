@@ -86,6 +86,8 @@ async function run(){
  assert.equal(card.children[0],row,'Hover preview replacement cannot destroy action overlay');
  assert.equal(row.children[0].textContent,'✓ Queued');
  assert.equal(row.children[1].textContent,'✓ Saved');
+ // A moving preview overlays the thumbnail but cannot hide controls or change
+ // their hit target: visibility is unconditional and their parent is stable.
  api.tubeiumInstallCardActions();
  assert.equal(card.children.length,1,'Re-render must not duplicate buttons');
  state.showDownloadButton=false;api.tubeiumInstallCardActions();
@@ -98,7 +100,11 @@ async function run(){
  assert.equal(card.children.length,0,'Never add a video action to playlist-only entries');
  assert.match(source,/initTubeiumCardActions\(\)/);
  const css=source.slice(source.indexOf('.tubeium-quick-thumbnail{'),source.indexOf('#uyp-dl{'));
- assert.match(css,/\.tubeium-quick-thumbnail:hover>\.tubeium-card-actions/);
+ assert.match(css,/\.tubeium-card-actions\{[\s\S]*?opacity:1!important;visibility:visible!important;/,
+   'Download and Watch Later must be visible even if YouTube drops hover during preview');
+ assert.match(css,/pointer-events:auto!important;/,'Controls must remain clickable');
+ assert.doesNotMatch(css,/\.tubeium-quick-thumbnail:hover>\.tubeium-card-actions/,
+   'Visibility must not depend on the fragile YouTube hover state');
  assert.match(css,/z-index:2147483000!important/);
  assert.match(source,/const host=card;/,'Buttons must mount outside the volatile thumbnail component');
  assert.match(source,/document\.addEventListener\('yt-navigate-finish',update\)/);
