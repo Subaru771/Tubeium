@@ -30,7 +30,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Development:** Tubeium 1.09 source includes a single compact Tubeium launcher for Settings, Downloads and Sign-in Help; a player-aligned Download action; contextual player tools; and a rebuilt two-column Settings workspace. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+**Development:** Tubeium 1.09 source includes one compact Tubeium launcher, a Download button that stays visible on video pages even when YouTube replaces its action row, contextual player tools, and a streamlined six-category Settings workspace. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
 
 ## Screenshots
 
@@ -70,8 +70,8 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 - Light, dark, system-matched, and AMOLED-style page appearance options.
 - Custom accent colors, interface scaling, and separate YouTube text-size adjustments.
 - Adjustable feed density, grid columns, thumbnail corners, and sidebar behavior.
-- **Favorite Settings:** pin frequently used options, access them from the Favorites category, and keep their values synchronized with the original settings. Left navigation width and the lower actions section height resize independently.
-- **Completely redesigned Settings:** a modern Control Room with responsive dark/light design, rich preset cards, global search, clear option rows, and faster navigation.
+- **Simpler Settings:** six everyday categories keep the useful controls visible. All 201 underlying preferences remain compatible; opt into Advanced to access less common options without losing stored values.
+- **Compact Settings layout:** simple sidebar, grouped two-column controls, live search, no preset/favorites dashboard or duplicate action buttons, and maintenance tools tucked into an overflow menu.
 - Hide visual clutter such as badges, channel avatars, and hover previews.
 - Optional custom CSS for advanced page styling.
 
@@ -101,11 +101,11 @@ Changes to YouTube's interface can affect individual filters.
 
 ### ⏭ Ads & SponsorBlock
 
-- **Best-effort ad skipping enabled by default**, with an immediate on/off toggle under **Settings → Ads & SponsorBlock**. YouTube changes can still cause ads or playback problems.
+- **Best-effort ad skipping enabled by default**, with an immediate on/off toggle under **Settings → Privacy & Ads**. YouTube changes can still cause ads or playback problems.
 - **SponsorBlock** integration with configurable segment categories, including sponsors, self-promotion, reminders, intros, and outros.
 - Optional notifications when segments are skipped.
 
-Ad skipping is enabled by default for new installs, but it is best-effort and **does not guarantee an ad-free experience**. Turn it off under **Settings → Ads & SponsorBlock** if playback fails. Existing saved OFF preferences remain OFF. SponsorBlock separately uses community-submitted segment data.
+Ad skipping is enabled by default for new installs, but it is best-effort and **does not guarantee an ad-free experience**. Turn it off under **Settings → Privacy & Ads** if playback fails. Existing saved OFF preferences remain OFF. SponsorBlock separately uses community-submitted segment data.
 
 ### 📥 Downloads & offline playback
 
