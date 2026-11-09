@@ -18,7 +18,9 @@ assert.match(source,/ipcMain\.on\('tubeium-tab-show'/);
 assert.match(source,/setHelpTabsVisible\(false\)/);
 assert.match(source,/setHelpTabsVisible\(true\)/);
 assert.match(source,/showHelpTabsPreference\(\)/);
-assert.match(source,/return !saved \|\| saved\.showHelpTabs !== false/);
+assert.match(source,/return !!saved && saved\.showHelpTabs === true/);
+assert.doesNotMatch(source,/if \(!helpTabsVisible\) setHelpTabsVisible\(true\)/,
+  'Opening help should never force a second full-width bottom tab bar');
 assert.match(source,/CmdOrCtrl\+Shift\+G/);
 assert.match(source,/Show Sign-in Help tabs/);
 assert.match(read('src/welcome.html'),/id="show-tabs"/);
