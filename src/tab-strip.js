@@ -10,6 +10,7 @@ launcher.addEventListener('click',()=>window.tubeiumTabs.toggleMenu());
 $('menu-youtube').addEventListener('click',()=>window.tubeiumTabs.select('youtube'));
 $('menu-settings').addEventListener('click',()=>window.tubeiumTabs.openSettings());
 $('menu-downloads').addEventListener('click',()=>window.tubeiumTabs.openDownloads());
+$('menu-watch-later').addEventListener('click',()=>window.tubeiumTabs.openLibrary());
 $('menu-help').addEventListener('click',()=>window.tubeiumTabs.select('welcome'));
 document.addEventListener('keydown',event=>{
   if(event.key==='Escape' && !menu.hidden){
