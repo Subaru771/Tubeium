@@ -9,7 +9,7 @@ Use [WINDOWS_ACCEPTANCE_TESTS.md](WINDOWS_ACCEPTANCE_TESTS.md) and fill in Windo
 
 | Check | Result | Evidence / issue |
 | --- | --- | --- |
-| Official EXE checksums | Pending | |
+| Official EXE checksums | Passed on Linux | Downloaded both official EXEs; `sha256sum --check SHA256SUMS.txt` passed on November 9, 2026. |
 | Clean installation, shortcuts, uninstall without Node.js | Pending | |
 | Portable startup | Pending | |
 | Settings persistence and themes | Pending | |
@@ -28,3 +28,10 @@ Use [WINDOWS_ACCEPTANCE_TESTS.md](WINDOWS_ACCEPTANCE_TESTS.md) and fill in Windo
 | Windows security alerts and Authenticode status | Pending | Published EXEs are unsigned. |
 
 Signing remains pending a verified publisher identity and compatible signing credentials/provider. The existing production signing workflow is preparation, not proof that published files are signed.
+
+Verified published SHA-256 values:
+
+- Installer: `c3ea0c048bcd3813b62f5086b2b18db624b6bcd6c9cbbe3383f7a30b16401baf`
+- Portable: `7b6fa42810272039a764df2dfe203f4d27ea8c3baf3e1c9334442076e26b2e66`
+
+These integrity checks did not execute either EXE.
