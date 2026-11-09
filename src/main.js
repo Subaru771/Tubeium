@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 const { DEFAULTS, normalize, publicGroups, metadata } = require('./settings-schema');
 const { newTask, normalizeQueue, formatArgs } = require('./download-queue');
+const {applyVerifiedMetadata}=require('./download-metadata');
 const { migrateLegacyDownloadFolder, remapDownloadJobPaths } = require('./download-folder-migration');
 const { migrateUserData } = require('./migration-userdata');
 const { importCookies, MAX_FILE_BYTES } = require('./signin-cookies');
@@ -1314,8 +1315,8 @@ async function updateYtDlp() {
   try{note('Updating downloader…');await ensureYtDlp(()=>{},{useLatest:true});note('Downloader updated');}
   catch(e){note('Update failed: '+e.message);}
 }
-function addJob(raw,scope,mode) {
-  const task=newTask(raw,scope,mode);
+function addJob(raw,scope,mode,hints={}) {
+  const task=newTask(raw,scope,mode,{...hints,settings});
   if(jobs.length>=200){
     const i=jobs.findIndex(j=>['completed','cancelled'].includes(j.status));
     if(i<0)throw new Error('Queue full. Remove old entries.');
@@ -1385,6 +1386,7 @@ async function runJob(job) {
     running.set(job.id,child);
     job.detail='Connecting…';sendDownloads();
     const consumeLine=line=>{
+      if(applyVerifiedMetadata(job,line)){job.updatedAt=new Date().toISOString();sendDownloads();return;}
       const pct=/\[download\]\s+(\d+(?:\.\d+)?)%/.exec(line);
       if(pct){job.progress=Math.min(100,Number(pct[1]));
         const details=line.match(/at\s+([^\s]+)\s+ETA\s+([^\s]+)/);
@@ -1447,7 +1449,8 @@ ipcMain.on('open-download-manager',e=>{if(ytOnly(e))openDownloadManager();});
 ipcMain.handle('download',async(e,request)=>{
   if(!ytOnly(e))return{ok:false,error:'Forbidden'};
   try {const {id,mode,scope}=request||{};const raw=scope==='playlist'?request.url:id;
-    const task=addJob(raw,scope==='playlist'?'playlist':'video',mode);
+    const task=addJob(raw,scope==='playlist'?'playlist':'video',mode,
+      {title:request?.title,channel:request?.channel});
     return {ok:true,queued:true,id:task.id};
   }catch(err){return{ok:false,error:String(err.message||err)};}
 });
