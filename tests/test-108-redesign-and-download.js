@@ -2,9 +2,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 const html=read('src/settings.html'),css=read('src/settings.css'),renderer=read('src/settings-renderer.js'),preload=read('src/preload.js'),main=read('src/main.js'),pkg=require('../package.json');
-assert.equal(pkg.version,'1.0.9');
+assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
 assert(pkg.build.files.includes('src/download-folder-migration.js'));
-assert.match(html,/<span class="brand-version">1\.09<\/span>/);
+assert(html.includes(`<span class="brand-version">${pkg.version}</span>`),'Settings must display the current package version');
 for(const id of ['navigation','sidebar-resizer','settings-list','category-heading','reset-section','advanced-topics','global-search','go-player','go-downloads','open-download-folder','check-updates','import','export','clear-cache','clear-cookies','backup-all','restore-all','reset-all']){
   assert(html.includes('id="'+id+'"'),id+' must stay wired');
 }
