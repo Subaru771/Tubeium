@@ -822,8 +822,14 @@ const requireLibrary=()=>{if(!libraryStore)throw new Error('Library not ready');
 ipcMain.handle('library-init',e=>{if(!libOnly(e))throw new Error('Forbidden');return {accent:settings.accentColor,fontPercent:settings.dashboardFontSize,defaultSort:settings.librarySort};});
 ipcMain.handle('library-offline-list',e=>{if(!libOnly(e))throw new Error('Forbidden');return jobs.filter(j=>j.status==='completed').flatMap(j=>playableFiles(j).map((file,i)=>({id:j.id,index:i,title:path.basename(file),scope:j.scope})));});
 ipcMain.handle('library-offline-open',(e,id,index)=>{if(!libOnly(e))throw new Error('Forbidden');openOfflinePlayer(id,index);return true;});
-ipcMain.handle('library-list',(e,filter,query)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().list(['all','bookmarks','continue'].includes(filter)?filter:'all',query);});
+ipcMain.handle('library-list',(e,filter,query)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().list(['all','bookmarks','continue','watch-later'].includes(filter)?filter:'all',query);});
 ipcMain.handle('library-open',(e,id)=>{if(!libOnly(e)||!validId(id))throw new Error('Invalid request');showWindow();win.loadURL('https://www.youtube.com/watch?v='+id);return true;});
+ipcMain.handle('library-watch-later-edit',(e,id,add)=>{
+  if(!libOnly(e)||!validId(id)||typeof add!=='boolean')throw new Error('Forbidden');
+  const record=requireLibrary().get(id);
+  if(!record)return null;
+  return requireLibrary().watchLater(record,add);
+});
 ipcMain.handle('library-remove',(e,id)=>{if(!libOnly(e))throw new Error('Forbidden');return requireLibrary().remove(id);});
 ipcMain.handle('library-clear',(e,mode)=>{if(!libOnly(e)||!['history','all'].includes(mode))throw new Error('Forbidden');return requireLibrary().clear(mode);});
 ipcMain.handle('library-settings',e=>{if(!libOnly(e))throw new Error('Forbidden');openSettings();return true;});
@@ -859,6 +865,17 @@ ipcMain.handle('library-record',(e,record)=>{
 ipcMain.handle('library-bookmark',(e,record)=>{
  if(!ytOnly(e)||!settings.localLibraryEnabled||!validId(record?.id))return null;
  return requireLibrary().bookmark(record);
+});
+// One-click local Watch Later is intentionally independent from passive
+// watch-history tracking and Google authentication. Explicit user saves work
+// even when the automatic local-library preference is disabled.
+ipcMain.handle('library-watch-later',(e,record)=>{
+  if(!ytOnly(e)||!validId(record?.id))throw new Error('Invalid Watch Later video');
+  return requireLibrary().watchLater(record,true);
+});
+ipcMain.handle('library-watch-later-has',(e,id)=>{
+  if(!ytOnly(e)||!validId(id))return false;
+  return requireLibrary().get(id)?.watchLater===true;
 });
 ipcMain.handle('library-position',(e,id)=>{
  if(!ytOnly(e)||!settings.localLibraryEnabled||!validId(id))return null;
