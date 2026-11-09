@@ -237,7 +237,7 @@ const TAB_STRIP_HEIGHT = 42;
 const COLLAPSED_TAB_WIDTH = 48;
 const COLLAPSED_TAB_HEIGHT = 48;
 const TUBEIUM_MENU_WIDTH = 244;
-const TUBEIUM_MENU_HEIGHT = 298;
+const TUBEIUM_MENU_HEIGHT = 344;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
   const [width, height] = win.getContentSize();
@@ -382,6 +382,10 @@ ipcMain.on('tubeium-tab-open-settings',event=>{
 ipcMain.on('tubeium-tab-open-downloads',event=>{
   if(!trustedTabEvent(event))return;
   closeTabMenu();openDownloadManager();
+});
+ipcMain.on('tubeium-tab-open-library',event=>{
+  if(!trustedTabEvent(event))return;
+  closeTabMenu();openLocalLibrary();
 });
 ipcMain.handle('welcome-get-state', (event) => {
   if (!welcomeSender(event)) throw new Error('Not a Tubeium welcome tab');
