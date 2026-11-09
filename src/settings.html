@@ -1,127 +1,62 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Tubeium — Settings</title>
-  <link rel="stylesheet" href="settings.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Tubeium — Settings</title>
+<link rel="stylesheet" href="settings.css">
 </head>
 <body data-theme="dark">
 <div class="app-shell">
   <aside class="sidebar" aria-label="Settings navigation">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">▶</span>
-      <div class="brand-copy"><strong>tubeium</strong><small>YOUR SETTINGS</small></div>
-      <span class="brand-version">1.09</span>
-    </div>
-    <div class="sidebar-divider"></div>
-    <div class="nav-label">SECTIONS <span id="nav-total"></span></div>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">▶</span><div class="brand-copy"><strong>Tubeium</strong><small>SETTINGS</small></div><span class="brand-version">1.09</span></div>
+    <p class="sidebar-label">PREFERENCES</p>
     <nav id="navigation" aria-label="Settings categories"></nav>
-    <div id="actions-resizer" class="actions-resizer" role="separator" aria-label="Resize lower sidebar" aria-orientation="horizontal" aria-valuemin="160" aria-valuemax="680" aria-valuenow="370" tabindex="0" title="Drag to resize sidebar shortcuts. Double-click to reset."></div>
     <div class="sidebar-bottom">
-      <div class="action-heading"><span class="action-heading-dot" aria-hidden="true"></span>SHORTCUTS</div>
-      <button id="go-player" class="outline-full primary-sidebar-action" type="button"><span class="action-icon" aria-hidden="true">↗</span><span>Back to YouTube</span></button>
-      <button id="open-download-folder" class="outline-full" type="button"><span class="action-icon" aria-hidden="true">▤</span><span>Downloads folder</span></button>
-      <button id="go-library" class="outline-full" type="button"><span class="action-icon" aria-hidden="true">▣</span><span>Local library</span></button>
-      <div class="action-rule"></div>
-      <button id="backup-all" class="outline-full" type="button"><span class="action-icon" aria-hidden="true">↥</span><span>Backup settings</span></button>
-      <button id="restore-all" class="outline-full" type="button"><span class="action-icon" aria-hidden="true">↧</span><span>Restore backup</span></button>
-      <button id="check-updates" class="outline-full" type="button"><span class="action-icon" aria-hidden="true">↻</span><span>Check for updates</span></button>
-      <div class="sidebar-status"><span class="pulse" aria-hidden="true"></span> Stored on this device <span class="version">Tubeium</span></div>
+      <button id="go-player" type="button" class="sidebar-action">↗ <span>Back to YouTube</span></button>
+      <button id="open-download-folder" type="button" class="sidebar-action">↓ <span>Open downloads folder</span></button>
     </div>
   </aside>
-  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-label="Resize settings sidebar" aria-orientation="vertical" aria-valuemin="205" aria-valuemax="480" aria-valuenow="249" tabindex="0" title="Drag to resize navigation. Double-click to reset."></div>
+  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-label="Resize settings sidebar" aria-orientation="vertical" aria-valuemin="205" aria-valuemax="480" aria-valuenow="249" tabindex="0"></div>
   <main class="main">
     <header class="topbar">
-      <div class="topbar-label"><span class="topbar-path">TUBEIUM <span>/</span></span><strong id="crumb-name">Home</strong></div>
-      <label class="global-search" for="global-search"><span aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Find a setting..." aria-label="Search all Tubeium settings" autocomplete="off"><kbd>Ctrl K</kbd></label>
-      <div class="top-actions">
-        <button id="go-downloads" class="header-action header-downloads" type="button" title="Open Download Manager"><span aria-hidden="true">↓</span><span>Manager</span></button>
-        <div class="font-tools" role="group" aria-label="Settings text size">
-          <button id="font-smaller" type="button" aria-label="Smaller settings font" title="Smaller settings font">A−</button>
-          <output id="font-percent" aria-label="Settings font size">125%</output>
-          <button id="font-larger" type="button" aria-label="Larger settings font" title="Larger settings font">A+</button>
+      <span class="breadcrumb">TUBEIUM <span>/</span> <strong id="crumb-name">General</strong></span>
+      <label class="global-search" for="global-search"><span aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Search settings" aria-label="Search Tubeium settings" autocomplete="off"><kbd>Ctrl K</kbd></label>
+      <button id="go-downloads" type="button" class="top-button">↓ <span>Downloads</span></button>
+      <details class="tools-menu">
+        <summary aria-label="More settings actions" title="More settings actions">⋯</summary>
+        <div class="tools-panel">
+          <div class="tools-caption">TOOLS</div>
+          <button id="import" type="button">Import settings</button>
+          <button id="export" type="button">Export settings</button>
+          <button id="backup-all" type="button">Back up data</button>
+          <button id="restore-all" type="button">Restore backup</button>
+          <button id="check-updates" type="button">Check for updates</button>
+          <div class="tools-divider"></div>
+          <button id="clear-cache" type="button">Clear cache</button>
+          <button id="clear-cookies" type="button" class="danger">Clear sign-in cookies</button>
+          <button id="reset-all" type="button" class="danger">Reset all settings</button>
         </div>
-        <button id="import" class="header-action" type="button" title="Import settings">↧ <span>Import</span></button>
-        <button id="export" class="header-action" type="button" title="Export settings">↥ <span>Export</span></button>
-      </div>
+      </details>
     </header>
     <div id="scroll-area" class="scroll-area">
       <div class="content">
-        <section id="overview" aria-label="Settings home">
-          <div class="home-heading">
-            <div><span class="eyebrow">PREFERENCES / OVERVIEW</span><h1>Settings<span class="heading-dot">.</span></h1><p>One place to tune the player, downloads, and privacy.</p></div>
-            <span class="overview-status"><span class="online-dot" aria-hidden="true"></span>Auto-saved</span>
-          </div>
-          <div class="stat-strip" aria-label="Settings overview">
-            <div><b id="option-count">—</b><span>Options</span></div>
-            <div><b id="category-count">—</b><span>Categories</span></div>
-            <div><b id="favorites-count">0</b><span>Favorites</span></div>
-          </div>
-          <div class="workspace-grid">
-            <section class="workspace-card everyday-card" aria-labelledby="quick-title">
-              <div class="card-heading"><div><span class="eyebrow">QUICK SWITCHES</span><h2 id="quick-title">Everyday controls</h2></div><span class="card-symbol" aria-hidden="true">◈</span></div>
-              <div id="quick-controls" class="quick-controls"></div>
-            </section>
-            <section class="workspace-card right-actions-card" aria-labelledby="dock-title">
-              <div class="card-heading"><div><span class="eyebrow">ONE CLEAN INTERFACE</span><h2 id="dock-title">Player & Tubeium controls</h2></div><span class="card-symbol" aria-hidden="true">◈</span></div>
-              <div class="dock-preview" aria-label="Preview of floating controls">
-                <div class="mock-video" aria-hidden="true"><span class="mock-play">▶</span></div>
-                <div class="mock-dock"><span class="mock-download">↓ Download <span>⌄</span></span><span class="mock-launcher">◈ Tubeium</span></div>
-              </div>
-              <div id="floating-quick" class="floating-quick"></div>
-              <p class="card-footnote">Download lives under the video actions, player tools appear on hover, and one Tubeium menu contains Settings, Manager and Sign-in Help.</p>
-            </section>
-          </div>
-          <div class="section-header"><div><span class="eyebrow">ONE-CLICK PROFILES</span><h2>Presets</h2></div><button id="start-customizing" class="text-action" type="button">All settings ↗</button></div>
-          <div id="presets" class="presets" aria-label="Quick preference presets">
-            <button data-preset="balanced" type="button" class="preset"><span class="preset-glyph">◈</span><strong>Balanced</strong><small>Daily</small></button>
-            <button data-preset="focus" type="button" class="preset"><span class="preset-glyph">◎</span><strong>Focus</strong><small>Minimal</small></button>
-            <button data-preset="cinema" type="button" class="preset"><span class="preset-glyph">▣</span><strong>Cinema</strong><small>Immersive</small></button>
-            <button data-preset="music" type="button" class="preset"><span class="preset-glyph">♫</span><strong>Music</strong><small>Background</small></button>
-          </div>
-          <div class="section-header"><div><span class="eyebrow">PREFERENCE LIBRARY</span><h2>Browse categories</h2></div></div>
-          <div id="category-cards" class="category-cards"></div>
-          <div class="workspace-grid secondary-grid">
-            <section class="workspace-card favorites-card" aria-label="Favorite settings">
-              <div class="card-heading"><div><span class="eyebrow">PINNED</span><h2>Favorites</h2></div><span class="favorite-count" id="inspector-favorite-count">0 pinned</span></div>
-              <div id="inspector-favorites" class="inspector-favorites"></div>
-              <button id="open-favorites" type="button" class="favorites-open">See all favorites ↗</button>
-            </section>
-            <section class="workspace-card find-card" aria-label="Find preferences">
-              <div class="card-heading"><div><span class="eyebrow">SHORTCUTS</span><h2>Find a control</h2></div></div>
-              <label class="overview-search-box" for="overview-search"><span aria-hidden="true">⌕</span><input id="overview-search" type="search" placeholder="Search 201 preferences..." aria-label="Search Tubeium settings" autocomplete="off"></label>
-              <div class="shortcut-links">
-                <button id="inspector-downloads" class="inspector-link" type="button">Downloads ↗</button>
-                <button id="inspector-appearance" class="inspector-link" type="button">Appearance ↗</button>
-                <button id="inspector-privacy" class="inspector-link" type="button">Privacy ↗</button>
-              </div>
-            </section>
-          </div>
-        </section>
-        <section id="category-view" hidden aria-label="Selected settings category">
-          <div class="category-title"><span class="eyebrow">PREFERENCES / <span id="category-number">01</span></span><h1 id="category-heading">Appearance</h1><p id="category-description"></p></div>
-          <div class="category-tools">
-            <label class="search" for="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Filter settings..." autocomplete="off" aria-label="Search settings"><kbd>/</kbd></label>
-            <button id="reset-section" type="button" class="secondary-button">↺ Reset category</button>
-          </div>
-          <div id="settings-list" class="settings-list"></div>
-          <div id="utilities" class="utilities" hidden>
-            <h3>Local browsing data</h3><p>These actions affect only Tubeium. Clearing cookies signs you out of Google in this app.</p>
-            <div class="utility-row"><div><b>Clear cache</b><small>Remove temporary browser files.</small></div><button id="clear-cache" class="secondary-button" type="button">Clear cache</button></div>
-            <div class="utility-row"><div><b>Clear cookies</b><small>Remove local sign-in cookies.</small></div><button id="clear-cookies" class="danger-button" type="button">Clear cookies</button></div>
-          </div>
-          <div id="category-footer" class="category-footer"><span>Changes are applied immediately where supported.</span><button id="reset-all" class="text-button" type="button">Restore all defaults</button></div>
-        </section>
-        <footer class="studio-footer"><span>Tubeium · Preferences</span><span>Saved on this device</span></footer>
+        <header class="section-heading">
+          <div><p class="eyebrow">YOUR PREFERENCES</p><h1 id="category-heading">General</h1><p id="category-description">Simple, useful controls.</p></div>
+          <button id="reset-section" type="button" class="reset-button">Reset this section</button>
+        </header>
+        <div id="settings-list" class="settings-list" aria-live="polite"></div>
+        <div class="settings-footer">
+          <span>Changes are saved automatically · Less common settings stay available under Advanced</span>
+          <button id="toggle-advanced" type="button" aria-pressed="false">Show advanced settings</button>
+        </div>
       </div>
     </div>
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="settings-sidebar-resize.js"></script>
-<script src="settings-actions-resize.js"></script>
 <script src="settings-renderer.js"></script>
 </body>
 </html>
