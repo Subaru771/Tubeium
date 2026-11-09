@@ -1451,7 +1451,7 @@ ipcMain.handle('download',async(e,request)=>{
   try {const {id,mode,scope}=request||{};const raw=scope==='playlist'?request.url:id;
     const task=addJob(raw,scope==='playlist'?'playlist':'video',mode,
       {title:request?.title,channel:request?.channel});
-    return {ok:true,queued:true,id:task.id};
+    return {ok:true,queued:true,id:task.id,title:task.title,quality:task.quality};
   }catch(err){return{ok:false,error:String(err.message||err)};}
 });
 // Pause active operations on shutdown; they can be restarted from their .part files.
