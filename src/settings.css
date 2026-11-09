@@ -17,7 +17,7 @@ button{cursor:pointer}
 [hidden]{display:none!important}
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app-shell{height:100vh;display:flex;min-height:0;overflow:hidden}
-.sidebar{flex:0 0 var(--settings-sidebar-width);width:var(--settings-sidebar-width);background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;padding:22px 13px 15px}
+.sidebar{flex:0 0 var(--settings-sidebar-width,249px);width:var(--settings-sidebar-width,249px);background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;padding:22px 13px 15px}
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px 23px;min-width:0}
 .brand-mark{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:var(--accent);color:#171024;display:grid;place-items:center}
 .brand-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -116,5 +116,6 @@ kbd{font-size:10px;border-radius:5px;color:var(--muted);padding:2px 5px;border:1
 .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);opacity:0;pointer-events:none;z-index:40;background:var(--fg);color:var(--bg);border-radius:9px;padding:9px 14px;font-size:12px;transition:opacity .15s,transform .15s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:940px){.settings-list{grid-template-columns:1fr}.content{padding:24px}.breadcrumb{display:none}}
+@media(max-width:640px){.sidebar-resizer{display:none}}
 @media(max-width:600px){.sidebar{padding:14px 7px;width:var(--settings-sidebar-width)}.topbar{padding:0 10px;gap:6px}.top-button span{display:none}.content{padding:17px}.section-heading{align-items:start}.settings-footer{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
