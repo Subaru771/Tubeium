@@ -13,7 +13,7 @@ const snippet=source.slice(start,end);
 class FakeEl{
  constructor(tag='div'){
    this.tagName=tag.toUpperCase();this.children=[];this.events={};this.attrs={};
-   this.hidden=false;this.className='';this.id='';this.textContent='';
+   this.hidden=false;this.className='';this.id='';this.textContent='';this.dataset={};
    const classes=new Set();
    this.classList={
      add:x=>classes.add(x),remove:x=>classes.delete(x),
@@ -46,7 +46,7 @@ const ipcRenderer={
 let state={showDownloadButton:true,showSigninHelpButton:true,downloadThumbnailOnly:true,toolDownloads:true,videoContainer:'mp4',audioFormat:'mp3'};
 const applyState=()=>{
   getById('uyp-dl').hidden=state.showDownloadButton===false;
-  getById('tubeium-right-actions').hidden=!state.showDownloadButton;
+  getById('tubeium-right-actions').hidden=false;
   getById('uyp-dl-manager').hidden=state.toolDownloads===false;
 };
 const ctx={document:doc,ipcRenderer,state,location:{search:'?v=ABCDEFGHIJK'},
@@ -93,11 +93,12 @@ click(managerButton);
 assert.deepEqual(manager,['open-download-manager'],'Only explicit manager action opens it');
 state.showDownloadButton=false;applyState();
 assert.equal(download.hidden,true);
-assert.equal(getById('tubeium-right-actions').hidden,true);
+assert.equal(getById('tubeium-right-actions').hidden,false,'Watch Later survives hidden Download');
 state.showDownloadButton=true;applyState();
 assert.equal(download.hidden,false);
 assert.equal(getById('tubeium-right-actions').hidden,false);
 assert.equal(getById('tubeium-signin-help'),null,'Only one sign-in help entry: inside Tubeium menu');
+assert(getById('tubeium-player-watch-later'),'Player has a separate local Watch Later action');
 state.toolDownloads=false;applyState();
 assert.equal(managerButton.hidden,true);
 assert(!source.includes("['downloads','Download manager','↓']"),
