@@ -506,6 +506,128 @@ function currentVideoId() {
   return m ? m[1] : null;
 }
 
+const TUBEIUM_VIDEO_ID=/^[A-Za-z0-9_-]{11}$/;
+const TUBEIUM_VIDEO_CARDS='ytd-rich-grid-media,ytd-video-renderer,ytd-grid-video-renderer,ytd-compact-video-renderer,yt-lockup-view-model';
+function tubeiumVideoIdFromHref(href) {
+  if(!href || typeof href!=='string')return null;
+  try{
+    const url=new URL(href,location.origin);
+    if(url.origin!==location.origin)return null;
+    const id=url.pathname==='/watch'?url.searchParams.get('v'):
+      url.pathname.match(/^\/(?:shorts|live)\/([\w-]{11})(?:\/|$)/)?.[1];
+    return TUBEIUM_VIDEO_ID.test(id||'')?id:null;
+  }catch{return null;}
+}
+function tubeiumCardRecord(card) {
+  if(!card?.querySelectorAll)return null;
+  if(card.closest?.('ytd-promoted-video-renderer,ytd-ad-slot-renderer,ytd-display-ad-renderer'))return null;
+  let id=null;
+  for(const link of card.querySelectorAll('a[href]')){
+    id=tubeiumVideoIdFromHref(link.getAttribute('href'));
+    if(id)break;
+  }
+  if(!id)return null;
+  const titleEl=card.querySelector('#video-title,a[title][href*="watch"],h3,.yt-lockup-metadata-view-model__title');
+  const channelEl=card.querySelector('ytd-channel-name a,#channel-name a,.yt-content-metadata-view-model__metadata-row a');
+  const title=String(titleEl?.getAttribute?.('title')||titleEl?.textContent||'').trim().slice(0,220);
+  const channel=String(channelEl?.textContent||'').trim().slice(0,100);
+  return{id,title:title||'Video '+id,channel,position:0,duration:0};
+}
+function tubeiumStopCardEvent(event){
+  event.preventDefault?.();
+  event.stopImmediatePropagation?.();
+  event.stopPropagation?.();
+}
+async function tubeiumQuickAction(type,record,button) {
+  if(!record || !TUBEIUM_VIDEO_ID.test(record.id)||button.disabled)return;
+  button.disabled=true;
+  try{
+    if(type==='download'){
+      const result=await ipcRenderer.invoke('download',{
+        id:record.id,mode:'video',title:record.title,channel:record.channel
+      });
+      if(!result?.ok)throw new Error(result?.error||'Download failed');
+      button.dataset.queued='true';
+      button.textContent='✓ Queued';
+      button.title='Already added to Tubeium Download Manager';
+      toast('Queued: '+String(result.title||record.title).slice(0,60)+
+        (result.quality?' · '+result.quality:''),3500);
+      return;
+    }
+    const saved=await ipcRenderer.invoke('library-watch-later',record);
+    if(!saved?.watchLater)throw new Error('Could not save video');
+    button.dataset.saved='true';
+    button.textContent='✓ Saved';
+    button.title='Saved in Tubeium Local Library → Watch Later';
+    toast('Added to Tubeium Watch Later · Saved on this PC',3200);
+  }catch(err){
+    toast((type==='download'?'Download: ':'Watch Later: ')+String(err.message||err).slice(0,110),4500);
+  }finally{
+    // Download is idempotent for the lifetime of this thumbnail; avoid
+    // unintentional duplicate jobs when clicking the same button repeatedly.
+    button.disabled=type==='download'&&button.dataset.queued==='true';
+  }
+}
+function tubeiumInstallCardActions() {
+  if(!document.body || !document.querySelectorAll)return;
+  for(const card of document.querySelectorAll(TUBEIUM_VIDEO_CARDS)){
+    const record=tubeiumCardRecord(card);
+    const host=card.querySelector('ytd-thumbnail')||card;
+    const previous=host.querySelector(':scope > .tubeium-card-actions');
+    if(!record){
+      previous?.remove();
+      continue;
+    }
+    if(previous?.dataset.videoId===record.id){
+      previous.querySelector('[data-action="download"]').hidden=state.showDownloadButton===false;
+      continue;
+    }
+    previous?.remove();
+    const row=document.createElement('div');row.className='tubeium-card-actions';
+    row.dataset.videoId=record.id;
+    row.setAttribute('role','group');row.setAttribute('aria-label','Tubeium video quick actions');
+    const create=(action,label,description)=>{
+      const button=document.createElement('button');
+      button.type='button';button.dataset.action=action;
+      button.textContent=label;button.title=description+' · '+record.title;
+      button.setAttribute('aria-label',description+' for '+record.title);
+      button.addEventListener('pointerdown',event=>event.stopPropagation());
+      button.addEventListener('mousedown',event=>event.stopPropagation());
+      button.addEventListener('click',event=>{
+        tubeiumStopCardEvent(event);
+        const current=tubeiumCardRecord(card);
+        if(!current || current.id!==row.dataset.videoId)return;
+        void tubeiumQuickAction(action,current,button);
+      });
+      return button;
+    };
+    const download=create('download','↓ Download','Download video');
+    download.hidden=state.showDownloadButton===false;
+    const later=create('watch-later','◷ Watch Later','Save to Tubeium Watch Later (on this PC)');
+    row.append(download,later);
+    host.classList.add('tubeium-quick-thumbnail');
+    host.appendChild(row);
+  }
+}
+function initTubeiumCardActions(){
+  let scheduled=false;
+  const update=()=>{
+    if(scheduled)return;
+    scheduled=true;
+    setTimeout(()=>{scheduled=false;tubeiumInstallCardActions();},160);
+  };
+  update();
+  document.addEventListener('yt-navigate-finish',update);
+  window.addEventListener('popstate',update);
+  // YouTube virtualizes and reuses video cards during scrolling.
+  if(typeof MutationObserver==='function'){
+    const observer=new MutationObserver(update);
+    observer.observe(document.querySelector('ytd-page-manager')||document.body,{childList:true,subtree:true});
+  }
+  setInterval(tubeiumInstallCardActions,3000);
+}
+
+
 const FLAGS = {
   'uyp-noshorts': 'hideShorts', 'uyp-noads': 'blockAds',
   'uyp-hide-sidebar': 'hideSidebar', 'uyp-compact-sidebar': 'compactSidebar',
@@ -819,6 +941,19 @@ function positionDownloadDock() {
   if(!dock || !document.body)return;
   const videoId=currentVideoId();
   dock.hidden=!videoId;
+  const savedButton=dock.querySelector('#tubeium-player-watch-later');
+  if(savedButton && savedButton.dataset.videoId!==(videoId||'')){
+    savedButton.dataset.videoId=videoId||'';
+    savedButton.dataset.saved='false';
+    savedButton.textContent='◷ Watch Later';
+    if(videoId)void ipcRenderer.invoke('library-watch-later-has',videoId).then(saved=>{
+      if(savedButton.dataset.videoId!==videoId)return;
+      if(saved && savedButton.dataset.saved!=='true'){
+        savedButton.dataset.saved='true';
+        savedButton.textContent='✓ Saved';
+      }
+    }).catch(()=>{});
+  }
   if(dock.hidden){dock.classList.remove('tubeium-dock-active');return;}
 
   // Watch-page action markup varies with YouTube experiments and SPA navigation.
@@ -1520,6 +1655,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   try { playbackMemory = { ...playbackMemory, ...(await ipcRenderer.invoke('get-player-memory')) }; } catch {}
   applyState();
   initDownloadButton();
+  initTubeiumCardActions();
   initSpeedKeys();
   initPlayback();
   initAdBlock();
