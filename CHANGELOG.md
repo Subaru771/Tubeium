@@ -4,12 +4,12 @@
 
 - **Genuinely rebuilt Settings interface:** a new two-column workspace replaces the interim three-zone Studio and permanent inspector. Includes a redesigned navigation hierarchy, live everyday controls, right-dock visibility preview, compact presets, favorite settings, cross-category search, and independent collapsible two-column settings sections.
 - **Fix Download-click cascade:** the main right-hand Download button queues exactly one video, the adjacent arrow only opens its options, and Download Manager opens only when explicitly selected. Remove the duplicate floating-toolbar Manager button.
-- **Right-hand controls only:** Download and “Have a problem signing in?” share one bottom-right dock and can each be hidden independently from Settings → Downloads. Retired legacy bottom-left download placement.
-- **Better download organization:** the Settings shortcut for Download Manager is moved from the bottom-left shortcuts area to the header. An optional Manager entry remains in Download's options menu.
+- **Unified Tubeium launcher:** replace the duplicate left floating Settings button and the two bottom-right pills with one compact native menu for Settings, Download Manager and optional Sign-in Help. The Help tab remains available on request but no extra sign-in prompt overlays the page. Downloads sit in the current video's action row, with an in-player fallback. Retired the legacy bottom-left download placement.
+- **Contextual controls:** the player toolbar now follows the actual player and appears on hover or keyboard focus rather than covering suggested videos. The Download Manager remains available in Settings, the single Tubeium menu, and Download's options menu.
 - **Preserved features:** retain all 201 existing settings, favorites, sign-in assistance, local library, download queue, playback diagnostics, 4K resolution badge, and both sidebar resizing handles.
 - **Regression coverage:** simulate actual Download, More, Manager and sign-in button clicks, and smoke-test category navigation, settings controls, layout invariants, and independent hide/show preferences.
 
-**Limitations:** Focused renderer and Download event smoke checks passed, but full GitHub Actions jobs are failing before executing their test steps. Tubeium 1.09 remains source-only, with no packaged or Windows-tested binaries. YouTube sign-in, playback and ad behavior still require live Windows verification.
+**Verification:** GitHub Actions runners are working again. The full source regression suite and integrity checks passed for the new consolidated UI. A fresh Windows installer build and live YouTube/Google sign-in tests are still required for this revision.
 
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
