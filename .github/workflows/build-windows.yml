@@ -72,6 +72,8 @@ jobs:
             if ($attempt -eq 3) { throw "portable packaging failed after three attempts" }
             Start-Sleep -Seconds (5 * $attempt)
           }
+      - name: Record exact build commit
+        run: node scripts/write-build-provenance.js
       - name: Check binaries and write SHA256SUMS
         shell: pwsh
         run: |
@@ -95,5 +97,6 @@ jobs:
           path: |
             dist/*.exe
             dist/SHA256SUMS.txt
+            dist/BUILD_PROVENANCE.json
           if-no-files-found: error
           retention-days: 3

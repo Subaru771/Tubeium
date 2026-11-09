@@ -1,6 +1,6 @@
 # Tubeium reproducible dependency builds
 
-Tubeium v1.0.5 has a committed `package-lock.json`; there is no need to generate a new lockfile just to build the current source.
+Tubeium has a committed `package-lock.json`; there is no need to generate a new lockfile just to build the current source.
 
 ## Build on Windows
 
@@ -21,3 +21,5 @@ For a double-click local build, run `scripts\BUILD_WINDOWS_EXE.cmd`. `scripts\FA
 - Neither dependency locking nor a reproducible build alone proves that the app works on a particular Windows machine, that Google accepts sign-in, or that live YouTube behaviors remain compatible.
 
 See [WINDOWS_ACCEPTANCE_TESTS.md](WINDOWS_ACCEPTANCE_TESTS.md).
+
+For v1.0.9, use the exact [published build commit](releases/v1.0.9.md#build-provenance). Future releases include `BUILD_PROVENANCE.json` identifying their build commit and run. Dependency locking does not guarantee byte-identical EXEs.

@@ -30,7 +30,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Development:** Tubeium 1.09 source includes one compact Tubeium launcher, a Download button that stays visible on video pages even when YouTube replaces its action row, contextual player tools, and a streamlined six-category Settings workspace. These changes are not yet available as a verified Windows release. [See the planned 1.09 changes](docs/releases/v1.0.9.md).
+**Current release:** [Tubeium 1.0.9 for Windows](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.9) includes one Tubeium launcher, persistent Download controls, local Watch Later, and six everyday Settings categories. The binaries are unsigned; live Windows playback and Google sign-in still require manual verification. [Release notes and exact build commit](docs/releases/v1.0.9.md).
 
 ## Screenshots
 
@@ -178,7 +178,7 @@ npm run build:windows
 
 Build outputs are generated in `dist/`. Windows helper scripts are in [`scripts/`](scripts/). On Windows, run `scripts\BUILD_WINDOWS_EXE.cmd` for the installer and portable EXE, `scripts\FAST_BUILD_WINDOWS_EXE.cmd` for an installer-only build, or `scripts\RUN_WITHOUT_BUILDING.cmd` to launch from source.
 
-**Building unreleased 1.09:** Clone the repository with your GitHub account, then check out the `fix/109-settings-workspace-and-download-flow` branch before running `scripts\\BUILD_WINDOWS_EXE.cmd`. The generated executable files remain local in `dist/` and are **not** official 1.09 release binaries.
+**Building 1.0.9:** Check out `1095a29a6d8516c03408926b08e00c175b701b47` for the source used to package the published EXEs, then run `scripts\BUILD_WINDOWS_EXE.cmd`. Locally generated files appear in `dist/`. [Build provenance](docs/releases/v1.0.9.md#build-provenance).
 
 **Actions usage:** The Windows packaging workflow is **manual-only** (Actions → Tubeium Windows build → Run workflow) so private-repository Windows runner minutes and large temporary artifacts are not consumed on every commit. Automatic source tests remain enabled. If GitHub rejects every job in seconds without starting steps, check the repository owner's **Settings → Billing and licensing** for Actions included usage, spending limits/budgets, payment warnings, and artifact storage. This is not fixed by changing the build commands. Local Windows builds via the scripts above do not require GitHub Actions.
 

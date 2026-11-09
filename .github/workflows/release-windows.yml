@@ -44,13 +44,15 @@ jobs:
           CSC_LINK: ${{ secrets.TUBEIUM_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.TUBEIUM_CSC_KEY_PASSWORD }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:installer
+        run: npm run build:installer -- --config.forceCodeSigning=true
       - name: Build signed Windows portable executable locally
         env:
           CSC_LINK: ${{ secrets.TUBEIUM_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.TUBEIUM_CSC_KEY_PASSWORD }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build:portable
+        run: npm run build:portable -- --config.forceCodeSigning=true
+      - name: Record exact build commit
+        run: node scripts/write-build-provenance.js
       - name: Verify signature and update metadata BEFORE upload
         shell: pwsh
         run: |
@@ -77,6 +79,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: |
-          $files = @(Get-ChildItem dist -File | Where-Object { $_.Extension -in '.exe','.yml','.blockmap' -or $_.Name -eq 'SHA256SUMS.txt' } | ForEach-Object { $_.FullName })
+          $files = @(Get-ChildItem dist -File | Where-Object { $_.Extension -in '.exe','.yml','.blockmap' -or $_.Name -in 'SHA256SUMS.txt','BUILD_PROVENANCE.json' } | ForEach-Object { $_.FullName })
           if ($files.Count -lt 3) { throw 'Expected signed installer, update metadata and checksums.' }
+          $sourceSha = (Get-Content dist/BUILD_PROVENANCE.json | ConvertFrom-Json).commit
+          $tagSha = git rev-parse "$env:GITHUB_REF_NAME^{commit}"
+          if ($LASTEXITCODE -ne 0 -or $tagSha -ne $sourceSha) { throw 'Release tag must identify the exact build commit.' }
           gh release create "$env:GITHUB_REF_NAME" $files --repo "$env:GITHUB_REPOSITORY" --title "Tubeium $env:GITHUB_REF_NAME" --generate-notes --verify-tag
