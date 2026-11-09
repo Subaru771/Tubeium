@@ -16,7 +16,7 @@ assert.match(html,/id="menu-help"/);
 assert.match(html,/id="show-tabs"/);
 assert.match(html,/id="hide-tabs"/);
 assert.match(css,/html\.collapsed #compact\{display:block\}/);
-assert.match(js,/getElementById\('launcher'\)/);
+assert.match(js,/\$\('launcher'\)/);
 assert.match(js,/tubeiumTabs\.toggleMenu\(\)/);
 assert.match(bridge,/openSettings:\(\)=>ipcRenderer\.send\('tubeium-tab-open-settings'\)/);
 assert.match(bridge,/openDownloads:\(\)=>ipcRenderer\.send\('tubeium-tab-open-downloads'\)/);
