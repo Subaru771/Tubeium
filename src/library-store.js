@@ -55,6 +55,9 @@ class LibraryStore {
    title:v.title.startsWith('Video ')?old?.title||v.title:v.title,
    channel:v.channel||old?.channel||'',
    bookmarked:old?.bookmarked===true,
+   // Adding from Home must not erase a previously saved resume position.
+   position:old?.position>0?old.position:v.position,
+   duration:old?.duration>0?old.duration:v.duration,
    watchLater:enabled,
    watchLaterAt:enabled?(old?.watchLaterAt||Date.now()):0,
    lastWatched:old?.lastWatched||0};
