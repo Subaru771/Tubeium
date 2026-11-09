@@ -12,7 +12,7 @@ assert.equal(publicGroups().length,15);
 assert('showSigninHelpButton' in DEFAULTS,'Use the current main branch sign-in help setting');
 assert(!('showSignInHelpButton' in DEFAULTS),'No case-mismatched duplicate sign-in option');
 assert.match(renderer,/buildQuickToggle\('showSigninHelpButton'/);
-assert.match(renderer,/renderInspector\(\)[\s\S]*?buildQuickToggle\('showSigninHelpButton','Sign-in help'/);
+assert.match(renderer,/renderInspector\(\)[\s\S]*?buildQuickToggle\('showSigninHelpButton','Sign-in Help'/);
 assert.match(css,/\/\* Tubeium Workspace v1\.09 — rebuilt from an empty stylesheet/);
 assert.match(css,/\.workspace-grid\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/\.settings-panel\{/);
