@@ -5,7 +5,7 @@ const html=read('src/settings.html'),css=read('src/settings.css'),renderer=read(
 assert.equal(pkg.version,'1.0.9');
 assert(pkg.build.files.includes('src/download-folder-migration.js'));
 assert.match(html,/<span class="brand-version">1\.09<\/span>/);
-for(const id of ['navigation','sidebar-resizer','settings-list','category-heading','reset-section','toggle-advanced','global-search','go-player','go-downloads','open-download-folder','check-updates','import','export','clear-cache','clear-cookies','backup-all','restore-all','reset-all']){
+for(const id of ['navigation','sidebar-resizer','settings-list','category-heading','reset-section','advanced-topics','global-search','go-player','go-downloads','open-download-folder','check-updates','import','export','clear-cache','clear-cookies','backup-all','restore-all','reset-all']){
   assert(html.includes('id="'+id+'"'),id+' must stay wired');
 }
 for(const obsolete of ['overview','actions-resizer','presets','open-favorites','overview-search','font-smaller','font-larger']){
@@ -13,7 +13,8 @@ for(const obsolete of ['overview','actions-resizer','presets','open-favorites','
 }
 assert.match(renderer,/const SECTIONS=\[/);
 assert.match(renderer,/\{id:'downloads',title:'Downloads'/);
-assert.match(renderer,/advanced=!advanced/);
+assert.doesNotMatch(html,/id="toggle-advanced"/,'Advanced belongs in sidebar, not a footer toggle');
+assert.match(renderer,/const ADVANCED_TOPICS=\[/);
 assert.match(css,/\.settings-list\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 assert.match(css,/body\[data-theme="light"\]/);
 assert.match(preload,/function positionDownloadDock\(\)/);
