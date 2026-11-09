@@ -8,11 +8,14 @@ assert.equal(publicGroups().length,15,'Keep existing schema/legacy preferences')
 assert.match(renderer,/const SECTIONS=\[/);
 for(const id of ['general','appearance','playback','downloads','privacy','library'])
  assert(renderer.includes("{id:'"+id+"'"),id+' must be curated');
-assert.match(renderer,/advanced=!advanced/);
+assert.match(renderer,/const ADVANCED_TOPICS=\[/);
+assert.match(renderer,/mainKeys=new Set\(SECTIONS\.flatMap/);
+assert.match(renderer,/extra\.onclick=\(\)=>selectCategory\('advanced'\)/);
 assert.match(renderer,/current==='advanced'/);
-assert.match(renderer,/data\.groups\.flatMap\(group=>group\.settings/);
-assert.match(renderer,/if\(!advanced && current==='advanced'\)current='general'/);
-assert.match(html,/id="toggle-advanced"/);
+assert.match(renderer,/data\.groups\.flatMap\(group=>group\.settings\.filter\(meta=>!mainKeys\.has\(meta\.key\)\)/);
+assert.match(renderer,/function renderAdvancedTopics\(\)/);
+assert.match(html,/id="advanced-topics"/);
+assert.doesNotMatch(html,/id="toggle-advanced"/);
 assert.match(html,/id="global-search"/);
 assert.match(html,/id="reset-section"/);
 assert.match(html,/id="navigation"/);
@@ -24,4 +27,4 @@ assert.match(css,/body\[data-theme="light"\]/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 assert.match(renderer,/window\.tubeiumSidebarResize\?\.init/);
 assert.doesNotMatch(renderer,/window\.tubeiumActionsResize\?\.init/);
-console.log('PASS: six clean categories, compact two-column UI, 201 compatible advanced options');
+console.log('PASS: six everyday categories plus permanently visible, organized Advanced tab');
