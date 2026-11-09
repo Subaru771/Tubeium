@@ -63,7 +63,7 @@ let stopped=0;
 const event={preventDefault(){stopped++;},stopImmediatePropagation(){stopped++;},stopPropagation(){stopped++;}};
 async function run(){
  download.handlers.click(event);
- await Promise.resolve();await Promise.resolve();
+ await new Promise(resolve=>setImmediate(resolve));
  assert.equal(stopped,3,'Click must not navigate to video or trigger parent YouTube buttons');
  assert.equal(calls[0].channel,'download');
  assert.equal(calls[0].record.id,'ABCDEFGHIJK');
@@ -73,7 +73,7 @@ async function run(){
  download.handlers.click(event);
  assert.equal(calls.length,1,'Duplicate Home download must be suppressed');
  later.handlers.click(event);
- await Promise.resolve();await Promise.resolve();
+ await new Promise(resolve=>setImmediate(resolve));
  assert.equal(calls[1].channel,'library-watch-later');
  assert.equal(calls[1].record.channel,'Video channel');
  assert.equal(later.textContent,'✓ Saved');
