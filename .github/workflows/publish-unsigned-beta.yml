@@ -37,15 +37,16 @@ jobs:
           if ($env:GITHUB_EVENT_NAME -eq 'push') {
             $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
             $env:TUBEIUM_RELEASE_TAG = "v$version"
-            Add-Content -Path $env:GITHUB_ENV -Value "TUBEIUM_RELEASE_TAG=$env:TUBEIUM_RELEASE_TAG"
           }
           node scripts/validate-unsigned-release.js
+          if ($LASTEXITCODE -ne 0) { throw 'Unsigned release tag/version validation failed.' }
+          Add-Content -Path $env:GITHUB_ENV -Value "TUBEIUM_RELEASE_TAG=$env:TUBEIUM_RELEASE_TAG"
       - name: Refuse to overwrite an existing Git tag
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+
         run: |
           # Authenticated lookup works even when checkout has persist-credentials: false.
           # Treat only 404 as tag-not-found. All other API failures block publishing.
@@ -130,7 +131,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TUBEIUM_RELEASE_TAG: ${{ inputs.release_tag }}
+
         run: |
           $tag = $env:TUBEIUM_RELEASE_TAG
           $version = (Get-Content package.json | ConvertFrom-Json).version
