@@ -37,3 +37,11 @@ assert.match(unsigned,/npm audit --audit-level=high/);
 assert.match(unsigned,/gh release create/);
 assert.doesNotMatch(unsigned,/\$tag = "v1\.0\.0"/);
 console.log('Release-gates tests passed: lock validation, immutable actions, audit gates, verify-before-upload.');
+
+for (const workflow of [beta, rel, unsigned]) {
+ assert.match(workflow, /node scripts\/write-build-provenance\.js/);
+ assert.match(workflow, /BUILD_PROVENANCE\.json/);
+}
+assert.match(unsigned, /--target "\$sourceSha"/);
+assert.match(rel, /\$tagSha -ne \$sourceSha/);
+assert.equal((rel.match(/--config\.forceCodeSigning=true/g)||[]).length, 2);

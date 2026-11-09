@@ -100,6 +100,8 @@ jobs:
             if ($attempt -eq 3) { throw "portable packaging failed after three attempts" }
             Start-Sleep -Seconds (5 * $attempt)
           }
+      - name: Record exact build commit
+        run: node scripts/write-build-provenance.js
       - name: Verify both binaries and generate SHA-256 checksums
         shell: pwsh
         run: |
@@ -132,10 +134,12 @@ jobs:
           Includes Windows installer, portable EXE and SHA256SUMS.txt for integrity verification.
           "@
           if ($tag -eq 'v1.0.9') {
-            $title = 'Tubeium 1.09'
+            $title = 'Tubeium 1.0.9 (unsigned)'
             $notes = Get-Content 'docs/releases/v1.0.9.md' -Raw
           } else {
             $title = "Tubeium $tag (unsigned)"
           }
-          gh release create "$tag" "$installer" "$portable" "dist/SHA256SUMS.txt" --repo "$env:GITHUB_REPOSITORY" --target "$env:GITHUB_SHA" --title "$title" --notes "$notes"
+          $sourceSha = (Get-Content dist/BUILD_PROVENANCE.json | ConvertFrom-Json).commit
+          $notes += "`n`nBuild commit: $sourceSha. See BUILD_PROVENANCE.json for the build run."
+          gh release create "$tag" "$installer" "$portable" "dist/SHA256SUMS.txt" "dist/BUILD_PROVENANCE.json" --repo "$env:GITHUB_REPOSITORY" --target "$sourceSha" --title "$title" --notes "$notes"
           if ($LASTEXITCODE -ne 0) { throw 'GitHub release publishing failed.' }

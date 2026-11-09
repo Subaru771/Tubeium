@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.9] — Unreleased (Tubeium 1.09 source)
+## [1.0.9] — 2026-11-09
 
 - **Home and player quick actions:** one-click Download and **◷ Watch Later** directly on supported video thumbnails (Home, search and recommendations) and in the video action area. Thumbnail actions are hover/focus accessible and do not navigate the page. Duplicate quick downloads are suppressed per card.
 - **Local Watch Later:** add to Tubeium's persistent offline-capable Library list without a Google login. A new Watch Later library tab and an entry in the single Tubeium menu make saved videos easy to find. Original bookmarks, local playback history, and existing saved data remain intact. Clearly labeled local-only; it does not silently modify YouTube's account Watch Later.
@@ -15,7 +15,7 @@
 - **Preserved functionality:** retain all 201 saved settings, existing favorites data (without a default Favorites dashboard), sign-in assistance, local library, download queue, diagnostics, 4K resolution badge and the sidebar width resizer. The redundant lower actions resizer is retired from the new interface.
 - **Regression coverage:** exercise Download/More/Manager clicks and independent visibility settings; test missing/hidden action rows, Shorts/live fallbacks, SPA reattachment and the six everyday categories, permanent Advanced tab, seven organized topics, and access to all 201 underlying options.
 
-**Verification:** GitHub Actions runners are working again. The full source regression suite and integrity checks passed for the new consolidated UI. A fresh Windows installer build and live YouTube/Google sign-in tests are still required for this revision.
+**Verification:** GitHub Actions runners are working again. The full source regression suite and integrity checks passed for the new consolidated UI. Windows installer and portable EXE packaging passed. The published EXEs remain unsigned; live Windows YouTube/Google sign-in tests are still required. See [release provenance](docs/releases/v1.0.9.md#build-provenance).
 
 ## [1.0.8] — 2026-11-08 (Tubeium 1.08)
 
