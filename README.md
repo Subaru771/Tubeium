@@ -70,7 +70,7 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 - Light, dark, system-matched, and AMOLED-style page appearance options.
 - Custom accent colors, interface scaling, and separate YouTube text-size adjustments.
 - Adjustable feed density, grid columns, thumbnail corners, and sidebar behavior.
-- **Simpler Settings:** six everyday categories keep the useful controls visible. All 201 underlying preferences remain compatible; opt into Advanced to access less common options without losing stored values.
+- **Simpler Settings:** six everyday categories plus a permanent **Advanced** sidebar tab at the bottom. Advanced divides less-used options into seven compact topics, without duplicating everyday settings. All 201 underlying preferences and saved values remain compatible.
 - **Compact Settings layout:** simple sidebar, grouped two-column controls, live search, no preset/favorites dashboard or duplicate action buttons, and maintenance tools tucked into an overflow menu.
 - Hide visual clutter such as badges, channel avatars, and hover previews.
 - Optional custom CSS for advanced page styling.
