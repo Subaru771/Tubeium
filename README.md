@@ -24,7 +24,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 - **Make YouTube yours:** themes, colors, layout tweaks, custom CSS, and extensive settings.
 - **Watch your way:** playback speed, volume memory, quality preferences, mini player, and audio presets.
 - **Cut distractions:** selectively hide Shorts, recommendations, comments, feeds, and other interface elements.
-- **Keep media organized:** local playlists, bookmarks, viewing progress, downloads, and offline playback.
+- **Keep media organized:** one-click local Watch Later, local playlists, bookmarks, viewing progress, downloads, and offline playback.
 - **Stay in control:** privacy-oriented local tools, configurable shortcuts, and optional sign-in assistance.
 
 > [!NOTE]
@@ -79,7 +79,7 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
 - **Playback Diagnostics:** open **Stats** from the floating toolbar or Player menu to see decoded resolution, estimated frames per second, dropped frames, buffering, and a local copyable report.
-- **Quick Download:** one prominent video button queues the current video in a single click; use the adjacent options button for audio, thumbnails and playlists.
+- **Quick actions on videos:** Download and **◷ Watch Later** work in one click from the player and Home thumbnails (also on supported search/recommendation cards). Watch Later saves to Tubeium's local Library, independently of Google. The adjacent Download chevron still opens audio, thumbnail and playlist formats.
 - **Clean player controls:** Download sits in the video's action area (or inside the player as a fallback), and its menu/Manager never opens automatically. A single native Tubeium launcher provides Settings, Download Manager and optional Sign-in Help without duplicate floating prompts. The default save directory is **Downloads/Tubeium**, with safe migration from legacy uYouPlus names when no conflicting destination exists.
 - **Up to 4K (2160p) when supported:** the floating quality control displays the decoded video resolution (such as 1080p, 1440p or 4K) and opens YouTube’s real Quality menu. A preference for 4K is not a guarantee; the video, browser codec support and bandwidth determine available resolutions.
 - Remember volume and mute state; set default volume and caption preferences.
@@ -119,6 +119,7 @@ Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256.
 
 ### 📚 Local library & playlists
 
+- **Tubeium Watch Later:** save a video without opening it, then find it in **Local Library → Watch Later** or the Tubeium menu. This list is stored on your PC and **does not sync to YouTube's account-based Watch Later**.
 - Organize saved videos and local playlists.
 - Bookmarks and playback-progress tracking.
 - Local library browsing and sorting options.
