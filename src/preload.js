@@ -883,7 +883,7 @@ function initDownloadButton() {
         (document.querySelector('ytd-watch-metadata ytd-channel-name a')
         ||document.querySelector('ytd-watch-metadata #owner-name a'));
       const rawTitle=String(titleNode?.content||titleNode?.textContent||document.title||'')
-        .replace(/\\s*[-–—]\\s*YouTube\\s*$/i,'').trim();
+        .replace(/\s*[-–—]\s*YouTube\s*$/i,'').trim();
       const safeTitle=/^(YouTube|YouTube Music)$/i.test(rawTitle)?'':rawTitle.slice(0,190);
       const res = await ipcRenderer.invoke('download', { id, mode,
         title:safeTitle,channel:String(channelNode?.textContent||'').trim().slice(0,90) });
