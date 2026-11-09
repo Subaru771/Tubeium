@@ -66,7 +66,19 @@ class LibraryStore {
 }
 remove(id){if(!validId(id))return false;const count=this.items.length;this.items=this.items.filter(x=>x.id!==id);if(count!==this.items.length)this.save();return count!==this.items.length;}
  clear(mode='history'){const old=this.items.length;this.items=mode==='all'?[]:this.items.filter(v=>v.bookmarked||v.watchLater).map(v=>({...v,position:0,lastWatched:0}));this.save();return old-this.items.length;}
- import(raw){const imported=sanitize(raw);const merged=new Map(this.items.map(v=>[v.id,v]));for(const v of imported){const old=merged.get(v.id);if(!old || v.lastWatched>=old.lastWatched)merged.set(v.id,{...v,bookmarked:v.bookmarked||!!old?.bookmarked,watchLater:v.watchLater||!!old?.watchLater,watchLaterAt:Math.max(v.watchLaterAt||0,old?.watchLaterAt||0)});}this.items=sanitize([...merged.values()]);this.save();return imported.length;}
+ import(raw){
+ const imported=sanitize(raw);const merged=new Map(this.items.map(v=>[v.id,v]));
+ for(const v of imported){
+   const old=merged.get(v.id);
+   // Watching time chooses playback metadata, not explicit saved-list membership.
+   const latest=old&&old.lastWatched>v.lastWatched?old:v;
+   merged.set(v.id,{...latest,
+     bookmarked:v.bookmarked||!!old?.bookmarked,
+     watchLater:v.watchLater||!!old?.watchLater,
+     watchLaterAt:Math.max(v.watchLaterAt||0,old?.watchLaterAt||0)});
+ }
+ this.items=sanitize([...merged.values()]);this.save();return imported.length;
+}
  export(){return {app:'Tubeium',type:'local-library',version:1,exportedAt:new Date().toISOString(),items:this.items};}
 }
 module.exports={LibraryStore,validId,sanitize,clean};

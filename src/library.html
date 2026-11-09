@@ -4,4 +4,12 @@
 <div class="toolbar"><div class="tabs" role="group" aria-label="Library filters"><button data-filter="watch-later" class="selected">Watch Later</button><button data-filter="bookmarks">Bookmarks</button><button data-filter="continue">Continue watching</button><button data-filter="all">All history</button><button data-filter="offline">Offline downloads</button><button data-filter="playlists">Playlists</button></div><input id="search" type="search" placeholder="Search saved titles, channels…" aria-label="Search library"/><select id="sort" title="Sort library" aria-label="Sort library"><option value="recent">Recently watched</option><option value="title">Video title</option><option value="channel">Channel</option><option value="duration">Duration</option></select></div>
 <div id="playlist-actions" class="playlist-actions" hidden><button id="playlist-create">+ New playlist</button><span>Organize saved videos locally, independently of Google.</span></div><div class="count" id="count">Loading library…</div><div id="list" class="list" aria-live="polite"></div>
 <div class="footer"><span>This list is stored locally. Nothing here is uploaded by Tubeium.</span><button id="clear" class="danger">Clear watch history</button></div></main>
+<dialog id="playlist-dialog" aria-labelledby="playlist-dialog-title">
+<form id="playlist-dialog-form">
+<h2 id="playlist-dialog-title"></h2>
+<label id="playlist-dialog-label" for="playlist-dialog-name">Playlist name</label>
+<input id="playlist-dialog-name" maxlength="90" autocomplete="off" required/>
+<select id="playlist-dialog-choice" aria-label="Choose playlist" hidden disabled></select>
+<div class="actions"><button id="playlist-dialog-cancel" type="button">Cancel</button><button id="playlist-dialog-submit" type="submit">Save</button></div>
+</form></dialog>
 <div id="toast" role="status" aria-live="polite"></div><script src="library-renderer.js"></script></body></html>
