@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 const { DEFAULTS, normalize, publicGroups, metadata } = require('./settings-schema');
 const { newTask, normalizeQueue, formatArgs } = require('./download-queue');
-const {applyVerifiedMetadata}=require('./download-metadata');
+const {applyVerifiedMetadata,fetchPublicVideoMetadata}=require('./download-metadata');
 const { migrateLegacyDownloadFolder, remapDownloadJobPaths } = require('./download-folder-migration');
 const { migrateUserData } = require('./migration-userdata');
 const { importCookies, MAX_FILE_BYTES } = require('./signin-cookies');
@@ -1315,6 +1315,15 @@ async function updateYtDlp() {
   try{note('Updating downloader…');await ensureYtDlp(()=>{},{useLatest:true});note('Downloader updated');}
   catch(e){note('Update failed: '+e.message);}
 }
+async function enrichQueuedTitle(task) {
+  if(task.scope!=='video')return;
+  const result=await fetchPublicVideoMetadata(task.source,(...args)=>net.fetch(...args));
+  if(!result || !jobs.includes(task) || task._ytDlpMetadataVerified)return;
+  task.title=result.title;
+  if(result.channel)task.channel=result.channel;
+  task.updatedAt=new Date().toISOString();
+  sendDownloads();
+}
 function addJob(raw,scope,mode,hints={}) {
   const task=newTask(raw,scope,mode,{...hints,settings});
   if(jobs.length>=200){
@@ -1322,7 +1331,11 @@ function addJob(raw,scope,mode,hints={}) {
     if(i<0)throw new Error('Queue full. Remove old entries.');
     jobs.splice(i,1);
   }
-  jobs.unshift(task);sendDownloads(true);queueDrain();return task;
+  jobs.unshift(task);sendDownloads(true);queueDrain();
+  // Populate the title from a public YouTube lookup while yt-dlp prepares.
+  // This cannot hold up the queue, requires no cookies, and is best-effort.
+  void enrichQueuedTitle(task);
+  return task;
 }
 function setJobStatus(job,status,detail) {
   job.status=status;job.detail=detail||status;job.updatedAt=new Date().toISOString();sendDownloads(true);
@@ -1386,7 +1399,10 @@ async function runJob(job) {
     running.set(job.id,child);
     job.detail='Connecting…';sendDownloads();
     const consumeLine=line=>{
-      if(applyVerifiedMetadata(job,line)){job.updatedAt=new Date().toISOString();sendDownloads();return;}
+      if(applyVerifiedMetadata(job,line)){
+        job._ytDlpMetadataVerified=true;
+        job.updatedAt=new Date().toISOString();sendDownloads();return;
+      }
       const pct=/\[download\]\s+(\d+(?:\.\d+)?)%/.exec(line);
       if(pct){job.progress=Math.min(100,Number(pct[1]));
         const details=line.match(/at\s+([^\s]+)\s+ETA\s+([^\s]+)/);
