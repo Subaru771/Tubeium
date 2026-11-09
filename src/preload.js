@@ -271,12 +271,35 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
 
 /* Download belongs to the current video's action row, never the suggestions column. */
 #tubeium-right-actions{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;
-  flex:0 0 auto;gap:0;margin-left:8px;z-index:2147483643;
+  flex:0 0 auto;gap:7px;margin-left:8px;z-index:2147483643;
   color:#fff;font:600 12px "Segoe UI",Roboto,Arial,sans-serif}
 #tubeium-right-actions[hidden],#tubeium-right-actions [hidden]{display:none!important}
 #tubeium-right-actions.tubeium-dock-fallback{position:fixed;left:0;top:74px;
   opacity:1;pointer-events:auto;transition:none}
 #tubeium-right-actions.tubeium-dock-placed{margin-left:9px;min-width:max-content;align-self:center}
+#tubeium-player-watch-later{min-height:41px;padding:8px 12px;border:1px solid #ffffff30;
+  border-radius:11px;background:#262734;color:#f3eefb;white-space:nowrap;font:700 12px "Segoe UI",Arial,sans-serif;
+  box-shadow:0 4px 16px #0005;cursor:pointer}
+#tubeium-player-watch-later:hover,#tubeium-player-watch-later:focus-visible{border-color:var(--uyp-accent,#aa7dff);background:#363147}
+#tubeium-player-watch-later[data-saved="true"]{border-color:#7864a9;color:#cebaff}
+#tubeium-player-watch-later:disabled{opacity:.6;cursor:wait}
+.tubeium-quick-thumbnail{position:relative!important}
+.tubeium-card-actions{position:absolute;left:6px;top:6px;z-index:2150;display:flex;gap:5px;
+  align-items:center;max-width:calc(100% - 12px);opacity:0;pointer-events:none;
+  transition:opacity .13s;isolation:isolate}
+.tubeium-quick-thumbnail:hover>.tubeium-card-actions,
+.tubeium-quick-thumbnail:focus-within>.tubeium-card-actions,
+.tubeium-card-actions:hover{opacity:1;pointer-events:auto}
+.tubeium-card-actions button{appearance:none;min-width:0;white-space:nowrap;
+  border:1px solid #ffffff5c;border-radius:7px;background:#1b1926ed;color:#fff;
+  box-shadow:0 2px 9px #0009;cursor:pointer;font:700 10px "Segoe UI",Roboto,Arial,sans-serif;
+  padding:7px 9px;line-height:1.1}
+.tubeium-card-actions button:hover,.tubeium-card-actions button:focus-visible{
+  background:#3d2f54;border-color:#c3a7ff;outline:1px solid #c3a7ff}
+.tubeium-card-actions button[data-saved="true"]{color:#d5c1ff}
+.tubeium-card-actions button:disabled{opacity:.65;cursor:wait}
+@media(hover:none){.tubeium-card-actions{opacity:1;pointer-events:auto}}
+@media(prefers-reduced-motion:reduce){.tubeium-card-actions{transition:none}}
 html.uyp-mini #tubeium-right-actions,html.uyp-fs #tubeium-right-actions{display:none!important}
 #uyp-dl{display:none;position:relative;flex-direction:column;align-items:flex-end;
   font:600 12px "Segoe UI",Roboto,Arial,sans-serif}
@@ -529,7 +552,7 @@ function applyState() {
   const managerEntry=document.getElementById('uyp-dl-manager');
   if(managerEntry)managerEntry.hidden=state.toolDownloads===false;
   const rightActions=document.getElementById('tubeium-right-actions');
-  if(rightActions)rightActions.hidden=state.showDownloadButton===false;
+  if(rightActions)rightActions.hidden=!currentVideoId();
   const audioButton = document.getElementById('uyp-audio-btn');
   if (audioButton) audioButton.textContent = 'Audio (' + ((state.audioFormat || 'mp3') === 'best' ? 'original' : String(state.audioFormat).toUpperCase()) + ')';
   const videoButton = document.getElementById('uyp-video-btn');
@@ -795,7 +818,7 @@ function positionDownloadDock() {
   if(!dock && document.body){initDownloadButton();return;}
   if(!dock || !document.body)return;
   const videoId=currentVideoId();
-  dock.hidden=state.showDownloadButton===false || !videoId;
+  dock.hidden=!videoId;
   if(dock.hidden){dock.classList.remove('tubeium-dock-active');return;}
 
   // Watch-page action markup varies with YouTube experiments and SPA navigation.
@@ -851,6 +874,30 @@ function initDownloadButton() {
   const dock=document.createElement('div');dock.id='tubeium-right-actions';
   const box = document.createElement('div');
   box.id = 'uyp-dl';
+  const laterButton=document.createElement('button');
+  laterButton.id='tubeium-player-watch-later';
+  laterButton.type='button';
+  laterButton.textContent='◷ Watch Later';
+  laterButton.title='Save to Tubeium Watch Later (stored on this PC, not YouTube)';
+  laterButton.setAttribute('aria-label','Save current video to Tubeium Watch Later');
+  laterButton.addEventListener('click',async event=>{
+    event.preventDefault();event.stopImmediatePropagation();
+    if(laterButton.disabled)return;
+    const record=makeVideoRecord();
+    if(!record.id)return;
+    laterButton.disabled=true;
+    try{
+      const saved=await ipcRenderer.invoke('library-watch-later',record);
+      if(!saved?.watchLater)throw new Error('Could not save video');
+      if(currentVideoId()===record.id){
+        laterButton.dataset.videoId=record.id;
+        laterButton.dataset.saved='true';
+        laterButton.textContent='✓ Saved';
+      }
+      toast('Added to Tubeium Watch Later · Local Library',3200);
+    }catch(err){toast('Watch Later: '+String(err.message||err).slice(0,120),4000);}
+    finally{laterButton.disabled=false;}
+  });
 
   const menu = document.createElement('div');
   menu.className = 'uyp-menu';menu.id='tubeium-download-options';menu.setAttribute('role','group');menu.setAttribute('aria-label','More download options');
@@ -951,7 +998,7 @@ function initDownloadButton() {
   box.appendChild(menu);
   const actions=document.createElement('div');actions.className='uyp-download-actions';
   actions.append(main,options);box.appendChild(actions);
-  dock.append(box);document.body.appendChild(dock);
+  dock.append(box,laterButton);document.body.appendChild(dock);
   positionDownloadDock();
   applyState();
 
