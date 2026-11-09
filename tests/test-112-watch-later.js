@@ -18,6 +18,10 @@ try{
  assert.equal(store.list('watch-later').length,2);
  assert.equal(new LibraryStore(store.file).list('watch-later').length,2,'Watch Later survives restart');
  store.record({...first,position:28,duration:200});
+ // Saving again from a Home card has zero playback position: do not erase resume.
+ store.watchLater({...first,position:0,duration:0},true);
+ assert.equal(store.get(first.id).position,28,'Home save preserves previous resume position');
+ assert.equal(store.get(first.id).duration,200,'Home save preserves known video duration');
  assert.equal(store.get(first.id).watchLater,true,'Passive watch progress never removes Watch Later');
  assert.equal(store.get(first.id).watchLaterAt,saved.watchLaterAt,'Passive playback must not reorder Watch Later');
  store.bookmark(first);
