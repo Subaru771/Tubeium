@@ -1,0 +1,78 @@
+name: Publish Tubeium 1.09 Download Manager preview
+on:
+  push:
+    branches: ['fix/109-settings-workspace-and-download-flow']
+    paths: ['.github/workflows/publish-109-preview-from-artifact.yml']
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: tubeium-v109-preview-direct-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PREVIEW_TAG: v1.0.9-preview-download-manager-20261109
+      SOURCE_RUN: '42565173058'
+      SOURCE_SHA: b1128ef429a0de6c97af2a9f7c2ede954beb9f3b
+    steps:
+      - name: Confirm this preview comes from the verified Windows build
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_status=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" --jq '.status')
+          run_result=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" --jq '.conclusion')
+          run_sha=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" --jq '.head_sha')
+          if [[ "$run_status" != completed || "$run_result" != success || "$run_sha" != "$SOURCE_SHA" ]]; then
+            echo "The selected Windows build is not verified"; exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$PREVIEW_TAG" --jq '.ref'; then
+            echo "Refusing to overwrite an existing Git tag"; exit 1
+          fi
+      - name: Retrieve the verified installer and portable artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p preview-assets
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --name Tubeium-Windows-unsigned --dir preview-assets
+      - name: Verify installer, portable, and SHA-256 hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd preview-assets
+          test -s Tubeium-1.0.9-Setup-x64.exe
+          test -s Tubeium-1.0.9-Portable-x64.exe
+          test -s SHA256SUMS.txt
+          test "$(stat -c %s Tubeium-1.0.9-Setup-x64.exe)" -gt 10000000
+          test "$(stat -c %s Tubeium-1.0.9-Portable-x64.exe)" -gt 10000000
+          sha256sum --check SHA256SUMS.txt
+      - name: Publish standalone prerelease assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<'NOTES'
+          Tubeium 1.09 — Download Manager and Settings development preview.
+
+          - Rebuilt Download Manager with compact queue cards, progress, title, channel, and resolution labels.
+          - Requested quality appears immediately; verified quality updates when yt-dlp resolves the stream.
+          - Video titles are filled from the YouTube page or an optional anonymous YouTube metadata lookup.
+          - Download button visibility fixes and simplified Settings are included.
+
+          **Unsigned preview:** Windows SmartScreen may warn. Live YouTube and Google sign-in behavior has not yet been independently verified on a Windows PC.
+          This is not the stable or officially signed Tubeium release.
+
+          Windows installer, portable executable, and SHA256SUMS.txt are attached directly to this GitHub prerelease.
+          Built by the verified [Windows Actions run](https://github.com/Subaru771/Tubeium/actions/runs/42565173058).
+          NOTES
+          gh release create "$PREVIEW_TAG" \
+            preview-assets/Tubeium-1.0.9-Setup-x64.exe \
+            preview-assets/Tubeium-1.0.9-Portable-x64.exe \
+            preview-assets/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SOURCE_SHA" \
+            --title "Tubeium 1.09 — Download Manager Preview" \
+            --notes-file release-notes.md \
+            --prerelease --latest=false
