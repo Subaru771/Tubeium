@@ -1,7 +1,7 @@
 name: Tubeium Windows build
 on:
   workflow_dispatch:
-  # One-time preview build for Home/player quick Download and local Watch Later.
+  # Final verified preview build: preserve playback progress, avoid duplicate cards, and fit player quick actions.
   push:
     branches: ['fix/109-settings-workspace-and-download-flow']
     paths: ['.github/workflows/build-windows.yml']
