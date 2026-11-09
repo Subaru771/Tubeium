@@ -771,8 +771,28 @@ function initSponsorBlock() {
 }
 
 // Move Download into YouTube's current watch actions, avoiding thumbnails.
+function findTubeiumVisiblePlayer() {
+  const selectors=[
+    'ytd-reel-video-renderer[is-active] #movie_player',
+    'ytd-reel-video-renderer[is-active] .html5-video-player',
+    'ytd-watch-flexy #movie_player',
+    'ytd-player #movie_player',
+    '#movie_player',
+    '.html5-video-player'
+  ];
+  for(const selector of selectors){
+    const candidate=document.querySelector(selector);
+    if(!candidate)continue;
+    const rect=candidate.getBoundingClientRect();
+    if(rect.width>120 && rect.height>110 && rect.bottom>0 && rect.top<window.innerHeight)return candidate;
+  }
+  return null;
+}
 function positionDownloadDock() {
   const dock=document.getElementById('tubeium-right-actions');
+  // YouTube can destroy the action row during SPA updates, taking the
+  // injected button with it. Rebuild it whenever the old node is detached.
+  if(!dock && document.body){initDownloadButton();return;}
   if(!dock || !document.body)return;
   const videoId=currentVideoId();
   dock.hidden=state.showDownloadButton===false || !videoId;
@@ -809,7 +829,7 @@ function positionDownloadDock() {
     dock.classList.add('tubeium-dock-fallback','tubeium-dock-active');
     // The fallback is deliberately VISIBLE. Otherwise videos without an
     // action row, Shorts, and fast SPA changes show no Download button.
-    const player=document.querySelector('#movie_player')||document.querySelector('.html5-video-player');
+    const player=findTubeiumVisiblePlayer();
     const rect=player?.getBoundingClientRect();
     const safeWidth=window.innerWidth, safeHeight=window.innerHeight;
     const left=rect?.width>120
@@ -933,7 +953,7 @@ function initDownloadButton() {
 // Contextual controls follow the actual player, not the recommendations.
 let tubeiumPointerX=-1,tubeiumPointerY=-1;
 function refreshTubeiumPlayerOverlays() {
-  const player=document.querySelector('#movie_player')||document.querySelector('.html5-video-player');
+  const player=findTubeiumVisiblePlayer();
   const dock=document.getElementById('tubeium-right-actions');
   const visible=player&&currentVideoId()&&!state.mini;
   if(!visible){
