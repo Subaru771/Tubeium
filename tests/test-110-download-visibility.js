@@ -36,7 +36,7 @@ assert.equal(dock.hidden,false);
 assert.equal(dock.parentElement,body,'Video action stays available if the metadata row is missing');
 assert(classes.has('tubeium-dock-fallback'));
 assert.equal(dock.style.top,'106px');
-assert.equal(dock.style.left,'813px');
+assert.equal(dock.style.left,'674px','Account for the width of Download and Watch Later together');
 assert.match(source,/#tubeium-right-actions\.tubeium-dock-fallback\{position:fixed;left:0;top:74px;\s*opacity:1;pointer-events:auto/);
 showActions=true;positionDownloadDock();
 assert.equal(dock.parentElement,action,'Restores the inline action when YouTube loads metadata');
