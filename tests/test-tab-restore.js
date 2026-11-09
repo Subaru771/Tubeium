@@ -5,12 +5,12 @@ const read=x=>fs.readFileSync(path.join(__dirname,'../src',x),'utf8');
 const source=read('tab-strip.js'),main=read('main.js');
 const pre=read('tab-strip-preload.js'),html=read('tab-strip.html'),css=read('tab-strip.css');
 const classes=()=>{const s=new Set();return {has:c=>s.has(c),toggle:(c,on)=>{if(on===undefined)on=!s.has(c);if(on)s.add(c);else s.delete(c);},add:c=>s.add(c)};};
-const ids=['yt','help','hide-tabs','show-tabs','open-settings','launcher','launcher-menu','menu-youtube','menu-settings','menu-downloads','menu-help'];
+const ids=['yt','help','hide-tabs','show-tabs','open-settings','launcher','launcher-menu','menu-youtube','menu-settings','menu-downloads','menu-watch-later','menu-help'];
 const elements=Object.fromEntries(ids.map(id=>[id,{hidden:false,attrs:{},classList:classes(),handlers:{},
  addEventListener(type,fn){this.handlers[type]=fn;},setAttribute(k,v){this.attrs[k]=String(v);},focus(){}}]));
 let listener=null;const actions=[];
 const window={tubeiumTabs:{select:tab=>actions.push('select:'+tab),hide:()=>actions.push('hide'),
- show:()=>actions.push('show'),openSettings:()=>actions.push('settings'),openDownloads:()=>actions.push('downloads'),
+ show:()=>actions.push('show'),openSettings:()=>actions.push('settings'),openDownloads:()=>actions.push('downloads'),openLibrary:()=>actions.push('library'),
  toggleMenu:()=>actions.push('toggle'),onState:cb=>{listener=cb;}}};
 const document={documentElement:{classList:classes()},getElementById:id=>elements[id],addEventListener(){}};
 vm.runInNewContext(source,{window,document});
@@ -25,6 +25,7 @@ assert(!elements['launcher-menu'].hidden);
 assert.equal(elements.launcher.attrs['aria-expanded'],'true');
 elements['menu-settings'].handlers.click();assert.equal(actions.pop(),'settings');
 elements['menu-downloads'].handlers.click();assert.equal(actions.pop(),'downloads');
+elements['menu-watch-later'].handlers.click();assert.equal(actions.pop(),'library');
 elements['menu-help'].handlers.click();assert.equal(actions.pop(),'select:welcome');
 elements['show-tabs'].handlers.click();assert.equal(actions.pop(),'show');
 listener({tab:'welcome',showHelpTabs:true,menuOpen:false,showSigninHelpButton:false});
@@ -41,5 +42,7 @@ assert.match(main,/const TUBEIUM_MENU_WIDTH = 244/);
 assert.match(main,/tabBarView\.setVisible\(!tabBarFullscreen && available\)/);
 assert.match(main,/menuOpen: tabMenuOpen, showSigninHelpButton:/);
 assert.match(pre,/ipcRenderer\.send\('tubeium-tab-show'\)/);
+assert.match(pre,/ipcRenderer\.send\('tubeium-tab-open-library'\)/);
+assert.match(main,/ipcMain\.on\('tubeium-tab-open-library'/);
 assert.match(main,/ipcMain\.on\('tubeium-tab-show'/);
 console.log('PASS: single launcher controls menu, downloads, Settings and one optional help route');
