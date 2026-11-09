@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('tubeiumTabs',Object.freeze({
  show:()=>ipcRenderer.send('tubeium-tab-show'),
  openSettings:()=>ipcRenderer.send('tubeium-tab-open-settings'),
  openDownloads:()=>ipcRenderer.send('tubeium-tab-open-downloads'),
+ openLibrary:()=>ipcRenderer.send('tubeium-tab-open-library'),
  toggleMenu:()=>ipcRenderer.send('tubeium-tab-menu-toggle'),
  onState:cb=>{if(typeof cb==='function')ipcRenderer.on('tubeium-tab-state',(_e,state)=>{
    if(state && (state.tab==='youtube'||state.tab==='welcome') &&
