@@ -93,12 +93,13 @@
   function renderInspector(){
     if(!data)return;
     const region=$('floating-quick');region.replaceChildren();
-    region.append(buildQuickToggle('showDownloadButton','Download video','Quick action'),
-      buildQuickToggle('showSigninHelpButton','Sign-in help','Separate button'));
+    region.append(buildQuickToggle('showDownloadButton','Download video','Under the player'),
+      buildQuickToggle('showSettingsButton','Tubeium launcher','One compact menu'),
+      buildQuickToggle('showSigninHelpButton','Sign-in Help','Inside Tubeium menu'));
     const previewDownload=document.querySelector('.mock-download');
-    const previewHelp=document.querySelector('.mock-help');
+    const previewLauncher=document.querySelector('.mock-launcher');
     if(previewDownload)previewDownload.hidden=data.settings.showDownloadButton===false;
-    if(previewHelp)previewHelp.hidden=data.settings.showSigninHelpButton===false;
+    if(previewLauncher)previewLauncher.hidden=data.settings.showSettingsButton===false;
     $('inspector-favorite-count').textContent=favorites.length+' pinned';
     const pinned=$('inspector-favorites');pinned.replaceChildren();
     if(!favorites.length){
