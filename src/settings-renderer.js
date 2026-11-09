@@ -30,10 +30,27 @@
       ['Sign-in assistance',['showSigninHelpButton']]
     ]}
   ];
-  let data=null,current='general',advanced=false,search='',toastTimer=null;
+  // Advanced is always available as a seventh sidebar tab. Its topics show
+  // only less-common settings; options in the six main tabs are not duplicated.
+  const ADVANCED_TOPICS=[
+    {id:'player',title:'Player & audio',icon:'▶',groups:['playback','controls','shorts']},
+    {id:'interface',title:'Appearance & feed',icon:'▦',groups:['appearance','accessibility','home','navigation','watch']},
+    {id:'downloads',title:'Download details',icon:'↓',groups:['downloads']},
+    {id:'privacy',title:'Privacy & blocking',icon:'◇',groups:['blocking','privacy']},
+    {id:'shortcuts',title:'Shortcuts & devices',icon:'⌘',groups:['shortcuts']},
+    {id:'library',title:'Local library',icon:'★',groups:['library']},
+    {id:'system',title:'Windows & tools',icon:'⚙',groups:['general','advanced']}
+  ];
+  const mainKeys=new Set(SECTIONS.flatMap(section=>section.parts.flatMap(([,keys])=>keys)));
+  const topicForGroup=groupId=>ADVANCED_TOPICS.find(t=>t.groups.includes(groupId))?.id||'system';
+  let data=null,current='general',advancedTopic='player',search='',toastTimer=null;
   const allSettings=()=>data.groups.flatMap(g=>g.settings);
   const metaByKey=key=>allSettings().find(m=>m.key===key);
-  const curated=()=>SECTIONS.flatMap(section=>section.parts.flatMap(([label,keys])=>keys.map(key=>({key,section:label,category:section.title,meta:metaByKey(key)})).filter(item=>item.meta)));
+  const commonRows=sections=>sections.flatMap(category=>category.parts.flatMap(([part,keys])=>
+    keys.map(key=>({key,meta:metaByKey(key),category:category.title,section:part})).filter(item=>item.meta)));
+  const advancedRows=()=>data.groups.flatMap(group=>group.settings.filter(meta=>!mainKeys.has(meta.key))
+    .map(meta=>({key:meta.key,meta,category:group.title,section:meta.section||'Other',
+      topic:topicForGroup(group.id)})));
   function notify(message){
     const t=$('toast');t.textContent=message;t.classList.add('show');
     clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
@@ -96,45 +113,69 @@
     } else if(meta.type==='textarea'){
       const area=el('textarea','css-editor');area.spellcheck=false;area.maxLength=meta.maxLength;area.value=v;area.placeholder=meta.placeholder||'';area.setAttribute('aria-label',meta.label);const foot=el('div','editor-foot');const btn=el('button','secondary-button','Save custom CSS');btn.onclick=()=>update({[k]:area.value},'Custom CSS saved');foot.append(btn);wrap.append(area,foot);
     } else if(meta.type==='folder'){
-      const folder=el('div','folder-control');const display=el('span','folder-display',v||'Default: '+data.defaultDownloads);display.title=v||data.defaultDownloads;const choose=el('button','secondary-button','Browse…');choose.onclick=async()=>{try{data.settings=await api.chooseFolder();renderCategory();toast('Download location updated');}catch(e){error(e);}};const clear=el('button','text-button','Reset');clear.onclick=()=>update({[k]:''});folder.append(display,choose,clear);wrap.append(folder);
+      const folder=el('div','folder-control');const display=el('span','folder-display',v||'Default: '+data.defaultDownloads);display.title=v||data.defaultDownloads;const choose=el('button','secondary-button','Browse…');choose.onclick=async()=>{try{data.settings=await api.chooseFolder();theme();render();notify('Download location updated');}catch(e){error(e);}};const clear=el('button','text-button','Reset');clear.onclick=()=>update({[k]:''});folder.append(display,choose,clear);wrap.append(folder);
     }
     return wrap;
   }
 
   function categoryRows(){
-    if(advanced && current==='advanced'){
-      return data.groups.flatMap(group=>group.settings.map(meta=>({
-        key:meta.key,meta,category:group.title,section:meta.section||'Other'
-      })));
-    }
-    const chosen=search?SECTIONS:SECTIONS.filter(s=>s.id===current);
-    return chosen.flatMap(section=>section.parts.flatMap(([part,keys])=>keys.map(key=>({
-      key,meta:metaByKey(key),category:section.title,section:part
-    })).filter(item=>item.meta)));
+    // Search finds every setting, even when its Advanced topic is not selected.
+    if(search.trim())return [...commonRows(SECTIONS),...advancedRows()];
+    if(current==='advanced')return advancedRows().filter(item=>item.topic===advancedTopic);
+    return commonRows(SECTIONS.filter(section=>section.id===current));
   }
   function nav(){
     const region=$('navigation');region.replaceChildren();
-    const entries=advanced?[...SECTIONS,{id:'advanced',title:'Advanced',icon:'⚙'}]:SECTIONS;
-    for(const category of entries){
+    for(const category of SECTIONS){
       const button=el('button','nav-item'+(category.id===current?' active':''));
       button.type='button';button.setAttribute('aria-current',category.id===current?'page':'false');
       button.append(el('span','nav-icon',category.icon),el('span','nav-title',category.title));
       button.onclick=()=>selectCategory(category.id);
       region.append(button);
     }
-    $('toggle-advanced').textContent=advanced?'Hide advanced settings':'Show advanced settings';
-    $('toggle-advanced').setAttribute('aria-pressed',String(advanced));
+    const separator=el('div','nav-section-divider');
+    separator.setAttribute('aria-hidden','true');
+    region.append(separator);
+    const extra=el('button','nav-item advanced-nav'+(current==='advanced'?' active':''));
+    extra.type='button';extra.setAttribute('aria-current',current==='advanced'?'page':'false');
+    extra.append(el('span','nav-icon','⚙'),el('span','nav-title','Advanced'));
+    extra.onclick=()=>selectCategory('advanced');
+    region.append(extra);
+  }
+  function renderAdvancedTopics(){
+    const region=$('advanced-topics');
+    region.hidden=current!=='advanced'||!!search.trim();
+    if(region.hidden){region.replaceChildren();return;}
+    const rows=advancedRows();
+    region.replaceChildren();
+    for(const topic of ADVANCED_TOPICS){
+      const count=rows.filter(item=>item.topic===topic.id).length;
+      if(!count)continue;
+      const button=el('button','topic-button'+(topic.id===advancedTopic?' active':''));
+      button.type='button';
+      button.setAttribute('aria-pressed',String(topic.id===advancedTopic));
+      button.append(el('span','topic-icon',topic.icon),
+        el('span','topic-name',topic.title),
+        el('small','topic-count',String(count)));
+      button.onclick=()=>{
+        advancedTopic=topic.id;
+        render();
+        $('scroll-area').scrollTop=0;
+      };
+      region.append(button);
+    }
   }
   function selectCategory(id){
     if(id!=='advanced'&&!SECTIONS.some(s=>s.id===id))return;
-    if(id==='advanced'&&!advanced)return;
+    // Advanced is a permanent sidebar destination, not a hidden mode.
     current=id;search='';$('global-search').value='';nav();render();
     $('scroll-area').scrollTop=0;
   }
   function render(){
     if(!data)return;
+    const topic=ADVANCED_TOPICS.find(t=>t.id===advancedTopic)||ADVANCED_TOPICS[0];
     const group=current==='advanced'
-      ?{title:'Advanced',subtitle:'Less common controls. Existing saved preferences are preserved.'}
+      ?{title:'Advanced',subtitle:topic.title+' · Less-used controls grouped by purpose. Everyday preferences stay in their main tabs.'}
       :SECTIONS.find(g=>g.id===current)||SECTIONS[0];
     const q=search.trim().toLowerCase();
     const rows=categoryRows().filter(item=>!q||(
@@ -146,6 +187,7 @@
       ?rows.length+' matching settings'+(current==='advanced'?' (including advanced)':'')
       :group.subtitle;
     $('reset-section').hidden=current==='advanced'||!!q;
+    renderAdvancedTopics();
     const root=$('settings-list');root.replaceChildren();
     if(!rows.length){
       root.append(el('p','empty-search',q?'No results. Try a different search term.':'Nothing to show here.'));
@@ -157,9 +199,12 @@
       if(!groups.has(section))groups.set(section,[]);
       groups.get(section).push(item.meta);
     }
+    let panelIndex=0;
     for(const [title,settings] of groups){
       const panel=el('details','settings-panel');
-      panel.open=current!=='advanced'||!!q;
+      // Expose the first two Advanced groups, keep the rest neatly folded.
+      panel.open=current!=='advanced'||!!q||panelIndex<2;
+      panelIndex++;
       const heading=el('summary','settings-panel-title');
       heading.append(el('strong',null,title),el('small',null,String(settings.length)));
       const body=el('div','settings-panel-body');
@@ -181,11 +226,6 @@
   function wire(){
     $('global-search').oninput=e=>{search=e.target.value;render();};
     $('global-search').onkeydown=e=>{if(e.key==='Escape'){e.target.value='';search='';render();}};
-    $('toggle-advanced').onclick=()=>{
-      advanced=!advanced;
-      if(!advanced && current==='advanced')current='general';
-      nav();render();
-    };
     $('reset-section').onclick=async()=>{
       const section=SECTIONS.find(g=>g.id===current);
       if(!section||!confirm('Restore the visible '+section.title+' preferences to their defaults?'))return;
@@ -193,7 +233,7 @@
       await update(patch,'Section restored');
     };
     $('reset-all').onclick=async()=>{
-      if(!confirm('Reset ALL 201 preferences? This includes hidden advanced choices.'))return;
+      if(!confirm('Reset ALL 201 preferences, including the Advanced tab?'))return;
       const result=await run(()=>api.reset('all'));
       if(result){data.settings=result;theme();render();notify('All preferences reset');}
     };
