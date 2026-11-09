@@ -109,10 +109,10 @@ Ad skipping is enabled by default for new installs, but it is best-effort and **
 
 ### 📥 Downloads & offline playback
 
-- Video and audio download options with a configurable download queue.
+- Video and audio downloads with a compact, modern queue showing real titles, requested quality from the moment a job is added, selected stream resolution when available, progress/ETA, and simple Pause/Resume/Retry controls.
 - Select a maximum video resolution, file naming format, and destination folder.
 - Supported container preferences include **MP4** and **MKV**; audio choices include **MP3**, **M4A**, and **Opus**.
-- Optional thumbnail, subtitle, and metadata handling.
+- Fast public title/creator lookup for pasted YouTube links (no Google cookies), with yt-dlp metadata verification before transfer; works offline using safe fallback labels. Optional thumbnail, subtitle, and file-metadata handling remains available.
 - Open supported downloaded media using Tubeium's offline player.
 
 Tubeium's first yt-dlp download is pinned to a version with a committed SHA-256. **Update Downloader** asks before selecting the latest release. Some formats and conversions require FFmpeg; availability depends on the source. Download only content you have permission to save.
