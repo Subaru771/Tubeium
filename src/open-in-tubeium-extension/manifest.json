@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Open in Tubeium",
+  "version": "1.0.0",
+  "description": "Open YouTube page links in the installed Tubeium Windows app. No account access or tracking.",
+  "permissions": [
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open YouTube in Tubeium"
+  }
+}
