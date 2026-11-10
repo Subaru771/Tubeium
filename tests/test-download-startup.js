@@ -4,7 +4,7 @@ const src=fs.readFileSync(path.join(__dirname,'../src/main.js'),'utf8');
 const startup=src.slice(src.indexOf('  app.whenReady().then(async () => {'),src.lastIndexOf('\n}'));
 async function check(autoRestore){
  let started=0;const settings={downloadSubfolder:'Tubeium',autoRestoreDownloads:autoRestore};const job={id:'queued-job',status:'queued'};
- const ctx={fs:{},app:{getPath:()=>'/tmp',whenReady:()=>Promise.resolve()},migrateUserData(){},settings,normalize:()=>settings,
+ const ctx={fs:{},process:{argv:[]},desktopFeatures:{attach(){},linkArgument:()=>null,openLink(){}},app:{getPath:()=>'/tmp',whenReady:()=>Promise.resolve()},migrateUserData(){},settings,normalize:()=>settings,
   readJson:(_path,fallback)=>fallback,settingsFile:()=>'',memoryFile:()=>'',queueFile:()=>'',migrateLegacyDownloadFolder:()=>({nextSubfolder:'Tubeium'}),
   playerMemory:{},LibraryStore:class{},PlaylistStore:class{},path,setupWebsitePermissions(){},
   normalizeQueue:()=>[job],sendDownloads(){},applyLoginSetting(){},createWindow(){},verifyImportedSessionOnce(){},buildMenu(){},buildTray(){},

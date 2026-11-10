@@ -22,7 +22,7 @@ const DateProxy={now:()=>now};
 const context={document,window,location,state,Date:DateProxy,Math,Number,toast:msg=>toasts.push(msg),
   currentVideoId:()=>current,adShowing:()=>ads,positionDownloadDock:()=>repositions++,
   refreshTubeiumPlayerOverlays:()=>repositions++,navigateTubeiumVideo:dir=>navigations.push(dir),
-  tubeiumTouchMode:touchMode};
+  tubeiumTouchMode:touchMode,ipcRenderer:{invoke:async()=> 'normal',on(){}}};
 vm.createContext(context);vm.runInContext(script+'\ninitTubeiumPhoneGestures()',context);
 const finger=(x,y)=>({clientX:x,clientY:y});
 const emit=(name,touches,changedTouches=touches,target=surface)=>{
