@@ -700,7 +700,7 @@ function tubeiumInstallCardActions() {
 function initTubeiumCardActions(){
   let scheduled=false;
   const update=()=>{
-    if(scheduled)return;
+    if(scheduled||document.visibilityState==='hidden')return;
     scheduled=true;
     setTimeout(()=>{scheduled=false;tubeiumInstallCardActions();},160);
   };
