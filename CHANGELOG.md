@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Add a visible **Next** video button and support headphone/OS next-track commands through Media Session. Normal videos use YouTube's Next control; Shorts use the next-Short control. Play/pause and previous-track behavior remain YouTube-owned.
+- Add Previous and Play/Pause alongside Next, headphone previous-track handling, disabled-boundary feedback, and bounded app-memory video history that survives page reloads without persisting visits.
+- Keep transport and tap-open tools accessible in YouTube fullscreen and mini-player modes, and reposition overlays when the visual viewport changes.
+- Add an offline playback queue with Previous/Next, headphone play/pause/seek/navigation, optional automatic advancement, queue position, missing-file skipping, and fullscreen controls. Queue replacement rejects stale renderer commands.
+
+- Add a visible **Next** video button and support headphone/OS next-track commands through Media Session. Normal videos use YouTube's Next control; Shorts use the next-Short control. YouTube still owns Media Session play/pause and seek behavior; Tubeium handles both track directions.
 - Improve Windows touchscreen and pen use with 44px tap targets, tap-open player tools, tablet-width Settings/Downloads/Library windows, and a scrollable native launcher menu.
 - Physical Windows touch/headphone acceptance checks remain required; automated checks use simulated input.
 

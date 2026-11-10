@@ -19,12 +19,15 @@ const { LibraryStore, validId } = require('./library-store');
 const { communityTitle } = require('./dearrow');
 const { websitePermission } = require('./permission-policy');
 const { createInstaller: createYtDlpInstaller } = require('./ytdlp-installer');
-const { findOfflineMedia, playableFiles } = require('./offline-media');
+const { playableFiles, offlineQueue, offlineNeighbor } = require('./offline-media');
 const { basicHealth } = require('./system-health');
 const { PlaylistStore } = require('./local-playlists');
 const { createBackup, readBackup, writeBackup } = require('./backup-manager');
 const { normalizeFavorites } = require('./settings-favorites');
 const { fetchLatest: fetchGitHubRelease, RELEASES_URL } = require('./update-check');
+
+const {PlaybackHistory}=require('./playback-history');
+const playbackHistory=new PlaybackHistory();
 
 const START_URL = 'https://www.youtube.com';
 const ICON = path.join(__dirname, '..', 'assets', 'icon.png');
@@ -61,6 +64,8 @@ let downloadsWindow = null;
 let libraryWindow = null;
 let offlineWindow = null;
 let offlineSelection = null;
+let offlinePlaylist={items:[],index:-1};
+let offlineQueueVersion=0;
 let libraryStore = null;
 let playlistStore = null;
 let tray = null;
@@ -207,6 +212,15 @@ for (const [channel, handler] of Object.entries(prefsHandlers)) {
     return handler(event, ...args);
   });
 }
+ipcMain.handle('playback-history',(event,action,direction)=>{
+ if(!ytOnly(event))throw new Error('Forbidden');
+ playbackHistory.record(win.webContents.getURL());
+ if(action==='move'){
+  if(![-1,1].includes(direction))throw new Error('Invalid navigation');
+  const url=playbackHistory.move(direction);if(url)void win.loadURL(url).catch(()=>{});
+ }else if(action!=='record')throw new Error('Invalid history request');
+ return playbackHistory.state();
+});
 ipcMain.on('open-settings', e => { if (ytOnly(e)) openSettings(); });
 
 // ---- Welcome / sign-in help tab (local WebContentsView, not a notification) ----
@@ -807,19 +821,31 @@ function openLocalLibrary(){
 // Offline player is a local, isolated Electron window. Only entries previously
 // recorded by Download Studio can become media URLs.
 function openOfflinePlayer(jobId,index=0){
-  const selected=findOfflineMedia(jobs,jobId,index);
-  offlineSelection={...selected,autoplay:!!settings.autoPlayOffline};
+  offlinePlaylist=offlineQueue(jobs,jobId,index);offlineQueueVersion++;
+  offlineSelection=offlinePlaylist.items[offlinePlaylist.index];
   if(offlineWindow && !offlineWindow.isDestroyed()){offlineWindow.show();offlineWindow.focus();offlineWindow.reload();return;}
-  offlineWindow=new BrowserWindow({width:1000,height:690,minWidth:500,minHeight:360,
+  offlineWindow=new BrowserWindow({width:1000,height:690,minWidth:480,minHeight:360,
     title:'Tubeium · Offline Player',backgroundColor:'#0b0c13',icon:ICON,autoHideMenuBar:true,
     webPreferences:{preload:path.join(__dirname,'offline-preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   offlineWindow.loadFile(path.join(__dirname,'offline-player.html'));
   offlineWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   offlineWindow.webContents.on('will-navigate',e=>e.preventDefault());
-  offlineWindow.on('closed',()=>{offlineWindow=null;offlineSelection=null;});
+  offlineWindow.on('closed',()=>{offlineWindow=null;offlineSelection=null;offlinePlaylist={items:[],index:-1};});
 }
 function offlineOnly(e){return !!offlineWindow&&!offlineWindow.isDestroyed()&&e.sender===offlineWindow.webContents;}
-ipcMain.handle('offline-init',e=>{if(!offlineOnly(e)||!offlineSelection)throw new Error('Forbidden');return offlineSelection;});
+function offlineState(){
+ return {...offlineSelection,queueVersion:offlineQueueVersion,autoplay:!!settings.autoPlayOffline,position:offlinePlaylist.index+1,count:offlinePlaylist.items.length,
+  canPrevious:offlineNeighbor(offlinePlaylist.items,offlinePlaylist.index,-1)>=0,
+  canNext:offlineNeighbor(offlinePlaylist.items,offlinePlaylist.index,1)>=0};
+}
+ipcMain.handle('offline-init',e=>{if(!offlineOnly(e)||!offlineSelection)throw new Error('Forbidden');return offlineState();});
+ipcMain.handle('offline-navigate',(e,direction,version)=>{
+ if(!offlineOnly(e)||!offlineSelection||version!==offlineQueueVersion||![-1,1].includes(direction))throw new Error('Forbidden');
+ const index=offlineNeighbor(offlinePlaylist.items,offlinePlaylist.index,direction);
+ if(index<0)return {moved:false,...offlineState()};
+ offlinePlaylist.index=index;offlineSelection=offlinePlaylist.items[index];
+ return {moved:true,...offlineState()};
+});
 ipcMain.handle('offline-external',e=>{if(!offlineOnly(e)||!offlineSelection)throw new Error('Forbidden');return shell.openPath(offlineSelection.file);});
 function libOnly(e){return !!libraryWindow&&!libraryWindow.isDestroyed()&&e.sender===libraryWindow.webContents;}
 const requireLibrary=()=>{if(!libraryStore)throw new Error('Library not ready');return libraryStore;};

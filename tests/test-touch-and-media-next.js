@@ -8,12 +8,13 @@ vm.createContext(mainWorld);vm.runInContext(media,mainWorld);mainWorld.installTu
 let pageNext=0;session.setActionHandler('nexttrack',()=>pageNext++);handlers.get('nexttrack')();
 assert.deepEqual(events,['tubeium-media-next']);assert.equal(pageNext,0);
 const play=()=>{},pause=()=>{},previous=()=>{};
-for(const [action,handler] of [['play',play],['pause',pause],['previoustrack',previous]]){session.setActionHandler(action,handler);assert.equal(handlers.get(action),handler);}
+for(const [action,handler] of [['play',play],['pause',pause]]){session.setActionHandler(action,handler);assert.equal(handlers.get(action),handler);}
 session.setActionHandler('nexttrack',null);handlers.get('nexttrack')();assert.equal(events.length,2);
+session.setActionHandler('previoustrack',previous);handlers.get('previoustrack')();assert.equal(events.at(-1),'tubeium-media-previous');
 const wrapped=session.setActionHandler;mainWorld.installTubeiumMediaNext();assert.equal(session.setActionHandler,wrapped,'Reinstallation must not stack wrappers');
 const listener=new Map();let now=1000,clicks=0,id='abcdefghijk',ads=false,control=null;
-const doc={addEventListener:(event,fn)=>listener.set(event,fn),querySelectorAll:()=>control?[control]:[]};
-const ctx={document:doc,location:{pathname:'/watch'},currentVideoId:()=>id,adShowing:()=>ads,Date:{now:()=>now},toast(){}};
+const doc={getElementById:()=>null,addEventListener:(event,fn)=>listener.set(event,fn),querySelectorAll:()=>control?[control]:[]};
+const ctx={ipcRenderer:{invoke:async()=>null},document:doc,window:{addEventListener(){}},URL,URLSearchParams,location:{pathname:'/watch',search:''},currentVideoId:()=>id,adShowing:()=>ads,getVideo:()=>null,Date:{now:()=>now},toast(){}};
 vm.createContext(ctx);vm.runInContext(src.slice(src.indexOf('let tubeiumLastNextAt='),src.indexOf('let tubeiumTouchMode=')),ctx);
 control={getAttribute:()=>null,closest:()=>null,getBoundingClientRect:()=>({width:44,height:44}),click:()=>clicks++};
 assert.equal(ctx.nextTubeiumVideo(),true);assert.equal(clicks,1);
@@ -26,7 +27,7 @@ assert(prevented);assert.equal(clicks,3);
 now+=600;listener.get('keydown')({key:'MediaTrackNext',repeat:true});assert.equal(clicks,3);
 ctx.location.pathname='/shorts/abcdefghijk';let selector='';doc.querySelectorAll=s=>{selector=s;return [control];};
 assert.equal(ctx.nextTubeiumVideo(),true);assert.match(selector,/navigation-button-down/);
-console.log('PASS: OS/headphone Next and player button share guarded navigation; play/pause/previous remain YouTube-owned');
+console.log('PASS: OS/headphone Next and player button share guarded navigation; play/pause remain YouTube-owned');
 const touchEvents=new Map(),classes=new Set();let refreshed=0;
 const coarse={matches:false,addEventListener(_name,callback){this.change=callback;}};
 const touchCtx={window:{matchMedia:()=>coarse},document:{documentElement:{classList:{toggle(name,on){on?classes.add(name):classes.delete(name);}}},addEventListener:(name,fn)=>touchEvents.set(name,fn)},toolbar:null,refreshTubeiumPlayerOverlays(){refreshed++;}};
