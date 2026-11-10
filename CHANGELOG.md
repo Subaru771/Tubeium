@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [1.0.11] — 2026-11-10 (Tubeium 1.11)
 
 - Add Previous and Play/Pause alongside Next, headphone previous-track handling, disabled-boundary feedback, and bounded app-memory video history that survives page reloads without persisting visits.
 - Keep transport and tap-open tools accessible in YouTube fullscreen and mini-player modes, and reposition overlays when the visual viewport changes.
@@ -10,7 +10,7 @@
 - Improve Windows touchscreen and pen use with 44px tap targets, tap-open player tools, tablet-width Settings/Downloads/Library windows, and a scrollable native launcher menu.
 - Physical Windows touch/headphone acceptance checks remain required; automated checks use simulated input.
 
-## [1.0.9] — Unreleased (Tubeium 1.09 source)
+## [1.0.9] — 2026-11-09 (Tubeium 1.09)
 
 - **Home and player quick actions:** one-click Download and **◷ Watch Later** directly on supported video thumbnails (Home, search and recommendations) and in the video action area. Thumbnail actions are hover/focus accessible and do not navigate the page. Duplicate quick downloads are suppressed per card.
 - **Local Watch Later:** add to Tubeium's persistent offline-capable Library list without a Google login. A new Watch Later library tab and an entry in the single Tubeium menu make saved videos easy to find. Original bookmarks, local playback history, and existing saved data remain intact. Clearly labeled local-only; it does not silently modify YouTube's account Watch Later.
