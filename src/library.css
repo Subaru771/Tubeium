@@ -10,3 +10,9 @@
  .video{grid-template-columns:120px minmax(0,1fr)}.thumb{width:120px}.video>.actions{grid-column:1/-1}
  .playlist-entry{display:flex;align-items:center;gap:6px}
 }
+
+html.tubeium-touch button,html.tubeium-touch input,html.tubeium-touch select{min-height:48px;touch-action:manipulation}
+html.tubeium-touch .tabs{overflow-x:auto;flex-wrap:nowrap;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+html.tubeium-touch .tabs button{flex:0 0 auto;scroll-snap-align:start}
+html.tubeium-touch .header-actions{flex-wrap:wrap;gap:8px}
+html.tubeium-touch dialog{max-width:calc(100vw - 24px)}
