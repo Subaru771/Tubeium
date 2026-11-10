@@ -87,7 +87,8 @@
       "src/tab-strip.css",
       "src/tab-strip.js",
       "src/tab-strip-preload.js",
-      "src/playback-history.js"
+      "src/playback-history.js",
+      "src/touch-mode.js"
     ],
     "win": {
       "icon": "assets/icon.ico",

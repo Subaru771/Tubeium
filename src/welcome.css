@@ -23,3 +23,6 @@
 .bottom{flex-wrap:wrap;justify-content:flex-start}.bottom #saved{margin-left:auto}
 
 @media(any-pointer:coarse){button,a,input,summary{min-height:44px;touch-action:manipulation}button,input{min-width:44px}}
+
+html.tubeium-touch button,html.tubeium-touch input{min-height:48px;touch-action:manipulation}
+html.tubeium-touch .steps li{scroll-margin-top:24px}
