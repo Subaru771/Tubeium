@@ -15,3 +15,11 @@ These manual checks must run on actual Windows 10/11, even if automated CI passe
 11. Test an upgrade from the previous release without losing local settings and library data.
 
 Record the Windows version, test steps, and non-sensitive outcomes. **CI success is not a claim that every live feature was manually validated.**
+
+## Touchscreen and headphone Next
+
+- On a Windows touchscreen or pen device, tap **Next** on a watch page and verify exactly one next video opens. Repeat in a playlist and on Shorts; unavailable/disabled next controls must not navigate elsewhere.
+- Use **Tools** to open player controls without a hover gesture. Check opening, using a control, tapping outside to close, scrolling the feed, and navigating to another video. Repeat on a hybrid laptop using a mouse and touch.
+- At portrait tablet widths, test Settings navigation and toggles, download queue actions, library playlists, and all launcher-menu entries. Targets should be reachable without horizontal page overflow; launcher menus may scroll vertically.
+- While a video is playing, press your wired/Bluetooth headset's Next command (often a double press), the keyboard's media-next key, and Windows media-overlay Next. Verify exactly one next video, including while Tubeium is minimized; then test another media application owns the keys when it is active. Play/pause and previous must continue to follow YouTube's handlers.
+- Test headphone disconnection/reconnection and Windows lock-screen media controls. Device gesture mappings depend on the headset and Windows; record the hardware and results. These checks have not been claimed as performed by source or browser tests.

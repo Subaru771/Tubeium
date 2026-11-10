@@ -129,7 +129,7 @@ const PRESETS = {
 function openSettings() {
   if (prefs && !prefs.isDestroyed()) { prefs.show(); prefs.focus(); return; }
   prefs = new BrowserWindow({
-    width: 1080, height: 760, minWidth: 750, minHeight: 560,
+    width: 1080, height: 760, minWidth: 480, minHeight: 480,
     backgroundColor: '#111119', icon: ICON, title: 'Tubeium · Settings',
     autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'settings-preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
@@ -233,11 +233,11 @@ function welcomeSender(event) {
 }
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
-const TAB_STRIP_HEIGHT = 42;
+const TAB_STRIP_HEIGHT = 52;
 const COLLAPSED_TAB_WIDTH = 48;
 const COLLAPSED_TAB_HEIGHT = 48;
 const TUBEIUM_MENU_WIDTH = 244;
-const TUBEIUM_MENU_HEIGHT = 344;
+const TUBEIUM_MENU_HEIGHT = 432;
 function sizeWelcomeTab() {
   if (!win || win.isDestroyed()) return;
   const [width, height] = win.getContentSize();
@@ -797,7 +797,7 @@ function setupWebsitePermissions() {
 // Local-only library, explicitly independent of YouTube's account and cookies.
 function openLocalLibrary(){
   if(libraryWindow&&!libraryWindow.isDestroyed()){libraryWindow.show();libraryWindow.focus();return;}
-  libraryWindow=new BrowserWindow({width:1090,height:800,minWidth:650,minHeight:530,title:'Tubeium · Local Library',backgroundColor:'#10101a',icon:ICON,autoHideMenuBar:true,
+  libraryWindow=new BrowserWindow({width:1090,height:800,minWidth:480,minHeight:480,title:'Tubeium · Local Library',backgroundColor:'#10101a',icon:ICON,autoHideMenuBar:true,
     webPreferences:{preload:path.join(__dirname,'library-preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   libraryWindow.loadFile(path.join(__dirname,'library.html'));
   libraryWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));
@@ -1305,7 +1305,7 @@ function sendDownloads(force=false) {
 const jobPublic=()=>jobs.map(j=>({...j,files:[...j.files]}));
 function openDownloadManager() {
   if (downloadsWindow && !downloadsWindow.isDestroyed()) {downloadsWindow.show();downloadsWindow.focus();return;}
-  downloadsWindow=new BrowserWindow({width:1100,height:780,minWidth:780,minHeight:560,
+  downloadsWindow=new BrowserWindow({width:1100,height:780,minWidth:480,minHeight:480,
     title:'Tubeium · Downloads',backgroundColor:'#111119',icon:ICON,autoHideMenuBar:true,
     webPreferences:{preload:path.join(__dirname,'downloads-preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   downloadsWindow.loadFile(path.join(__dirname,'downloads.html'));

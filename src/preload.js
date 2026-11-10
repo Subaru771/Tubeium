@@ -147,6 +147,31 @@ try {
   catch { /* Page-level filtering optional; native skip fallback remains. */ }
 }
 
+// Register in YouTube's main world: the isolated preload cannot reliably own
+// page-installed Media Session handlers. Keep only nexttrack under Tubeium's
+// control; YouTube continues to own play, pause, previous and seek actions.
+function installTubeiumMediaNext(){
+  const media=navigator.mediaSession;
+  if(!media||window.__tubeiumMediaNext)return;
+  const setHandler=media.setActionHandler.bind(media);
+  const next=()=>document.dispatchEvent(new Event('tubeium-media-next'));
+  try{
+    media.setActionHandler=function(action,handler){
+      return setHandler(action,action==='nexttrack'?next:handler);
+    };
+    setHandler('nexttrack',next);
+    window.__tubeiumMediaNext=true;
+  }catch{ /* Unsupported Media Session actions must not interrupt YouTube. */ }
+}
+try{
+  const {contextBridge}=require('electron');
+  if(typeof contextBridge?.executeInMainWorld==='function'){
+    contextBridge.executeInMainWorld({func:installTubeiumMediaNext,args:[]});
+  }else{
+    void webFrame.executeJavaScript('('+installTubeiumMediaNext.toString()+')()',false).catch(()=>{});
+  }
+}catch{ /* YouTube's own hardware media handling remains available. */ }
+
 let state = { hideShorts: true, blockAds: earlyBlockAds, sponsorBlock: true, speedStep: '0.25', mini: false };
 let persistedState = {...state};
 let activeViewingProfile = null;
@@ -333,7 +358,7 @@ html.uyp-mini #tubeium-right-actions,html.uyp-fs #tubeium-right-actions{display:
 
 #uyp-dl .uyp-menu{position:absolute;bottom:calc(100% + 8px);right:0;
   z-index:2;max-height:55vh;overflow-y:auto}
-/* Position above the native 42px tab strip instead of underneath it. */
+/* Settings and Sign-in Help are kept off the playback surface. */
 /* Settings and Sign-in Help live only in Tubeium's native launcher. */
 html.uyp-opt-hideChannelAvatars ytd-channel-name #avatar,
 html.uyp-opt-hideChannelAvatars ytd-video-owner-renderer #avatar,
@@ -487,6 +512,19 @@ html.uyp-fs #uyp-playback-diagnostics,html.uyp-mini #uyp-playback-diagnostics{di
 #uyp-quick-nav{position:fixed;top:140px;left:14px;z-index:2147483630;display:flex;flex-direction:column;gap:5px;background:#1c1a29f0;border:1px solid #ffffff36;border-radius:14px;padding:8px;box-shadow:0 6px 20px #0007;font:600 14px Arial,sans-serif}
 #uyp-quick-nav[data-position=right]{left:auto;right:14px}#uyp-quick-nav[hidden]{display:none!important}#uyp-quick-nav a{padding:8px 12px;color:#e8dfff;text-decoration:none;border-radius:9px}#uyp-quick-nav a:hover{background:#ffffff25}
 html:not(.uyp-watch) #uyp-toolbox,html:not(.uyp-watch) #uyp-dislikes,html.uyp-mini #uyp-toolbox,html.uyp-mini #uyp-dislikes,html.uyp-fs #uyp-toolbox,html.uyp-fs #uyp-dislikes{display:none!important;}
+
+/* Touchscreen and pen users get real tap targets without hover requirements. */
+#tubeium-player-next,#tubeium-player-tools{min-height:41px;padding:8px 12px;border:1px solid #ffffff30;
+  border-radius:11px;background:#262734;color:#f3eefb;white-space:nowrap;font:700 12px "Segoe UI",Arial,sans-serif;cursor:pointer}
+#tubeium-player-tools{display:none}
+html.tubeium-touch #tubeium-player-tools:not([hidden]){display:inline-flex;align-items:center}
+#tubeium-right-actions{flex-wrap:wrap;max-width:calc(100vw - 16px)}
+html.tubeium-touch #tubeium-right-actions button,html.tubeium-touch #uyp-toolbox button,
+html.tubeium-touch .tubeium-card-actions button{min-height:44px;min-width:44px;touch-action:manipulation}
+html.tubeium-touch .tubeium-card-actions{flex-wrap:wrap}
+html.tubeium-touch .tubeium-card-actions button{font-size:12px}
+html.tubeium-touch #uyp-toolbox{gap:6px;max-height:50vh;overflow-y:auto;overscroll-behavior:contain}
+html.tubeium-touch #uyp-dl .uyp-options{min-width:44px}
 
 `;
 
@@ -1011,6 +1049,59 @@ function positionDownloadDock() {
   }
 }
 
+// Shared by the on-screen button, OS Media Session and media-key events.
+let tubeiumLastNextAt=-Infinity;
+function nextTubeiumVideo(){
+  if(!currentVideoId()||adShowing())return false;
+  const now=Date.now();
+  if(now-tubeiumLastNextAt<500)return false;
+  const selectors=location.pathname.startsWith('/shorts/')
+    ?['ytd-shorts #navigation-button-down button','ytd-shorts #navigation-button-down']
+    :['.html5-video-player .ytp-next-button'];
+  for(const selector of selectors){
+    for(const control of document.querySelectorAll(selector)){
+      if(control.disabled||control.querySelector?.('button:disabled,[aria-disabled="true"]')||control.getAttribute('aria-disabled')==='true'||
+        control.closest('[hidden],[aria-hidden="true"]'))continue;
+      const rect=control.getBoundingClientRect();
+      if(rect.width<=0||rect.height<=0)continue;
+      tubeiumLastNextAt=now;control.click();return true;
+    }
+  }
+  toast('No next video is available here');return false;
+}
+function initTubeiumMediaKeys(){
+  document.addEventListener('tubeium-media-next',nextTubeiumVideo);
+  document.addEventListener('keydown',event=>{
+    if(!['MediaTrackNext','MediaNextTrack'].includes(event.key)||event.repeat)return;
+    event.preventDefault();event.stopImmediatePropagation();nextTubeiumVideo();
+  },true);
+}
+let tubeiumTouchMode=false,tubeiumTouchToolsOpen=false;
+function initTubeiumTouch(){
+  const coarse=window.matchMedia?.('(any-pointer: coarse)');
+  const setTouch=enabled=>{
+    tubeiumTouchMode=enabled;
+    document.documentElement.classList.toggle('tubeium-touch',enabled);
+    if(!enabled)tubeiumTouchToolsOpen=false;
+    refreshTubeiumPlayerOverlays();
+  };
+  setTouch(coarse?.matches===true);
+  coarse?.addEventListener?.('change',event=>setTouch(event.matches));
+  document.addEventListener('pointerdown',event=>{
+    if(event.pointerType==='touch'||event.pointerType==='pen')setTouch(true);
+    if(tubeiumTouchToolsOpen&&!event.target.closest('#uyp-toolbox,#tubeium-player-tools')){
+      tubeiumTouchToolsOpen=false;
+      if(toolbar?.contains(document.activeElement))document.activeElement.blur();
+      refreshTubeiumPlayerOverlays();
+    }
+  },{passive:true});
+  document.addEventListener('yt-navigate-finish',()=>{
+    tubeiumTouchToolsOpen=false;
+    if(toolbar?.contains(document.activeElement))document.activeElement.blur();
+    refreshTubeiumPlayerOverlays();
+  });
+}
+
 // ---- Download button ----
 function initDownloadButton() {
   // Retire any legacy left-side download widget from older app versions.
@@ -1019,6 +1110,20 @@ function initDownloadButton() {
   const dock=document.createElement('div');dock.id='tubeium-right-actions';
   const box = document.createElement('div');
   box.id = 'uyp-dl';
+  const nextButton=document.createElement('button');
+  nextButton.id='tubeium-player-next';nextButton.type='button';nextButton.textContent='⏭ Next';
+  nextButton.setAttribute('aria-label','Play next video');
+  nextButton.addEventListener('click',event=>{
+    event.preventDefault();event.stopImmediatePropagation();nextTubeiumVideo();
+  });
+  const toolsButton=document.createElement('button');
+  toolsButton.id='tubeium-player-tools';toolsButton.type='button';toolsButton.textContent='⚙ Tools';
+  toolsButton.setAttribute('aria-label','Toggle player tools');toolsButton.setAttribute('aria-controls','uyp-toolbox');
+  toolsButton.setAttribute('aria-expanded','false');
+  toolsButton.addEventListener('click',event=>{
+    event.preventDefault();event.stopImmediatePropagation();
+    tubeiumTouchToolsOpen=!tubeiumTouchToolsOpen;refreshTubeiumPlayerOverlays();
+  });
   const laterButton=document.createElement('button');
   laterButton.id='tubeium-player-watch-later';
   laterButton.type='button';
@@ -1143,7 +1248,7 @@ function initDownloadButton() {
   box.appendChild(menu);
   const actions=document.createElement('div');actions.className='uyp-download-actions';
   actions.append(main,options);box.appendChild(actions);
-  dock.append(box,laterButton);document.body.appendChild(dock);
+  dock.append(nextButton,box,laterButton,toolsButton);document.body.appendChild(dock);
   positionDownloadDock();
   applyState();
 
@@ -1186,7 +1291,12 @@ function refreshTubeiumPlayerOverlays() {
     const top=Math.max(8,rect.top+10);
     toolbar.style.left=Math.round(left)+'px';
     toolbar.style.top=Math.round(top)+'px';
-    toolbar.classList.toggle('tubeium-tools-visible',hovering||toolbar.matches(':focus-within'));
+    toolbar.classList.toggle('tubeium-tools-visible',(tubeiumTouchMode?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
+    const toolsButton=document.getElementById('tubeium-player-tools');
+    if(toolsButton){
+      toolsButton.hidden=!state.showOverlayToolbar;
+      toolsButton.setAttribute('aria-expanded',String(tubeiumTouchToolsOpen));
+    }
     const diagnostics=document.getElementById('uyp-playback-diagnostics');
     if(diagnostics){
       diagnostics.style.left=Math.round(Math.max(8,Math.min(window.innerWidth-370,left)))+'px';
@@ -1195,8 +1305,9 @@ function refreshTubeiumPlayerOverlays() {
   }
   if(dock?.classList.contains('tubeium-dock-fallback')){
     const dockWidth=dock.getBoundingClientRect().width||180;
-    dock.style.left=Math.round(Math.max(8,rect.right-dockWidth-14))+'px';
-    dock.style.top=Math.round(Math.max(8,rect.bottom-108))+'px';
+    dock.style.left=Math.round(Math.max(8,Math.min(window.innerWidth-dockWidth-8,rect.right-dockWidth-14)))+'px';
+    const dockHeight=dock.getBoundingClientRect().height||94;
+    dock.style.top=Math.round(Math.max(8,Math.min(window.innerHeight-dockHeight-8,rect.bottom-dockHeight-14)))+'px';
     dock.classList.add('tubeium-dock-active'); // Always present when playing a video.
   }
 }
@@ -1664,7 +1775,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   try { persistedState = { ...state, ...(await ipcRenderer.invoke('get-state')) }; state={...persistedState}; } catch { /* use defaults */ }
   try { playbackMemory = { ...playbackMemory, ...(await ipcRenderer.invoke('get-player-memory')) }; } catch {}
   applyState();
+  initTubeiumMediaKeys();
   initDownloadButton();
+  initTubeiumTouch();
   initTubeiumCardActions();
   initSpeedKeys();
   initPlayback();

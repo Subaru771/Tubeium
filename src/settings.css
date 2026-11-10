@@ -131,3 +131,23 @@ kbd{font-size:10px;border-radius:5px;color:var(--muted);padding:2px 5px;border:1
 @media(max-width:640px){.sidebar-resizer{display:none}}
 @media(max-width:600px){.sidebar{padding:14px 7px;width:var(--settings-sidebar-width)}.topbar{padding:0 10px;gap:6px}.top-button span{display:none}.content{padding:17px}.section-heading{align-items:start}.settings-footer{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+@media(any-pointer:coarse){
+ button,select,summary,.nav-item,.sidebar-action,.topic-button{min-height:44px;touch-action:manipulation}
+ .topbar{height:68px;flex-basis:68px}.top-button,.tools-menu>summary{height:44px;min-width:44px}
+ .tools-panel{top:51px}.tools-panel>button{min-height:44px}
+ .switch{min-height:44px;min-width:44px;justify-content:center;touch-action:manipulation}
+ .switch-track{width:44px;height:26px;flex-basis:44px}.switch-track::after{width:18px;height:18px}
+ .switch input:checked+.switch-track::after{transform:translateX(18px)}
+ .range-control input{min-height:44px}.text-control,.select-control{min-height:44px}
+}
+
+@media(max-width:640px){
+ .app-shell{flex-direction:column}.sidebar{flex:0 0 auto;width:100%!important;padding:8px}
+ .sidebar .brand,.sidebar-label,.sidebar-bottom,.nav-section-divider{display:none}
+ .sidebar nav{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:6px}
+ .nav-item{flex:0 0 auto;width:auto;min-height:44px}.main{flex:1 1 auto}
+ .topbar{height:auto;min-height:62px;flex-basis:auto;padding:8px 12px}
+ .global-search{height:44px}.content{padding:16px}
+}
+@media(any-pointer:coarse){.category-chip{min-height:44px;touch-action:manipulation}.color-control input{width:44px;height:44px}}
