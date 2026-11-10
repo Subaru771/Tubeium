@@ -36,10 +36,12 @@ for(const name of ['settings','downloads','library','offline-player','tab-strip'
 const preload=read('src/preload.js');
 assert.match(preload,/dock\.append\(box\)/,'Only Download goes below the YouTube video');
 assert.match(preload,/transport\.append\(previousButton,playButton,nextButton,laterButton,toolsButton\)/);
-assert.match(preload,/const fullHost=document\.fullscreenElement/);
-assert.match(preload,/dock\.hidden=!videoId\|\|state\.showDownloadButton===false/);
-assert.doesNotMatch(preload,/html\.uyp-fs #uyp-dl[^\n]*display:none!important/);
-assert.match(preload,/html\.uyp-fs #uyp-dl \.uyp-menu/,'Fullscreen menu must open downwards');
+assert.match(preload,/const fullscreen=!!document\.fullscreenElement/);
+assert.match(preload,/dock\.hidden=fullscreen\|\|!videoId\|\|state\.showDownloadButton===false/);
+assert.match(preload,/html\.uyp-fs #tubeium-right-actions/,'Fullscreen hides the Download row');
+assert.match(preload,/html\.uyp-fs #tubeium-player-transport/,'Fullscreen hides the custom player bar');
+assert.match(preload,/html\.uyp-fs #uyp-toolbox/,'Fullscreen hides Tubeium quick tools');
+assert.match(preload,/if\(document\.fullscreenElement\)\{/,'Fullscreen re-render never resurrects overlays');
 assert.match(preload,/\['watchLater','Save to local Watch Later','◷'\]/,'Desktop player hover tools keep Watch Later available');
 assert.match(preload,/getElementById\('tubeium-player-transport'\)\?\.remove\(\)/,'SPA navigation cannot duplicate player transport');
-console.log('PASS: tablet/touch detection, compact layout, isolated Download and fullscreen accessibility');
+console.log('PASS: tablet/touch detection, compact layout, isolated Download and native-only fullscreen');

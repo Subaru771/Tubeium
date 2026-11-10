@@ -329,9 +329,10 @@ html.uyp-theme-light,html.uyp-theme-light body,html.uyp-theme-light ytd-app {bac
 .tubeium-card-actions button:disabled{opacity:.65;cursor:wait}
 /* Desktop, keyboard and touch all receive the same always-visible actions. */
 @media(prefers-reduced-motion:reduce){.tubeium-card-actions{transition:none}}
-/* Do not hide Download in fullscreen or mini-player. */
-html.uyp-fs #tubeium-right-actions,html.uyp-mini #tubeium-right-actions{visibility:visible!important}
-html.uyp-fs #uyp-dl .uyp-menu,html.tubeium-touch #uyp-dl .uyp-menu{bottom:auto;top:calc(100% + 8px)}
+/* Fullscreen uses the original YouTube player controls; custom Tubeium
+   watch-page buttons return when fullscreen closes. Mini-player keeps them. */
+html.uyp-mini:not(.uyp-fs) #tubeium-right-actions{visibility:visible!important}
+html.tubeium-touch #uyp-dl .uyp-menu{bottom:auto;top:calc(100% + 8px)}
 #uyp-dl{display:none;position:relative;flex-direction:column;align-items:flex-end;
   font:600 12px "Segoe UI",Roboto,Arial,sans-serif}
 #tubeium-right-actions:not([hidden]) #uyp-dl:not([hidden]){display:flex}
@@ -565,6 +566,20 @@ html.tubeium-touch-compact #tubeium-player-play[data-playing="true"]::before{con
 html.tubeium-touch-compact #tubeium-player-watch-later::before{content:'◷';font-size:19px}
 html.tubeium-touch-compact #tubeium-player-tools::before{content:'⚙';font-size:19px}
 @media(max-width:640px){#uyp-dl .uyp-main{padding:9px 11px}#tubeium-player-transport{gap:4px;padding:5px}}
+/* No Tubeium-added buttons in YouTube fullscreen, even on touch devices.
+   This includes the separate Download, transport, Tools and quick-nav rows.
+   User-invoked menus such as transcript search remain available. */
+html.uyp-fs #tubeium-right-actions,
+html.uyp-fs #uyp-dl,
+html.uyp-fs #tubeium-player-transport,
+html.uyp-fs #uyp-toolbox,
+html.uyp-fs #uyp-shorts-seek,
+html.uyp-fs #uyp-quick-nav,
+html.uyp-fs #uyp-dislikes,
+html.uyp-fs #uyp-thumb-btn,
+html.uyp-fs .tubeium-card-actions{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
 
 
 `;
@@ -1029,12 +1044,24 @@ function positionDownloadDock() {
   if(!dock && document.body){initDownloadButton();return;}
   if(!dock || !document.body)return;
   const videoId=currentVideoId();
-  dock.hidden=!videoId||state.showDownloadButton===false;
+  const fullscreen=!!document.fullscreenElement;
+  dock.hidden=fullscreen||!videoId||state.showDownloadButton===false;
   const transport=document.getElementById('tubeium-player-transport');
-  const fullHost=document.fullscreenElement?.tagName!=='VIDEO'&&document.fullscreenElement||document.body;
+  // Never attach Tubeium controls inside the fullscreen player: YouTube's
+  // original buttons stay accessible and there is no overlay to intercept taps.
+  if(fullscreen){
+    if(transport){
+      transport.hidden=true;
+      if(transport.parentElement!==document.body)document.body.appendChild(transport);
+    }
+    dock.classList.remove('tubeium-dock-placed','tubeium-dock-fallback','tubeium-dock-active');
+    dock.querySelector('#uyp-dl')?.classList.remove('open');
+    if(dock.parentElement!==document.body)document.body.appendChild(dock);
+    return;
+  }
   if(transport){
     transport.hidden=!videoId;
-    if(transport.parentElement!==fullHost)fullHost.appendChild(transport);
+    if(transport.parentElement!==document.body)document.body.appendChild(transport);
   }
   const savedButton=document.getElementById('tubeium-player-watch-later');
   if(savedButton && savedButton.dataset.videoId!==(videoId||'')){
@@ -1394,6 +1421,19 @@ function refreshTubeiumPlayerOverlays() {
   const dock=document.getElementById('tubeium-right-actions');
   const transport=document.getElementById('tubeium-player-transport');
   const visible=player&&currentVideoId();
+  // Fullscreen is exclusively YouTube's own player UI. Every timer, touch
+  // refresh and player-resize update must honor this, not resurrect controls.
+  if(document.fullscreenElement){
+    if(transport)transport.hidden=true;
+    if(dock){dock.hidden=true;dock.classList.remove('tubeium-dock-active');}
+    if(toolbar){
+      toolbar.hidden=true;
+      toolbar.classList.remove('tubeium-tools-visible');
+      if(toolbar.parentElement!==document.body)document.body.appendChild(toolbar);
+    }
+    return;
+  }
+  if(toolbar)toolbar.hidden=false;
   if(!visible){
     if(transport)transport.hidden=true;
     toolbar?.classList.remove('tubeium-tools-visible');
@@ -1410,7 +1450,7 @@ function refreshTubeiumPlayerOverlays() {
   const hovering=tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
     &&tubeiumPointerY>=rect.top&&tubeiumPointerY<=rect.bottom;
   const fullscreen=!!document.fullscreenElement;
-  const transportVisible=tubeiumTouchMode||!!state.mini||fullscreen;
+  const transportVisible=!fullscreen&&(tubeiumTouchMode||!!state.mini);
   if(transport){
     transport.hidden=!transportVisible;
     if(transportVisible){
@@ -1424,8 +1464,9 @@ function refreshTubeiumPlayerOverlays() {
     }
   }
   if(toolbar){
-    const host=document.fullscreenElement?.tagName!=='VIDEO'&&document.fullscreenElement||document.body;
-    if(toolbar.parentElement!==host)host.appendChild(toolbar);
+    // Keep this toolbar outside the fullscreen subtree; it never belongs
+    // on top of the fullscreen player.
+    if(toolbar.parentElement!==document.body)document.body.appendChild(toolbar);
     const width=Math.min(rect.width-20,window.innerWidth-20);
     toolbar.style.maxWidth=Math.max(190,Math.round(width))+'px';
     const toolbarWidth=Math.min(toolbar.getBoundingClientRect().width||390,width);
@@ -1434,7 +1475,7 @@ function refreshTubeiumPlayerOverlays() {
     const top=Math.max(8,Math.min(transportVisible?rect.top+68:rect.top+10,viewportHeight-panelHeight-8));
     toolbar.style.left=Math.round(left)+'px';
     toolbar.style.top=Math.round(top)+'px';
-    toolbar.classList.toggle('tubeium-tools-visible',((tubeiumTouchMode||state.mini||document.fullscreenElement)?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
+    toolbar.classList.toggle('tubeium-tools-visible',((tubeiumTouchMode||state.mini)?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
     const toolsButton=document.getElementById('tubeium-player-tools');
     if(toolsButton){
       toolsButton.hidden=!state.showOverlayToolbar;
