@@ -3,3 +3,10 @@
 .playlist-actions{display:flex;gap:14px;align-items:center;margin:12px 0 15px}.playlist-actions[hidden]{display:none}.playlist-actions span{color:#aaa6bb;font-size:.82em}.playlist-card{background:#161525;border:1px solid #302b43;border-radius:14px;padding:14px}.playlist-card h2{margin:0 0 10px}.playlist-entries{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.playlist-entry{padding:5px 8px;border-radius:7px;background:#232238;font-size:.8em}
 
 #playlist-dialog{color:#f3f1ff;background:#161525;border:1px solid #514267;border-radius:14px;width:min(440px,calc(100vw - 32px));padding:24px}#playlist-dialog::backdrop{background:#0009}#playlist-dialog form{display:grid;gap:16px}#playlist-dialog h2{margin:0}#playlist-dialog input,#playlist-dialog select{min-width:0;width:100%}#playlist-dialog [hidden]{display:none}#playlist-dialog .actions{justify-content:flex-end}
+
+@media(any-pointer:coarse){
+ button,input,select{min-height:44px;min-width:44px;touch-action:manipulation}
+ .tabs,.actions,.header-actions{flex-wrap:wrap;gap:8px}
+ .video{grid-template-columns:120px minmax(0,1fr)}.thumb{width:120px}.video>.actions{grid-column:1/-1}
+ .playlist-entry{display:flex;align-items:center;gap:6px}
+}

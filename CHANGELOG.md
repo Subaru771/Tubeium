@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a visible **Next** video button and support headphone/OS next-track commands through Media Session. Normal videos use YouTube's Next control; Shorts use the next-Short control. Play/pause and previous-track behavior remain YouTube-owned.
+- Improve Windows touchscreen and pen use with 44px tap targets, tap-open player tools, tablet-width Settings/Downloads/Library windows, and a scrollable native launcher menu.
+- Physical Windows touch/headphone acceptance checks remain required; automated checks use simulated input.
+
 ## [1.0.9] — Unreleased (Tubeium 1.09 source)
 
 - **Home and player quick actions:** one-click Download and **◷ Watch Later** directly on supported video thumbnails (Home, search and recommendations) and in the video action area. Thumbnail actions are hover/focus accessible and do not navigate the page. Duplicate quick downloads are suppressed per card.

@@ -101,3 +101,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 }
 @media(max-width:520px){.options-note{width:100%;text-align:left}.job-title{white-space:normal}.quiet-action{padding:8px}.quiet-action span{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+
+@media(any-pointer:coarse){
+ button,select,input,summary{min-height:44px;min-width:44px;touch-action:manipulation}
+ .job-actions{gap:8px}.more-actions>summary{display:grid;place-items:center}
+ .more-menu button{min-height:44px}.tabs{flex-wrap:wrap}
+}
