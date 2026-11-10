@@ -8,3 +8,17 @@
 - The other player controls stay available through YouTube's native controls and physical media keys. Tubeium does not replace YouTube's playback engine or emulate mobile.google.com/mobile.youtube.com.
 - Touch controls don't intercept YouTube's own native tap, seek, scrolling, or gesture handlers.
 - Real Windows tablet/touchscreen, full-screen player, live YouTube navigation and wired/Bluetooth hardware buttons still require on-device testing. Automated source checks do not establish universal device compatibility.
+
+## Phone gestures
+- **Double-tap** left/right side of a video: seek back/forward 10 seconds (unless *Disable YouTube double-tap seek* is selected).
+- **Horizontal swipe** across a normal video: left = Next, right = Previous, via existing guarded navigation.
+- **Vertical swipe** on Shorts: up = Next, down = Previous, using YouTube's available Shorts controls.
+- **Pinch with two fingers**: zoom just the video from 1× to 3×; pinch inward to reset. Reset on video navigation.
+- **Rotate your Windows tablet**: Tubeium reflows its controls when Windows changes orientation. The OS owns hardware rotation and rotation lock.
+Gestures do not intercept YouTube player buttons, timeline, menu controls, mouse drags or keyboard. Device/website acceptance testing is required.
+
+## Memory changes
+- Allow Chromium to throttle hidden/minimized YouTube renderers while keeping audio playback and native download jobs independent of the UI timer rate.
+- Reclaim the Sign-in Help WebContentsView on returning to YouTube; keep the browser pairing service alive until its own completion.
+- Skip repeated video-card DOM scans, profile checks and UI restoration while hidden, restoring when the window becomes visible.
+- Check **Tools > System Diagnostics** for Electron process count and memory working-set size. No measured RAM reduction is claimed before comparable Windows testing.
