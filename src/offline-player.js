@@ -3,12 +3,21 @@
  const api=window.tubeiumOffline,$=id=>document.getElementById(id);
  let media=null,item=null,busy=false,lastCommand=-Infinity;
  const status=text=>{$('status').textContent=text;};
+ function positionState(){
+  if(!navigator.mediaSession?.setPositionState)return;
+  try{
+   if(media&&Number.isFinite(media.duration)&&media.duration>0){
+    navigator.mediaSession.setPositionState({duration:media.duration,playbackRate:media.playbackRate||1,position:Math.max(0,Math.min(media.duration,media.currentTime||0))});
+   }else navigator.mediaSession.setPositionState();
+  }catch{}
+ }
  function sync(){
   $('play').textContent=media?.paused?'▶ Play':'Ⅱ Pause';
   $('play').setAttribute('aria-label',media?.paused?'Play':'Pause');
   $('previous').disabled=busy||!item?.canPrevious;$('next').disabled=busy||!item?.canNext;
   $('queue-position').textContent=item?`${item.position} / ${item.count}`:'';
   if(navigator.mediaSession)navigator.mediaSession.playbackState=!media||media.paused?'paused':'playing';
+  positionState();
  }
  async function play(){try{await media?.play();}catch{status('Tap Play to start playback.');}sync();}
  function pause(){media?.pause();sync();}
@@ -42,6 +51,7 @@
  };
  for(const element of [$('video'),$('audio')]){
   element.addEventListener('play',sync);element.addEventListener('pause',sync);
+  for(const type of ['timeupdate','loadedmetadata','durationchange','ratechange','seeked'])element.addEventListener(type,positionState);
   element.addEventListener('ended',()=>{sync();if($('auto-next').checked&&item?.canNext)void step(1,true);else status('Playback finished.');});
   element.addEventListener('error',()=>{$('error').hidden=false;status('File missing or unsupported. Choose another file or open it externally.');});
  }
