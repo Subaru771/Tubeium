@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.13] — 2026-11-10 (Tubeium 1.13)
+
+- Add touch-only double-tap left/right video seek (10 seconds), swipe left/right for Next/Previous normal videos, swipe up/down for Shorts, and 1–3× two-finger video-only pinch zoom.
+- Reflow the on-player controls when Windows changes display orientation; do not override Windows rotation lock or interfere with mouse/keyboard/pen input.
+- Re-enable Chromium background throttling, reclaim the unused Sign-in Help renderer without terminating browser pairing, and avoid repetitive DOM/profile polling while hidden.
+- Preserve the Tubeium video actions, download manager, offline queue, security protections and all 201 existing preferences.
+- Add simulated gesture regressions. Source tests pass; no measured physical-Windows RAM savings or gesture acceptance results are claimed.
+
 ## [1.0.12] — 2026-11-10 (Tubeium 1.12)
 
 - Automatically detect touchscreen/pen hardware and switch Tubeium's local windows to larger, responsive controls; hybrid PCs retain touch mode when using a mouse.
