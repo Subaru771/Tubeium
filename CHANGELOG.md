@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.12] — 2026-11-10 (Tubeium 1.12)
+
+- Automatically detect touchscreen/pen hardware and switch Tubeium's local windows to larger, responsive controls; hybrid PCs retain touch mode when using a mouse.
+- Keep only Download in YouTube's watch action row, while placing Previous/Play/Next, Watch Later and Tools inside the player for touch, fullscreen and mini-player. Watch Later remains in the desktop hover toolbox and on video cards.
+- Fix fullscreen Download disappearing, attach it to the fullscreen player and position its format menu below the button.
+- Prevent stale/duplicated in-player transport after YouTube SPA action-row replacement.
+- Add touch-aware scrollable navigation in Settings, Downloads, Library, offline playback, Sign-in Help and native launcher.
+- Add automated regression tests for adaptive detection, tablet layouts, fullscreen fallback and the Download-only metadata action row. Physical Windows touch and live YouTube behavior require acceptance testing.
+
 ## [1.0.11] — 2026-11-10 (Tubeium 1.11)
 
 - Add Previous and Play/Pause alongside Next, headphone previous-track handling, disabled-boundary feedback, and bounded app-memory video history that survives page reloads without persisting visits.
