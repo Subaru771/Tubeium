@@ -51,9 +51,15 @@ function createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMoni
   if(sleepHandle)clearTimeout(sleepHandle);
   sleepHandle=null;sleep=null;
  }
- function expireSleep(){
+ function expireSleep(endedVideoId=null){
   if(!sleep)return;
-  cancelSleep();pausePlayback();notify('Sleep timer finished · Playback paused');
+  const ended=sleep.mode==='end';
+  cancelSleep();pausePlayback();
+  const win=getWindow();
+  if(ended&&win&&!win.isDestroyed()&&/^[\\w-]{11}$/.test(String(endedVideoId||''))){
+    win.webContents.send('tubeium-sleep-stop-next',endedVideoId);
+  }
+  notify('Sleep timer finished · Playback paused');
  }
  function setSleep(mode){
   cancelSleep();
@@ -111,8 +117,8 @@ function createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMoni
   ipcMain.handle('tubeium-gesture-sensitivity-get',event=>{
    if(!ytOnly(event))throw Error('YouTube-only input preference');return gesture;
   });
-  ipcMain.on('tubeium-sleep-video-ended',event=>{
-   if(ytOnly(event)&&sleep?.mode==='end')expireSleep();
+  ipcMain.on('tubeium-sleep-video-ended',(event,videoId)=>{
+   if(ytOnly(event)&&sleep?.mode==='end')expireSleep(videoId);
   });
   if(powerMonitor)powerMonitor.on('resume',()=>{if(sleep?.mode==='time'&&Date.now()>=sleep.deadline)expireSleep();});
  }

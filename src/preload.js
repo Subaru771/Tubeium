@@ -2183,7 +2183,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTubeiumPhoneGestures();
   document.addEventListener('ended',event=>{
     if(event.target?.matches?.('video.html5-main-video')&&currentVideoId()&&!adShowing()){
-      ipcRenderer.send('tubeium-sleep-video-ended');
+      ipcRenderer.send('tubeium-sleep-video-ended',currentVideoId());
     }
   },true);
   initCastConfirmation();
@@ -2194,6 +2194,22 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTubeiumGamepad();
   initTubeiumAudioEQ();
   initTubeiumMediaNavigator();
+  // If YouTube starts an automatic next video immediately after an end-of-video
+  // sleep timer, pause that NEW video once. Do not interrupt a manual replay.
+  ipcRenderer.on('tubeium-sleep-stop-next',(_event,endedId)=>{
+    const endAt=Date.now()+10000;
+    let timer=null;
+    function cleanup(){document.removeEventListener('play',onPlay,true);if(timer)clearTimeout(timer);}
+    function onPlay(event){
+      if(Date.now()>endAt){cleanup();return;}
+      const videoId=currentVideoId();
+      if(videoId&&videoId!==endedId&&event.target?.matches?.('video.html5-main-video')){
+        event.target.pause();cleanup();
+      }
+    }
+    document.addEventListener('play',onPlay,true);
+    timer=setTimeout(cleanup,10000);
+  });
   initTubeiumCommandPalette();
   setInterval(()=>{if(document.visibilityState!=='hidden')refreshSmartProfile();},1500);
   refreshSmartProfile();

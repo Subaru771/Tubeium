@@ -36,6 +36,7 @@ for(const hook of ['desktopFeatures.menuItems()','desktopFeatures.downloadVerifi
 assert.match(preload,/\['Transcript Search','transcript'\]/);
 assert.match(preload,/\['Video Chapters','chapters'\]/);
 assert.match(main,/second-instance/);
+assert.match(preload,/tubeium-sleep-stop-next/,'Sleep timer guards against automatic next-video playback');
 assert.match(fs.readFileSync(path.join(root,'src/desktop-features.js'),'utf8'),/tubeium-gesture-sensitivity/);
 const pkg=require('../package.json');
 for(const name of ['src/desktop-features.js','src/feature-helpers.js','src/verified-update.js','src/open-in-tubeium-extension/**']){
