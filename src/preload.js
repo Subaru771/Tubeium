@@ -1206,6 +1206,9 @@ function initDownloadButton() {
   // Retire any legacy left-side download widget from older app versions.
   document.getElementById('uyp-dl-left')?.remove();
   if(document.getElementById('tubeium-right-actions'))return;
+  // YouTube may replace the watch action row without removing our separately
+  // hosted transport. Retire any stale controls before recreating the dock.
+  document.getElementById('tubeium-player-transport')?.remove();
   const dock=document.createElement('div');dock.id='tubeium-right-actions';
   const box = document.createElement('div');
   box.id = 'uyp-dl';
@@ -1469,7 +1472,7 @@ let toolbar;
 function updateTools() {
   if (!toolbar) return;
   toolbar.hidden = !state.showOverlayToolbar || !currentVideoId();
-  for (const [id,key] of [['mute','toolMute'],['speed','toolSpeed'],['pip','toolPiP'],['link','toolCopyLink'],['title','toolCopyTitle'],['full','toolFullscreen'],['theater','toolTheater'],['quality','toolQuality'],['bookmark','showBookmarkButton'],['library','localLibraryEnabled'],['screenshot','showScreenshotButton'],['seekBack','toolSeekButtons'],['seekForward','toolSeekButtons']]) {
+  for (const [id,key] of [['mute','toolMute'],['speed','toolSpeed'],['pip','toolPiP'],['link','toolCopyLink'],['title','toolCopyTitle'],['full','toolFullscreen'],['theater','toolTheater'],['quality','toolQuality'],['bookmark','showBookmarkButton'],['watchLater','localLibraryEnabled'],['library','localLibraryEnabled'],['screenshot','showScreenshotButton'],['seekBack','toolSeekButtons'],['seekForward','toolSeekButtons']]) {
     const button = toolbar.querySelector(`[data-tool="${id}"]`);
     if (button) button.hidden = !state[key] || (id==='bookmark'&&!state.localLibraryEnabled);
   }
@@ -1619,7 +1622,7 @@ function openNativeQualityMenu(){
 }
 function initToolbar() {
   toolbar = document.createElement('div');toolbar.id='uyp-toolbox';
-  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['diagnostics','Show playback diagnostics','Stats'],['bookmark','Bookmark or unbookmark video','★'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
+  const entries=[['mute','Mute / unmute','♪'],['speed','Change speed','1×'],['pip','Picture in Picture','▣'],['link','Copy video link','↗'],['title','Copy title','T'],['full','Fullscreen','⛶'],['theater','Theater mode','◫'],['quality','Open YouTube quality selector','HD'],['diagnostics','Show playback diagnostics','Stats'],['bookmark','Bookmark or unbookmark video','★'],['watchLater','Save to local Watch Later','◷'],['library','Open local video library','▣'],['screenshot','Save screenshot','▤'],['seekBack','Seek backward','−10'],['seekForward','Seek forward','+10']];
   for (const [id,label,symbol] of entries){
     const b=document.createElement('button');b.type='button';b.dataset.tool=id;b.textContent=symbol;b.title=label;b.setAttribute('aria-label',label);
     b.addEventListener('click',async()=>{
@@ -1635,6 +1638,7 @@ function initToolbar() {
         else if(id==='diagnostics') togglePlaybackDiagnostics();
         else if(id==='library') ipcRenderer.send('open-local-library');
         else if(id==='bookmark'){const result=await ipcRenderer.invoke('library-bookmark',makeVideoRecord());toast(result?(result.bookmarked?'Video bookmarked':'Bookmark removed'):'Local library disabled');}
+        else if(id==='watchLater'){document.getElementById('tubeium-player-watch-later')?.click();}
         else if(id==='screenshot'){const done=await ipcRenderer.invoke('player-screenshot');toast(done?'Screenshot saved':'Screenshot canceled');}
         else if(id==='seekBack'||id==='seekForward'){const delta=(id==='seekBack'?-1:1)*Number(state.seekSeconds||10);v.currentTime=Math.max(0,Math.min(Number.isFinite(v.duration)?v.duration:Infinity,v.currentTime+delta));toast((delta>0?'+':'')+delta+' seconds');}
       }catch(e){toast('Not available: '+String(e.message||e).slice(0,90));}

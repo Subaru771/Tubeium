@@ -40,4 +40,6 @@ assert.match(preload,/const fullHost=document\.fullscreenElement/);
 assert.match(preload,/dock\.hidden=!videoId\|\|state\.showDownloadButton===false/);
 assert.doesNotMatch(preload,/html\.uyp-fs #uyp-dl[^\n]*display:none!important/);
 assert.match(preload,/html\.uyp-fs #uyp-dl \.uyp-menu/,'Fullscreen menu must open downwards');
+assert.match(preload,/\['watchLater','Save to local Watch Later','◷'\]/,'Desktop player hover tools keep Watch Later available');
+assert.match(preload,/getElementById\('tubeium-player-transport'\)\?\.remove\(\)/,'SPA navigation cannot duplicate player transport');
 console.log('PASS: tablet/touch detection, compact layout, isolated Download and fullscreen accessibility');
