@@ -1666,12 +1666,34 @@ function initCastConfirmation(){
 }
 // Bounded phone gestures for the YouTube video surface; never use mouse drags.
 const TUBEIUM_GESTURE_CONTROLS='button,a,input,textarea,select,[role="button"],[role="slider"],[contenteditable],.ytp-chrome-bottom,.ytp-popup,.ytp-settings-menu,.ytp-progress-bar,#uyp-toolbox,#tubeium-right-actions,#tubeium-player-transport';
+let tubeiumGestureSensitivity='normal';
 function tubeiumGestureDirection(dx,dy,shorts,width){
-  if(shorts)return Math.abs(dy)>=90&&Math.abs(dy)>=Math.abs(dx)*1.6?(dy<0?1:-1):0;
-  return Math.abs(dx)>=Math.max(90,width*.17)&&Math.abs(dx)>=Math.abs(dy)*1.6?(dx<0?1:-1):0;
+  const factor=tubeiumGestureSensitivity==='low'?1.35:tubeiumGestureSensitivity==='high'?0.7:1;
+  if(shorts)return Math.abs(dy)>=90*factor&&Math.abs(dy)>=Math.abs(dx)*1.6?(dy<0?1:-1):0;
+  return Math.abs(dx)>=Math.max(90,width*.17)*factor&&Math.abs(dx)>=Math.abs(dy)*1.6?(dx<0?1:-1):0;
 }
 function initTubeiumPhoneGestures(){
   let active=null,lastTap=null,zoomVideo=null,baseTransform='',baseOrigin='',zoom=1;
+  let gestureHint=null,hintTimeout=null;
+  function feedback(text,x,y){
+    if(typeof document.createElement!=='function'||!document.body)return;
+    if(!gestureHint){
+      gestureHint=document.createElement('div');gestureHint.id='tubeium-gesture-hint';
+      gestureHint.setAttribute('aria-hidden','true');
+      Object.assign(gestureHint.style,{position:'fixed',zIndex:'2147483646',pointerEvents:'none',
+        background:'#201b30e8',border:'1px solid #b891f4',color:'#fff',borderRadius:'32px',
+        padding:'12px 17px',font:'700 16px Segoe UI,sans-serif',boxShadow:'0 10px 32px #0009',
+        textAlign:'center',transform:'translate(-50%,-50%)',minWidth:'72px',transition:'opacity .15s'});
+    }
+    const host=document.fullscreenElement?.tagName!=='VIDEO'&&document.fullscreenElement||document.body;
+    if(gestureHint.parentElement!==host)host.appendChild(gestureHint);
+    gestureHint.textContent=text;
+    gestureHint.style.left=Math.round(Math.max(50,Math.min(window.innerWidth-50,x||window.innerWidth/2)))+'px';
+    gestureHint.style.top=Math.round(Math.max(72,Math.min(window.innerHeight-48,y||window.innerHeight/2)))+'px';
+    gestureHint.style.opacity='1';
+    if(hintTimeout&&typeof clearTimeout==='function')clearTimeout(hintTimeout);
+    if(typeof setTimeout==='function')hintTimeout=setTimeout(()=>{if(gestureHint)gestureHint.style.opacity='0';},650);
+  }
   const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
   const resetZoom=()=>{
     if(zoomVideo){zoomVideo.style.transform=baseTransform;zoomVideo.style.transformOrigin=baseOrigin;}
@@ -1715,12 +1737,15 @@ function initTubeiumPhoneGestures(){
   },{capture:true,passive:false});
   document.addEventListener('touchend',e=>{
     if(!active||active.id!==currentVideoId()){active=null;lastTap=null;return;}
-    if(active.pinch){if(e.touches.length===0){if(zoom>1.01)toast('Zoom '+Math.round(zoom*100)+'%');active=null;}return;}
+    if(active.pinch){if(e.touches.length===0){if(zoom>1.01){toast('Zoom '+Math.round(zoom*100)+'%');feedback('Zoom '+Math.round(zoom*100)+'%',active.x,active.y);}active=null;}return;}
     if(e.touches.length||!e.changedTouches?.length)return;
     const finger=e.changedTouches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y,elapsed=Date.now()-active.at;
     if(active.moved&&elapsed<950){
       const direction=tubeiumGestureDirection(dx,dy,location.pathname.startsWith('/shorts/'),active.rect.width);
-      if(direction){e.preventDefault();e.stopImmediatePropagation();lastTap=null;navigateTubeiumVideo(direction);}
+      if(direction){e.preventDefault();e.stopImmediatePropagation();lastTap=null;
+        navigateTubeiumVideo(direction);
+        feedback(location.pathname.startsWith('/shorts/')?(direction>0?'↑ Next Short':'↓ Previous Short'):(direction>0?'← Next':'→ Previous'),finger.clientX,finger.clientY);
+      }
     }else if(!active.moved&&elapsed<350&&!state.disableDoubleTapSkip){
       const side=finger.clientX<active.rect.left+active.rect.width*.42?-1:finger.clientX>active.rect.left+active.rect.width*.58?1:0;
       const now=Date.now();
@@ -1729,6 +1754,7 @@ function initTubeiumPhoneGestures(){
         if(Number.isFinite(v.duration)&&v.duration>0&&Number.isFinite(v.currentTime)){
           v.currentTime=Math.max(0,Math.min(v.duration,v.currentTime+delta));
           e.preventDefault();e.stopImmediatePropagation();toast((delta>0?'+':'')+delta+' seconds');
+          feedback((delta>0?'↪ +':'↩ ')+delta+'s',finger.clientX,finger.clientY);
         }
         lastTap=null;
       }else lastTap={side,time:now,clientX:finger.clientX,clientY:finger.clientY};
@@ -1738,6 +1764,12 @@ function initTubeiumPhoneGestures(){
   document.addEventListener('touchcancel',()=>{active=null;},{capture:true,passive:true});
   const reset=()=>{active=null;lastTap=null;resetZoom();};
   document.addEventListener('yt-navigate-finish',reset);window.addEventListener('popstate',reset);
+  ipcRenderer.invoke('tubeium-gesture-sensitivity-get').then(value=>{
+    if(['low','normal','high'].includes(value))tubeiumGestureSensitivity=value;
+  }).catch(()=>{});
+  ipcRenderer.on('tubeium-gesture-sensitivity',(_event,value)=>{
+    if(['low','normal','high'].includes(value))tubeiumGestureSensitivity=value;
+  });
   window.addEventListener('orientationchange',()=>{positionDownloadDock();refreshTubeiumPlayerOverlays();});
 }
 
@@ -2014,6 +2046,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   initShortsSeek();
   initGestures();
   initTubeiumPhoneGestures();
+  document.addEventListener('ended',event=>{
+    if(event.target?.matches?.('video.html5-main-video')&&currentVideoId()&&!adShowing()){
+      ipcRenderer.send('tubeium-sleep-video-ended');
+    }
+  },true);
   initCastConfirmation();
   initDislikeIndicator();
   initHoverPreviewControl();
