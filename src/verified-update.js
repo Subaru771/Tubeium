@@ -26,8 +26,9 @@ async function fetchVerifiedInstaller(fetcher,tag,outputDir,onProgress=()=>{}){
   const target=path.join(outputDir,filename);
   await fs.promises.mkdir(outputDir,{recursive:true});
   try {
-   const existing=await fs.promises.readFile(target);
-   const hash=crypto.createHash('sha256').update(existing).digest('hex');
+   const hashStream=crypto.createHash('sha256');
+   for await (const chunk of fs.createReadStream(target))hashStream.update(chunk);
+   const hash=hashStream.digest('hex');
    if(hash===expected)return {file:target,sha256:hash,fromCache:true};
    throw Error('An existing installer has a different checksum. Move it away before downloading again.');
   }catch(e){if(e.code!=='ENOENT')throw e;}
