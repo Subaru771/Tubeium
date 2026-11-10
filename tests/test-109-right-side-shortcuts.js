@@ -20,7 +20,7 @@ assert.match(preload,/function positionDownloadDock\(\)/);
 assert.match(preload,/ytd-watch-metadata #actions/);
 assert.match(preload,/dock\.classList\.add\('tubeium-dock-fallback','tubeium-dock-active'\)/);
 assert.match(preload,/setInterval\(updateDock,750\)/);
-assert.match(preload,/dock\.append\(nextButton,box,laterButton,toolsButton\);document\.body\.appendChild\(dock\)/);
+assert.match(preload,/dock\.append\(previousButton,playButton,nextButton,box,laterButton,toolsButton\);document\.body\.appendChild\(dock\)/);
 assert.match(preload,/laterButton\.id='tubeium-player-watch-later'/);
 assert.match(preload,/if\(btn\)btn\.hidden=state\.showDownloadButton===false/);
 assert.match(preload,/rightActions\.hidden=!currentVideoId\(\)/,'Watch Later stays available if Download is hidden');
