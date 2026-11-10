@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.14] — 2026-11-10 (Tubeium 1.14)
+
+- Add animated gesture confirmation and persistent Low/Normal/High swipe sensitivity for touchscreens, while respecting existing mouse, pen and keyboard behavior.
+- Add an on-demand memory baseline/compare/export tool using Electron process working-set snapshots; no unmeasured RAM reduction is claimed.
+- Add a restricted Tubeium protocol handler, safe YouTube clipboard opening and a minimal Chrome/Edge/Brave context-menu extension (manual browser installation and explicit Windows registration).
+- Add main-process 15/30/60-minute sleep timers or stop after current video, with a short-lived guard against immediate YouTube autoplay.
+- Add a compact transcript search and chapter navigator using only YouTube-rendered page information, with click-to-seek and limited fallback when transcripts or chapters are unavailable.
+- Add explicit official GitHub installer downloads verified against the release's SHA-256 checksum file; never automatically run unsigned binaries.
+- Retain the existing certificate/approval-gated signed release workflow. No signatures can be issued without signing credentials.
+- Source test suite extended; physical Windows touch, live YouTube, link-extension and memory acceptance tests remain outstanding.
+
 ## [1.0.13] — 2026-11-10 (Tubeium 1.13)
 
 - Add touch-only double-tap left/right video seek (10 seconds), swipe left/right for Next/Previous normal videos, swipe up/down for Shorts, and 1–3× two-finger video-only pinch zoom.

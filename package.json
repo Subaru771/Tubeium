@@ -1,7 +1,7 @@
 {
   "name": "tubeium",
   "productName": "Tubeium",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Windows YouTube client with downloads, local Watch Later, playlists, audio controls, and privacy tools.",
   "homepage": "https://github.com/Subaru771/Tubeium",
   "main": "src/main.js",

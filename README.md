@@ -30,7 +30,7 @@ Your video experience should fit **you**, not the other way around. Tubeium comb
 > [!NOTE]
 > Tubeium is an independent, **unofficial** YouTube client. It is not affiliated with, endorsed by, or sponsored by YouTube or Google. Features that rely on third-party services or YouTube's website may stop working when those services change.
 
-**Current release:** Tubeium 1.0.13 adds phone-style gestures on Windows touchscreens (double-tap to seek, horizontal/Shorts swipes and 1–3× video pinch zoom), with responsive layout reflow when Windows rotates. It also reduces hidden-window overhead by enabling Chromium background throttling, releasing the unused Sign-in Help renderer and skipping hidden-page UI scans. All 59 source test files pass; RAM savings and physical Windows behavior still need real-device measurements. [See what's new](docs/releases/v1.0.13.md).
+**Current release:** Tubeium 1.0.14 adds polished touch-gesture feedback with three sensitivity levels, a memory baseline/comparison tool, browser-to-Tubeium links via an opt-in protocol and context-menu extension, a sleep timer, locally searchable transcripts and chapters, and verified downloads of official GitHub installers. The signed release workflow remains certificate-gated; current Windows builds are unsigned. Source checks passed, but live YouTube and real Windows device acceptance remain outstanding. [See what's new](docs/releases/v1.0.14.md).
 
 ## Screenshots
 
@@ -50,18 +50,18 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 
 ## Download Tubeium
 
-**Tubeium 1.13 · v1.0.13 · Windows x64 · Free**
+**Tubeium 1.14 · v1.0.14 · Windows x64 · Free**
 
 | Edition | Download | Recommended for |
 | :-- | :-- | :-- |
-| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.13/Tubeium-1.0.13-Setup-x64.exe)** | Most users; standard installation and shortcuts |
-| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.13/Tubeium-1.0.13-Portable-x64.exe)** | Running without an installer |
-| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.13/SHA256SUMS.txt) | Checking file integrity |
+| **Windows installer** | **[Download Setup EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.14/Tubeium-1.0.14-Setup-x64.exe)** | Most users; standard installation and shortcuts |
+| **Portable edition** | **[Download Portable EXE](https://github.com/Subaru771/Tubeium/releases/download/v1.0.14/Tubeium-1.0.14-Portable-x64.exe)** | Running without an installer |
+| **SHA-256 checksums** | [Verify downloads](https://github.com/Subaru771/Tubeium/releases/download/v1.0.14/SHA256SUMS.txt) | Checking file integrity |
 
-[What's new in 1.13](docs/releases/v1.0.13.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.13) · [All releases](https://github.com/Subaru771/Tubeium/releases)
+[What's new in 1.14](docs/releases/v1.0.14.md) · [View the official release](https://github.com/Subaru771/Tubeium/releases/tag/v1.0.14) · [All releases](https://github.com/Subaru771/Tubeium/releases)
 
 > [!WARNING]
-> **Unsigned Windows executables:** Tubeium v1.0.13 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
+> **Unsigned Windows executables:** Tubeium v1.0.14 is not code-signed, so SmartScreen may display an unfamiliar-publisher warning. Only download from this repository's official Releases page. You can verify the SHA-256 checksum; do **not** turn off your security software globally.
 
 ## Features
 
@@ -80,6 +80,7 @@ The screenshots below show **Tubeium's actual bundled interface pages**, capture
 - Preferred playback quality, default speed, speed memory, and configurable speed increments.
 - **Playback Diagnostics:** open **Stats** from the floating toolbar or Player menu to see decoded resolution, estimated frames per second, dropped frames, buffering, and a local copyable report.
 - **Quick actions on videos:** Download and **◷ Watch Later** work in one click from the player and Home thumbnails (also on supported search/recommendation cards). Watch Later saves to Tubeium's local Library, independently of Google. The adjacent Download chevron still opens audio, thumbnail and playlist formats.
+- **Smart conveniences (v1.0.14):** sleep timer, local caption search and chapters, in-app memory comparisons, browser link integration and checksum-verified update downloads.
 - **Phone gestures on touchscreen PCs:** double-tap to seek, swipe between videos and Shorts, pinch-to-zoom the video, with portrait/landscape reflow controlled by Windows.
 - **Lower hidden-window overhead:** background throttling, freeing unused Sign-in Help renderers, and pausing hidden UI scans. RAM savings depend on the active YouTube page and video quality.
 - **Automatic tablet/touch mode:** Windows touchscreen and pen devices use larger tap targets and adaptive Settings, Downloads, Library and offline-player layouts. Player transport moves onto the video instead of cluttering the action row. Download remains available in fullscreen and mini-player. Desktop mouse behavior is preserved.
