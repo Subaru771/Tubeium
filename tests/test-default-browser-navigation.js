@@ -21,7 +21,7 @@ assert.match(source,/win\.contentView\.removeChildView\(old\)/);
 assert.match(preload,/navigate:target=>ipcRenderer\.invoke\('welcome-navigate',target\)/);
 assert.match(renderer,/await window\.tubeiumWelcome\.navigate\(action\)/);
 assert.match(html,/data-action="open-browser"/);
-assert.match(source,/if \(welcomeView\) welcomeView\.setVisible\(false\)/);
+assert.match(source,/if\(welcomeView\)\{[\s\S]*?old\.setVisible\(false\)/,'Unused Help view is detached and closed');
 assert.match(source,/function openTubeiumTabBar\(\)/);
 assert.match(source,/ipcMain\.on\('tubeium-tab-switch'/);
 assert.match(fs.readFileSync(path.join(root,'src/tab-strip.html'),'utf8'),/Sign-in Help/);

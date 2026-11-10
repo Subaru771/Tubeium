@@ -24,7 +24,8 @@ assert.equal(evaluate(null),null);
 assert.equal(evaluate({videoWidth:NaN,videoHeight:2160}),null);
 
 assert.match(preload,/const info=currentVideoId\(\)&&!adShowing\(\)\?streamQualityLabel\(getVideo\(\)\):null/,'Never mislabel adverts or video-free pages');
-assert.match(preload,/setInterval\(refreshStreamQualityButton,1500\)/,'Badge must refresh after adaptive quality changes');
+assert.match(preload,/setInterval\(\(\)=>\{if\(document\.visibilityState!=='hidden'\)refreshStreamQualityButton\(\);\},1500\)/,'Badge refreshes on visible pages and avoids hidden polling');
+assert.match(preload,/document\.addEventListener\('visibilitychange'/,'Badge refreshes when the window returns');
 assert.match(preload,/qualityButton\.setAttribute\('aria-label',title\)/,'Accessibility must describe actual resolution');
 assert.match(preload,/else if\(id==='quality'\) openNativeQualityMenu\(\)/,'Button must open native YouTube quality choices');
 assert.match(preload,/button\.tubeium-quality-4k/,'Show a distinct style only for verified 4K');

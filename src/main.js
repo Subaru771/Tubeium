@@ -299,7 +299,13 @@ function updateTubeiumTabBar() {
 function showYoutubeTab() {
   if(tabMenuOpen){tabMenuOpen=false;sizeWelcomeTab();}
   activeTubeiumTab = 'youtube';
-  if (welcomeView) welcomeView.setVisible(false); // keep it available, don't destroy it
+  if(welcomeView){
+    // Free hidden help renderer memory, without terminating the pairing bridge.
+    const old=welcomeView;welcomeView=null;
+    try{old.setVisible(false);}catch{}
+    try{if(win&&!win.isDestroyed())win.contentView.removeChildView(old);}catch{}
+    try{if(!old.webContents.isDestroyed())old.webContents.close();}catch{}
+  }
   updateTubeiumTabBar();
   if (win && !win.isDestroyed()) win.webContents.focus();
 }
@@ -347,6 +353,7 @@ function openWelcomeTab() {
   if (tabBarView) win.contentView.addChildView(tabBarView);
   updateTubeiumTabBar();
   view.webContents.loadFile(path.join(__dirname,'welcome.html')).catch(error=>{
+    if(welcomeView!==view||view.webContents.isDestroyed())return;
     console.error('Could not open Tubeium Welcome tab:',error.message);
     closeWelcomeTab();
   });
@@ -960,7 +967,7 @@ function createWindow() {
       sandbox: true,
       nodeIntegration: false,
       webSecurity: true,
-      backgroundThrottling: false, // keeps playback smooth when minimized/hidden
+      backgroundThrottling: true, // let hidden renderers throttle timers; audio and downloads stay native
     },
   });
   if (st.maximized) win.maximize();
