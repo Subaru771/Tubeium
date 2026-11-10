@@ -1992,11 +1992,146 @@ function initTubeiumAudioEQ(){
 
 
 // Fast action palette; never handles credentials, scripts, or arbitrary URLs.
+// Small local transcript and chapter navigator. It only reads the rendered
+// current YouTube page; no hidden network requests or account permissions.
+function tubeiumParseTimestamp(input){
+ if(typeof input!=='string')return null;
+ const match=/^(?:\d{1,3}:)?\d{1,2}:\d{2}$/.exec(input.trim());
+ if(!match)return null;
+ const parts=input.trim().split(':').map(Number);
+ if(parts.some(x=>!Number.isInteger(x)||x<0))return null;
+ const seconds=parts.reduce((acc,value)=>acc*60+value,0);
+ return seconds>=0&&seconds<=86400*7?seconds:null;
+}
+function tubeiumTranscriptRows(){
+ const rows=[],seen=new Set();
+ const selectors='ytd-transcript-segment-renderer,yt-transcript-segment-view-model,yt-formatted-string.segment-text,[data-segment-start-time-ms]';
+ for(const item of document.querySelectorAll(selectors)){
+  if(rows.length>=2500)break;
+  const root=item.matches?.('yt-formatted-string')?item.parentElement:item;
+  const timeNode=root?.querySelector?.('.segment-timestamp,#segment-timestamp,.timestamp,.timestamp-text,.segment-start');
+  const start=Number(root?.dataset?.segmentStartTimeMs);
+  const timeText=String(timeNode?.textContent||'').trim();
+  const time=Number.isFinite(start)&&root?.dataset?.segmentStartTimeMs!==undefined?start/1000:tubeiumParseTimestamp(timeText);
+  if(time===null||!Number.isFinite(time))continue;
+  const body=root?.querySelector?.('#segment-text,.segment-text,.segment-text-container,yt-formatted-string:not(.segment-timestamp)');
+  const text=String(body?.textContent||'').replace(/\s+/g,' ').trim().slice(0,700);
+  const key=Math.round(time*10)+'|'+text;
+  if(!text||seen.has(key))continue;
+  seen.add(key);rows.push({time,text,label:timeText||String(Math.floor(time))+'s'});
+ }
+ return rows.sort((a,b)=>a.time-b.time);
+}
+function tubeiumChapterRows(){
+ const rows=[],seen=new Set();
+ const add=(seconds,text)=>{
+  if(!Number.isFinite(seconds)||seconds<0||seconds>604800)return;
+  const name=String(text||'').replace(/\s+/g,' ').trim().slice(0,130);
+  const key=String(Math.round(seconds*100)/100);
+  if(!name||seen.has(key))return;
+  seen.add(key);rows.push({time:seconds,text:name,label:Math.floor(seconds/60)+':'+String(Math.floor(seconds)%60).padStart(2,'0')});
+ };
+ for(const item of document.querySelectorAll('ytd-macro-markers-list-item-renderer,yt-chapter-view-model,ytd-chapter-item-renderer')){
+  if(rows.length>=200)break;
+  const timeEl=item.querySelector?.('#time,.time,.timestamp,.chapter-time,ytd-thumbnail-overlay-time-status-renderer');
+  const heading=item.querySelector?.('#details h4,h4,#title,.chapter-title,yt-formatted-string');
+  const timestamp=tubeiumParseTimestamp(String(timeEl?.textContent||'').trim());
+  const fallback=String(item.textContent||'').match(/(?:\d{1,3}:)?\d{1,2}:\d{2}/)?.[0];
+  const time=timestamp??tubeiumParseTimestamp(fallback||'');
+  if(time!==null)add(time,heading?.textContent||String(item.textContent||'').replace(fallback||'','').trim());
+ }
+ // Description timecodes are a fallback for YouTube layouts without a chapters drawer.
+ if(rows.length===0){
+  for(const anchor of document.querySelectorAll('ytd-watch-metadata #description a[href],ytd-expandable-video-description-body-renderer a[href]')){
+   if(rows.length>=100)break;
+   const text=String(anchor.textContent||'').trim();
+   const start=tubeiumParseTimestamp(text);
+   if(start===null)continue;
+   const next=String(anchor.nextSibling?.textContent||anchor.parentElement?.textContent||'').trim().replace(text,'');
+   add(start,next);
+  }
+ }
+ return rows.sort((a,b)=>a.time-b.time);
+}
+function initTubeiumMediaNavigator(){
+ let panel=null,mode='transcript',filterText='';
+ const close=()=>{panel?.remove();panel=null;};
+ function render(){
+  if(!panel)return;
+  const list=panel.querySelector('[data-tubeium-rows]'),status=panel.querySelector('[data-tubeium-status]');
+  const rows=mode==='transcript'?tubeiumTranscriptRows():tubeiumChapterRows();
+  const query=filterText.trim().toLowerCase();
+  const matches=rows.filter(row=>!query||row.text.toLowerCase().includes(query)).slice(0,200);
+  list.replaceChildren();
+  status.textContent=rows.length
+   ?matches.length+' of '+rows.length+' '+(mode==='transcript'?'caption lines':'chapters')
+   :mode==='transcript'
+     ?'No rendered transcript found. Use Show transcript or open YouTube’s transcript panel.'
+     :'No chapters detected on this video.';
+  for(const row of matches){
+   const button=document.createElement('button');button.type='button';
+   button.style.cssText='display:flex;align-items:start;text-align:left;gap:12px;min-height:42px;width:100%;color:#f2ebff;background:transparent;border:0;border-radius:9px;padding:10px;cursor:pointer';
+   const time=document.createElement('span');time.textContent=row.label;
+   time.style.cssText='flex:0 0 66px;color:#bb9de6;font-weight:700';
+   const text=document.createElement('span');text.textContent=row.text;
+   button.append(time,text);
+   button.addEventListener('click',()=>{
+    const video=getVideo();if(!video||adShowing())return;
+    video.currentTime=Math.max(0,Math.min(Number.isFinite(video.duration)?video.duration:1e10,row.time));
+    close();
+   });
+   list.append(button);
+  }
+ }
+ function open(next){
+  if(!currentVideoId()){toast('Open a video first');return;}
+  if(panel){close();if(mode===next)return;}
+  mode=next==='chapters'?'chapters':'transcript';filterText='';
+  panel=document.createElement('section');panel.id='tubeium-media-navigator';
+  panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Tubeium '+mode);
+  panel.style.cssText='position:fixed;z-index:2147483647;left:50%;top:9vh;transform:translateX(-50%);width:min(560px,calc(100vw - 24px));max-height:85vh;display:flex;flex-direction:column;background:#181522;color:#f4eefb;border:1px solid #67537e;border-radius:16px;padding:15px;box-shadow:0 25px 80px #000c;font:14px Segoe UI,sans-serif';
+  const bar=document.createElement('div');bar.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:10px';
+  const title=document.createElement('strong');title.textContent='Video navigator';title.style.flex='1';
+  const makeButton=(label,fn)=>{
+   const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='min-height:40px;padding:8px 11px;background:#332b45;color:white;border:1px solid #655678;border-radius:9px;cursor:pointer';
+   b.addEventListener('click',fn);return b;
+  };
+  const exit=makeButton('×',close);exit.setAttribute('aria-label','Close navigator');bar.append(title,exit);
+  const tabs=document.createElement('div');tabs.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+  const switchMode=next=>{mode=next;filterText='';search.value='';search.placeholder=mode==='chapters'?'Filter chapters':'Search spoken words';render();};
+  tabs.append(makeButton('Transcript',()=>switchMode('transcript')),makeButton('Chapters',()=>switchMode('chapters')));
+  const search=document.createElement('input');search.type='search';search.placeholder=mode==='chapters'?'Filter chapters':'Search spoken words';
+  search.setAttribute('aria-label','Search transcript or chapters');
+  search.style.cssText='width:100%;background:#242033;color:white;border:1px solid #665078;border-radius:10px;min-height:46px;padding:12px;font:inherit';
+  search.addEventListener('input',()=>{filterText=search.value.slice(0,130);render();});
+  const status=document.createElement('p');status.dataset.tubeiumStatus='';status.style.cssText='font-size:12px;color:#b2a6c3;margin:8px 0';
+  const rows=document.createElement('div');rows.dataset.tubeiumRows='';rows.style.cssText='overflow-y:auto;min-height:70px;max-height:51vh;overscroll-behavior:contain';
+  const footer=document.createElement('div');footer.style.cssText='margin-top:9px;display:flex;gap:8px;flex-wrap:wrap';
+  const showNative=makeButton('Show transcript on YouTube',()=>{
+    const native=document.querySelector('ytd-video-description-transcript-section-renderer button,button[aria-label="Show transcript"],button[aria-label="Open transcript"]');
+    if(native){native.click();toast('Transcript opened in YouTube. Press Refresh.');}
+    else toast('Open YouTube’s native transcript if this video has captions');
+  });
+  footer.append(showNative,makeButton('Refresh',render));
+  panel.append(bar,tabs,search,status,rows,footer);
+  const host=document.fullscreenElement?.tagName!=='VIDEO'&&document.fullscreenElement||document.body;
+  host.appendChild(panel);
+  render();search.focus();
+ }
+ ipcRenderer.on('tubeium-media-navigator',(_event,next)=>open(next));
+ document.addEventListener('yt-navigate-finish',close);
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&panel){event.preventDefault();close();}
+ },true);
+}
+
 function initTubeiumCommandPalette(){
  const commands=[
   ['Settings','settings'],['Local Library','library'],['Download Studio','downloads'],
   ['Mini Player','mini'],['Screenshot','screenshot'],['Home','home'],['Subscriptions','subscriptions'],
-  ['Watch History','history'],['Check for Updates','updates'],['System Diagnostics','diagnostics']
+  ['Watch History','history'],['Check for Updates','updates'],['System Diagnostics','diagnostics'],
+  ['Memory Monitor','memory'],['Sleep Timer','sleep'],['Transcript Search','transcript'],
+  ['Video Chapters','chapters'],['Open YouTube Link','open-link']
  ];
  let overlay=null;
  function close(){if(overlay){overlay.remove();overlay=null;}}
@@ -2058,6 +2193,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initDeArrow();
   initTubeiumGamepad();
   initTubeiumAudioEQ();
+  initTubeiumMediaNavigator();
   initTubeiumCommandPalette();
   setInterval(()=>{if(document.visibilityState!=='hidden')refreshSmartProfile();},1500);
   refreshSmartProfile();
