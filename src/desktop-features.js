@@ -56,7 +56,7 @@ function createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMoni
   const ended=sleep.mode==='end';
   cancelSleep();pausePlayback();
   const win=getWindow();
-  if(ended&&win&&!win.isDestroyed()&&/^[\\w-]{11}$/.test(String(endedVideoId||''))){
+  if(ended&&win&&!win.isDestroyed()&&/^[\w-]{11}$/.test(String(endedVideoId||''))){
     win.webContents.send('tubeium-sleep-stop-next',endedVideoId);
   }
   notify('Sleep timer finished · Playback paused');
