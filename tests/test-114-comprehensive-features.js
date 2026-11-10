@@ -36,14 +36,14 @@ for(const hook of ['desktopFeatures.menuItems()','desktopFeatures.downloadVerifi
 assert.match(preload,/\['Transcript Search','transcript'\]/);
 assert.match(preload,/\['Video Chapters','chapters'\]/);
 assert.match(main,/second-instance/);
-assert.match(main,/tubeium-gesture-sensitivity/);
+assert.match(fs.readFileSync(path.join(root,'src/desktop-features.js'),'utf8'),/tubeium-gesture-sensitivity/);
 const pkg=require('../package.json');
 for(const name of ['src/desktop-features.js','src/feature-helpers.js','src/verified-update.js','src/open-in-tubeium-extension/**']){
  assert(pkg.build.files.includes(name),name+' missing from packaged app');
 }
 const extension=JSON.parse(fs.readFileSync(path.join(root,'src/open-in-tubeium-extension/manifest.json')));
 assert.equal(extension.manifest_version,3);
-assert.deepEqual(extension.permissions,['contextMenus']);
+assert.deepEqual(extension.permissions,['contextMenus','activeTab']);
 assert(!extension.host_permissions,'The browser link extension must not read page contents');
 const workflow=fs.readFileSync(path.join(root,'.github/workflows/release-windows.yml'),'utf8');
 assert.match(workflow,/TUBEIUM_CSC_LINK/);assert.match(workflow,/TUBEIUM_RELEASE_APPROVED/);
