@@ -27,7 +27,7 @@ function parseTubeiumLaunch(raw){
  if(typeof raw!=='string'||raw.length>4096)return null;
  if(!/^tubeium:\/\//i.test(raw))return normalizeYouTubeUrl(raw);
  let url;try{url=new URL(raw);}catch{return null;}
- if(url.protocol!=='tubeium:'||url.hostname!=='open'||url.pathname!=='/'||url.username||url.password||url.port)return null;
+ if(url.protocol!=='tubeium:'||url.hostname!=='open'||(url.pathname!==''&&url.pathname!=='/')||url.username||url.password||url.port)return null;
  const values=url.searchParams.getAll('url');
  if(values.length!==1)return null;
  return normalizeYouTubeUrl(values[0]);
