@@ -30,14 +30,15 @@ assert.equal(ctx.nextTubeiumVideo(),true);assert.match(selector,/navigation-butt
 console.log('PASS: OS/headphone Next and player button share guarded navigation; play/pause remain YouTube-owned');
 const touchEvents=new Map(),classes=new Set();let refreshed=0;
 const coarse={matches:false,addEventListener(_name,callback){this.change=callback;}};
-const touchCtx={window:{matchMedia:()=>coarse},document:{documentElement:{classList:{toggle(name,on){on?classes.add(name):classes.delete(name);}}},addEventListener:(name,fn)=>touchEvents.set(name,fn)},toolbar:null,refreshTubeiumPlayerOverlays(){refreshed++;}};
+let repositions=0;
+const touchCtx={window:{matchMedia:()=>coarse,innerWidth:700,navigator:{maxTouchPoints:0},addEventListener(){}},document:{documentElement:{classList:{toggle(name,on){on?classes.add(name):classes.delete(name);}}},addEventListener:(name,fn)=>touchEvents.set(name,fn)},toolbar:null,positionDownloadDock(){repositions++;},refreshTubeiumPlayerOverlays(){refreshed++;}};
 vm.createContext(touchCtx);
 vm.runInContext(src.slice(src.indexOf('let tubeiumTouchMode='),src.indexOf('// ---- Download button ----')),touchCtx);
 touchCtx.initTubeiumTouch();assert(!classes.has('tubeium-touch'));
 touchEvents.get('pointerdown')({pointerType:'touch',target:{closest:()=>null}});assert(classes.has('tubeium-touch'));
 vm.runInContext('tubeiumTouchToolsOpen=true',touchCtx);touchEvents.get('yt-navigate-finish')();
 assert.equal(vm.runInContext('tubeiumTouchToolsOpen',touchCtx),false,'SPA navigation closes the touch tools');
-coarse.change({matches:false});assert(!classes.has('tubeium-touch'));
+coarse.change({matches:false});assert(classes.has('tubeium-touch'),'Hybrid tablets stay touch-friendly after mouse input');
 touchEvents.get('pointerdown')({pointerType:'pen',target:{closest:()=>null}});assert(classes.has('tubeium-touch'));
-assert(refreshed>=4);
+assert(refreshed>=4);assert(repositions>=1,'Touch detection repositions the player controls');assert(classes.has('tubeium-touch-compact'));
 console.log('PASS: touch/pen adaptation works on hybrid PCs and closes player tools on navigation');
