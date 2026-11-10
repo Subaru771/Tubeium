@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.15] — 2026-11-10 (Tubeium 1.15)
+
+- Hide every Tubeium-added watch-player button in YouTube fullscreen, including the Download action, floating Previous/Play/Next/Watch Later transport, hover Tools and quick navigation.
+- Do not inject Tubeium buttons into YouTube's fullscreen element; keep YouTube's original playback controls accessible on desktop and touchscreens.
+- Restore Download and touch/desktop controls automatically on leaving fullscreen. Normal watch pages, Shorts and mini-player retain their features.
+- Add fullscreen transition and re-render regression checks. Physical Windows fullscreen behavior still requires acceptance testing.
+
 ## [1.0.14] — 2026-11-10 (Tubeium 1.14)
 
 - Add animated gesture confirmation and persistent Low/Normal/High swipe sensitivity for touchscreens, while respecting existing mouse, pen and keyboard behavior.
