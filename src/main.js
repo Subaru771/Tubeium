@@ -1,5 +1,5 @@
 const {
-  app, BrowserWindow, WebContentsView, Menu, Tray, ipcMain, shell, session, net, nativeImage, screen, dialog, clipboard,
+  app, BrowserWindow, WebContentsView, Menu, Tray, ipcMain, shell, session, net, nativeImage, screen, dialog, clipboard, powerMonitor,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -25,6 +25,7 @@ const { PlaylistStore } = require('./local-playlists');
 const { createBackup, readBackup, writeBackup } = require('./backup-manager');
 const { normalizeFavorites } = require('./settings-favorites');
 const { fetchLatest: fetchGitHubRelease, RELEASES_URL } = require('./update-check');
+const {createDesktopFeatures}=require('./desktop-features');
 
 const {PlaybackHistory}=require('./playback-history');
 const playbackHistory=new PlaybackHistory();
@@ -1063,6 +1064,10 @@ function createWindow() {
   if (showWelcomeOnStartup()) openWelcomeTab();
 }
 
+const desktopFeatures=createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMonitor,
+ getWindow:()=>win,showWindow:()=>showWindow(),pausePlayback:()=>pausePlayback(),
+ buildMenu:()=>buildMenu(),ytOnly:event=>ytOnly(event),appDirectory:__dirname});
+
 // ---- Mini player / always on top ----
 function toggleMini() {
   if (!win) return;
@@ -1144,9 +1149,10 @@ async function checkGitHubUpdates(interactive=false){
     type:'info',title:'Tubeium update available',
     message:`Tubeium ${result.tag.slice(1)} is available`,
     detail:`Installed: ${result.currentVersion}  ·  Latest: ${result.tag.slice(1)}\\n\\nDownload the installer or portable edition from the official GitHub Releases page. Tubeium will not download or install an executable automatically.`,
-    buttons:['Later','View official release'],defaultId:1,cancelId:0
+    buttons:['Later','View official release','Download verified installer'],defaultId:1,cancelId:0
    });
    if(choice.response===1) await shell.openExternal(RELEASES_URL);
+   if(choice.response===2)await desktopFeatures.downloadVerified(result.tag);
   } else if(interactive){
    await dialog.showMessageBox({
     type:'info',title:'Tubeium updates',
@@ -1213,7 +1219,7 @@ async function showSystemDiagnostics(){
  if(response.response===1){const result=await dialog.showSaveDialog({defaultPath:path.join(app.getPath('documents'),'Tubeium-diagnostics.json'),filters:[{name:'JSON',extensions:['json']}]});if(result.filePath)fs.writeFileSync(result.filePath,JSON.stringify(health,null,2));}
 }
 
-const TUBEIUM_ACTIONS=new Set(['settings','library','downloads','mini','screenshot','home','subscriptions','history','updates','diagnostics']);
+const TUBEIUM_ACTIONS=new Set(['settings','library','downloads','mini','screenshot','home','subscriptions','history','updates','diagnostics','memory','sleep','transcript','chapters','open-link']);
 ipcMain.on('tubeium-command',(e,command)=>{
  if(!ytOnly(e)||!TUBEIUM_ACTIONS.has(command))return;
  if(command==='settings')openSettings();
@@ -1225,6 +1231,10 @@ ipcMain.on('tubeium-command',(e,command)=>{
  if(command==='history')win.loadURL(START_PAGES.history);
  if(command==='updates')void checkTubeiumUpdates(true);
  if(command==='diagnostics')void showSystemDiagnostics();
+ if(command==='memory')void desktopFeatures.memoryDialog();
+ if(command==='sleep')void desktopFeatures.sleepDialog();
+ if(command==='transcript'||command==='chapters')desktopFeatures.navigatorTab(command);
+ if(command==='open-link')desktopFeatures.clipboardLink();
  if(command==='screenshot')win.webContents.capturePage().then(async pic=>{
    const result=await dialog.showSaveDialog(win,{title:'Save Tubeium screenshot',defaultPath:path.join(app.getPath('pictures'),'Tubeium-screenshot.png'),filters:[{name:'PNG',extensions:['png']}]});
    if(!result.canceled&&result.filePath)fs.writeFileSync(result.filePath,pic.toPNG());
@@ -1260,6 +1270,7 @@ function buildMenu() {
         { label: 'Open Downloads Folder', click: () => { fs.mkdirSync(dlDir(), { recursive: true }); shell.openPath(dlDir()); } },
         { label: 'Update Downloader (yt-dlp)', click: updateYtDlp },
         { label: 'Check App Updates…', click: () => checkTubeiumUpdates(true) },
+        ...desktopFeatures.menuItems(),
         { label: 'Backups (in Settings)…', click: openSettings },
         { label: 'System Diagnostics…', click: showSystemDiagnostics },
         { label: 'Playback Diagnostics…', click: () => { if (win && !win.isDestroyed()) win.webContents.send('tubeium-toggle-diagnostics'); } },
@@ -1604,9 +1615,13 @@ ipcMain.handle('copy-video-text', (e, text) => {
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', showWindow);
-  app.on('before-quit', () => { quitting = true; if (browserPairing) browserPairing.close(); });
+  app.on('second-instance', (_event,argv)=>{
+    const link=desktopFeatures.linkArgument(argv);
+    if(link)desktopFeatures.openLink(link);else showWindow();
+  });
+  app.on('before-quit', () => { quitting = true; desktopFeatures.cancelSleep(); if (browserPairing) browserPairing.close(); });
   app.on('activate', showWindow);
+  app.on('open-url',(event,url)=>{event.preventDefault();desktopFeatures.openLink(url);});
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 
   app.whenReady().then(async () => {
@@ -1635,7 +1650,10 @@ if (!app.requestSingleInstanceLock()) {
     if(!settings.autoRestoreDownloads){for(const job of jobs)if(job.status==='queued')job.status='paused';}
     sendDownloads(true);
     applyLoginSetting();
+    desktopFeatures.attach();
     createWindow();
+    const startupLink=desktopFeatures.linkArgument(process.argv);
+    if(startupLink)desktopFeatures.openLink(startupLink);
     void verifyImportedSessionOnce();
     buildMenu();
     buildTray();
