@@ -1217,13 +1217,14 @@ function initTubeiumTouch(){
     const compact=enabled&&window.innerWidth<=820;
     const changed=enabled!==tubeiumTouchMode;
     tubeiumTouchMode=enabled;
+    const densityChanged=compact!==wasCompact;
     if(changed)document.documentElement.classList.toggle('tubeium-touch',enabled);
-    if(compact!==wasCompact)document.documentElement.classList.toggle('tubeium-touch-compact',compact);
+    if(densityChanged)document.documentElement.classList.toggle('tubeium-touch-compact',compact);
     wasCompact=compact;
     document.documentElement.dataset.tubeiumInput=enabled?'touch':'desktop';
     if(!enabled)tubeiumTouchToolsOpen=false;
     if(changed)positionDownloadDock();
-    if(changed||compact!==wasCompact)refreshTubeiumPlayerOverlays();
+    if(changed||densityChanged)refreshTubeiumPlayerOverlays();
   };
   setTouch();
   for(const query of queries)query.addEventListener?.('change',setTouch);
