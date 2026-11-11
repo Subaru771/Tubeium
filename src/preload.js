@@ -518,9 +518,15 @@ html.uyp-fs #uyp-playback-diagnostics,html.uyp-mini #uyp-playback-diagnostics{di
 #uyp-quick-nav[data-position=right]{left:auto;right:14px}#uyp-quick-nav[hidden]{display:none!important}#uyp-quick-nav a{padding:8px 12px;color:#e8dfff;text-decoration:none;border-radius:9px}#uyp-quick-nav a:hover{background:#ffffff25}
 html:not(.uyp-watch) #uyp-toolbox,html:not(.uyp-watch) #uyp-dislikes,html.uyp-mini #uyp-dislikes,html.uyp-fs #uyp-dislikes{display:none!important;}
 
-/* Finger gestures only on video; leave the native timeline and buttons alone. */
-html.tubeium-touch.uyp-watch .html5-video-player video.html5-main-video{touch-action:none}
+/* Do not disable native touch scrolling globally. Capture gestures only
+   after deliberate movement; YouTube owns native timeline and menus. */
+html.tubeium-touch.uyp-watch .html5-video-player video.html5-main-video{touch-action:pan-y}
 html.tubeium-touch.uyp-watch .html5-video-player{overflow:hidden}
+@media(min-width:850px){
+ html.tubeium-touch .html5-video-player .ytp-play-button,
+ html.tubeium-touch .html5-video-player .ytp-fullscreen-button,
+ html.tubeium-touch .html5-video-player .ytp-settings-button{min-width:44px;min-height:44px}
+}
 @media(orientation:portrait){html.tubeium-touch #tubeium-player-transport{gap:5px;max-width:calc(100vw - 10px)}}
 /* Touchscreen and pen users get real tap targets without hover requirements. */
 #tubeium-player-previous,#tubeium-player-play,#tubeium-player-next,#tubeium-player-tools{min-height:41px;padding:8px 12px;border:1px solid #ffffff30;
@@ -1204,22 +1210,27 @@ function initTubeiumTouch(){
   // Touchscreen PCs may report a fine primary pointer when a mouse is attached.
   // Detect hardware and remember actual finger/pen input across mouse use.
   const queries=['(any-pointer: coarse)','(pointer: coarse)'].map(q=>window.matchMedia?.(q)).filter(Boolean);
-  let observedTouch=false;
+  let lastInput=null,wasCompact=null;
   const setTouch=()=>{
-    const enabled=observedTouch||Number(window.navigator?.maxTouchPoints||0)>0||queries.some(q=>q.matches);
+    const hardware=Number(window.navigator?.maxTouchPoints||0)>0||queries.some(q=>q.matches);
+    const enabled=lastInput==='touch'||(lastInput===null&&hardware);
+    const compact=enabled&&window.innerWidth<=820;
     const changed=enabled!==tubeiumTouchMode;
     tubeiumTouchMode=enabled;
-    document.documentElement.classList.toggle('tubeium-touch',enabled);
-    document.documentElement.classList.toggle('tubeium-touch-compact',enabled&&window.innerWidth<=820);
+    if(changed)document.documentElement.classList.toggle('tubeium-touch',enabled);
+    if(compact!==wasCompact)document.documentElement.classList.toggle('tubeium-touch-compact',compact);
+    wasCompact=compact;
+    document.documentElement.dataset.tubeiumInput=enabled?'touch':'desktop';
     if(!enabled)tubeiumTouchToolsOpen=false;
     if(changed)positionDownloadDock();
-    refreshTubeiumPlayerOverlays();
+    if(changed||compact!==wasCompact)refreshTubeiumPlayerOverlays();
   };
   setTouch();
   for(const query of queries)query.addEventListener?.('change',setTouch);
   window.addEventListener?.('resize',setTouch,{passive:true});
   document.addEventListener('pointerdown',event=>{
-    if(event.pointerType==='touch'||event.pointerType==='pen'){observedTouch=true;setTouch();}
+    if(event.pointerType==='touch'||event.pointerType==='pen'){lastInput='touch';setTouch();}
+    else if(event.pointerType==='mouse'){lastInput='mouse';setTouch();}
     if(tubeiumTouchToolsOpen&&!event.target.closest?.('#uyp-toolbox,#tubeium-player-tools')){
       tubeiumTouchToolsOpen=false;
       if(toolbar?.contains(document.activeElement))document.activeElement.blur();
@@ -1447,10 +1458,12 @@ function refreshTubeiumPlayerOverlays() {
     dock?.classList.remove('tubeium-dock-active');
     return;
   }
-  const hovering=tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
+  const hovering=!tubeiumTouchMode&&tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
     &&tubeiumPointerY>=rect.top&&tubeiumPointerY<=rect.bottom;
   const fullscreen=!!document.fullscreenElement;
-  const transportVisible=!fullscreen&&(tubeiumTouchMode||!!state.mini);
+  // Keep the watch video unobstructed on tablets. Native YouTube controls
+  // handle ordinary touch; the extra transport remains in Mini Player only.
+  const transportVisible=!fullscreen&&!!state.mini;
   if(transport){
     transport.hidden=!transportVisible;
     if(transportVisible){
@@ -1475,7 +1488,7 @@ function refreshTubeiumPlayerOverlays() {
     const top=Math.max(8,Math.min(transportVisible?rect.top+68:rect.top+10,viewportHeight-panelHeight-8));
     toolbar.style.left=Math.round(left)+'px';
     toolbar.style.top=Math.round(top)+'px';
-    toolbar.classList.toggle('tubeium-tools-visible',((tubeiumTouchMode||state.mini)?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
+    toolbar.classList.toggle('tubeium-tools-visible',(state.mini?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
     const toolsButton=document.getElementById('tubeium-player-tools');
     if(toolsButton){
       toolsButton.hidden=!state.showOverlayToolbar;
@@ -1491,8 +1504,7 @@ function refreshTubeiumPlayerOverlays() {
     const dockWidth=dock.getBoundingClientRect().width||180;
     dock.style.left=Math.round(Math.max(8,Math.min(window.innerWidth-dockWidth-8,rect.right-dockWidth-14)))+'px';
     const dockHeight=dock.getBoundingClientRect().height||94;
-    const dockTop=(fullscreen||tubeiumTouchMode)
-      ?rect.top+12:rect.bottom-dockHeight-14;
+    const dockTop=tubeiumTouchMode?rect.bottom-dockHeight-8:rect.bottom-dockHeight-14;
     dock.style.top=Math.round(Math.max(8,Math.min(viewportHeight-dockHeight-8,dockTop)))+'px';
     dock.classList.add('tubeium-dock-active'); // Always present when playing a video.
   }

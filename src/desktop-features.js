@@ -5,11 +5,11 @@ const {fetchVerifiedInstaller}=require('./verified-update');
 function createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMonitor,getWindow,showWindow,pausePlayback,buildMenu,ytOnly,appDirectory}){
  const gestureFile=path.join(app.getPath('userData'),'touch-gestures.json');
  let gesture='normal';
- try{const v=JSON.parse(fs.readFileSync(gestureFile,'utf8')).sensitivity;if(['low','normal','high'].includes(v))gesture=v;}catch{}
+ try{const v=JSON.parse(fs.readFileSync(gestureFile,'utf8')).sensitivity;if(['off','low','normal','high'].includes(v))gesture=v;}catch{}
  let baseline=null,lastComparison=null,sleep=null,sleepHandle=null;
  function notify(message){const win=getWindow();if(win&&!win.isDestroyed())win.webContents.send('toast',message);}
  function setGesture(value){
-  if(!['low','normal','high'].includes(value))return false;
+  if(!['off','low','normal','high'].includes(value))return false;
   gesture=value;try{fs.writeFileSync(gestureFile,JSON.stringify({sensitivity:value}));}catch(error){console.warn('Gesture setting:',error.message);}
   const win=getWindow();if(win&&!win.isDestroyed())win.webContents.send('tubeium-gesture-sensitivity',value);
   buildMenu();return true;
@@ -129,8 +129,9 @@ function createDesktopFeatures({app,dialog,shell,clipboard,ipcMain,net,powerMoni
   {label:'Open YouTube link from clipboard',click:clipboardLink},
   {label:'Register Open in Tubeium links…',click:registerLinks},
   {label:'Prepare browser link extension…',click:prepareExtension},
-  {label:'Touch gesture sensitivity',submenu:['low','normal','high'].map(value=>({
-   label:value[0].toUpperCase()+value.slice(1),type:'radio',checked:gesture===value,click:()=>setGesture(value)
+  {label:'Touch gestures',submenu:['off','low','normal','high'].map(value=>({
+   label:value==='off'?'Off · YouTube controls only':value[0].toUpperCase()+value.slice(1),
+   type:'radio',checked:gesture===value,click:()=>setGesture(value)
   }))},
   {label:'Memory monitor…',click:memoryDialog}
  ];

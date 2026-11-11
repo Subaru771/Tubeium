@@ -1,9 +1,9 @@
 # Adaptive touch mode and clean player
 
 - Tubeium is still a **Windows x64 desktop app**, not an Android/iOS app.
-- Touch mode activates automatically if Windows/Chromium reports touch hardware (`maxTouchPoints`, `any-pointer: coarse` or `pointer: coarse`) or the user touches the screen with a finger/pen. It stays on when a mouse is connected; responsive compact mode changes with window width.
+- Touch mode activates automatically if Windows/Chromium reports touch hardware (`maxTouchPoints`, `any-pointer: coarse` or `pointer: coarse`) or the user touches the screen with a finger/pen. Switching to mouse input restores the desktop density on hybrid PCs; touching or using the pen returns to touch layout. Responsive compact mode changes with window width.
 - Settings, Downloads, Local Library, Sign-in Help, offline playback and the native Tubeium launcher use touch-friendly tap targets and scrollable navigation.
-- On a regular desktop YouTube watch page, **Download is the only Tubeium-added action below the player**. Watch Later remains available from video cards and the desktop in-player hover toolbar. Previous/Next, Play/Pause, Watch Later and Tools appear in a separate in-player transport for touch mode and the mini-player. Fullscreen deliberately hides all Tubeium-added buttons.
+- On a regular desktop YouTube watch page, **Download is the only Tubeium-added action below the player**. Watch Later remains available from video cards and the desktop in-player hover toolbar. Tubeium relies on YouTube's native player controls in ordinary touch mode; the additional Previous/Next/Play/Pause/Watch Later/Tools transport is reserved for the mini-player. Fullscreen deliberately hides all Tubeium-added buttons.
 - Download remains one-click; the chevron only opens formats. In fullscreen, the Download button and Tubeium's added control overlays are hidden for a clean native YouTube player; they return when fullscreen ends.
 - The other player controls stay available through YouTube's native controls and physical media keys. Tubeium does not replace YouTube's playback engine or emulate mobile.google.com/mobile.youtube.com.
 - Touch controls don't intercept YouTube's own native tap, seek, scrolling, or gesture handlers.
