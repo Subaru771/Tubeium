@@ -518,9 +518,18 @@ html.uyp-fs #uyp-playback-diagnostics,html.uyp-mini #uyp-playback-diagnostics{di
 #uyp-quick-nav[data-position=right]{left:auto;right:14px}#uyp-quick-nav[hidden]{display:none!important}#uyp-quick-nav a{padding:8px 12px;color:#e8dfff;text-decoration:none;border-radius:9px}#uyp-quick-nav a:hover{background:#ffffff25}
 html:not(.uyp-watch) #uyp-toolbox,html:not(.uyp-watch) #uyp-dislikes,html.uyp-mini #uyp-dislikes,html.uyp-fs #uyp-dislikes{display:none!important;}
 
-/* Finger gestures only on video; leave the native timeline and buttons alone. */
-html.tubeium-touch.uyp-watch .html5-video-player video.html5-main-video{touch-action:none}
+/* Claim gestures only on the video *image*, not YouTube's controls. Disable
+   browser panning there so fullscreen swipes are not cancelled mid-gesture.
+   With Tubeium gestures Off, the page uses YouTube's native touch behavior. */
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch .html5-video-container,
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch video.html5-main-video,
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch .ytp-cued-thumbnail-overlay{touch-action:none}
 html.tubeium-touch.uyp-watch .html5-video-player{overflow:hidden}
+@media(min-width:850px){
+ html.tubeium-touch .html5-video-player .ytp-play-button,
+ html.tubeium-touch .html5-video-player .ytp-fullscreen-button,
+ html.tubeium-touch .html5-video-player .ytp-settings-button{min-width:44px;min-height:44px}
+}
 @media(orientation:portrait){html.tubeium-touch #tubeium-player-transport{gap:5px;max-width:calc(100vw - 10px)}}
 /* Touchscreen and pen users get real tap targets without hover requirements. */
 #tubeium-player-previous,#tubeium-player-play,#tubeium-player-next,#tubeium-player-tools{min-height:41px;padding:8px 12px;border:1px solid #ffffff30;
@@ -1204,22 +1213,28 @@ function initTubeiumTouch(){
   // Touchscreen PCs may report a fine primary pointer when a mouse is attached.
   // Detect hardware and remember actual finger/pen input across mouse use.
   const queries=['(any-pointer: coarse)','(pointer: coarse)'].map(q=>window.matchMedia?.(q)).filter(Boolean);
-  let observedTouch=false;
+  let lastInput=null,wasCompact=null;
   const setTouch=()=>{
-    const enabled=observedTouch||Number(window.navigator?.maxTouchPoints||0)>0||queries.some(q=>q.matches);
+    const hardware=Number(window.navigator?.maxTouchPoints||0)>0||queries.some(q=>q.matches);
+    const enabled=lastInput==='touch'||(lastInput===null&&hardware);
+    const compact=enabled&&window.innerWidth<=820;
     const changed=enabled!==tubeiumTouchMode;
     tubeiumTouchMode=enabled;
-    document.documentElement.classList.toggle('tubeium-touch',enabled);
-    document.documentElement.classList.toggle('tubeium-touch-compact',enabled&&window.innerWidth<=820);
+    const densityChanged=compact!==wasCompact;
+    if(changed)document.documentElement.classList.toggle('tubeium-touch',enabled);
+    if(densityChanged)document.documentElement.classList.toggle('tubeium-touch-compact',compact);
+    wasCompact=compact;
+    document.documentElement.dataset.tubeiumInput=enabled?'touch':'desktop';
     if(!enabled)tubeiumTouchToolsOpen=false;
     if(changed)positionDownloadDock();
-    refreshTubeiumPlayerOverlays();
+    if(changed||densityChanged)refreshTubeiumPlayerOverlays();
   };
   setTouch();
   for(const query of queries)query.addEventListener?.('change',setTouch);
   window.addEventListener?.('resize',setTouch,{passive:true});
   document.addEventListener('pointerdown',event=>{
-    if(event.pointerType==='touch'||event.pointerType==='pen'){observedTouch=true;setTouch();}
+    if(event.pointerType==='touch'||event.pointerType==='pen'){lastInput='touch';setTouch();}
+    else if(event.pointerType==='mouse'){lastInput='mouse';setTouch();}
     if(tubeiumTouchToolsOpen&&!event.target.closest?.('#uyp-toolbox,#tubeium-player-tools')){
       tubeiumTouchToolsOpen=false;
       if(toolbar?.contains(document.activeElement))document.activeElement.blur();
@@ -1447,10 +1462,12 @@ function refreshTubeiumPlayerOverlays() {
     dock?.classList.remove('tubeium-dock-active');
     return;
   }
-  const hovering=tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
+  const hovering=!tubeiumTouchMode&&tubeiumPointerX>=rect.left&&tubeiumPointerX<=rect.right
     &&tubeiumPointerY>=rect.top&&tubeiumPointerY<=rect.bottom;
   const fullscreen=!!document.fullscreenElement;
-  const transportVisible=!fullscreen&&(tubeiumTouchMode||!!state.mini);
+  // Keep the watch video unobstructed on tablets. Native YouTube controls
+  // handle ordinary touch; the extra transport remains in Mini Player only.
+  const transportVisible=!fullscreen&&!!state.mini;
   if(transport){
     transport.hidden=!transportVisible;
     if(transportVisible){
@@ -1475,7 +1492,7 @@ function refreshTubeiumPlayerOverlays() {
     const top=Math.max(8,Math.min(transportVisible?rect.top+68:rect.top+10,viewportHeight-panelHeight-8));
     toolbar.style.left=Math.round(left)+'px';
     toolbar.style.top=Math.round(top)+'px';
-    toolbar.classList.toggle('tubeium-tools-visible',((tubeiumTouchMode||state.mini)?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
+    toolbar.classList.toggle('tubeium-tools-visible',(state.mini?tubeiumTouchToolsOpen:hovering)||toolbar.matches(':focus-within'));
     const toolsButton=document.getElementById('tubeium-player-tools');
     if(toolsButton){
       toolsButton.hidden=!state.showOverlayToolbar;
@@ -1491,8 +1508,7 @@ function refreshTubeiumPlayerOverlays() {
     const dockWidth=dock.getBoundingClientRect().width||180;
     dock.style.left=Math.round(Math.max(8,Math.min(window.innerWidth-dockWidth-8,rect.right-dockWidth-14)))+'px';
     const dockHeight=dock.getBoundingClientRect().height||94;
-    const dockTop=(fullscreen||tubeiumTouchMode)
-      ?rect.top+12:rect.bottom-dockHeight-14;
+    const dockTop=tubeiumTouchMode?rect.bottom-dockHeight-8:rect.bottom-dockHeight-14;
     dock.style.top=Math.round(Math.max(8,Math.min(viewportHeight-dockHeight-8,dockTop)))+'px';
     dock.classList.add('tubeium-dock-active'); // Always present when playing a video.
   }
@@ -1705,113 +1721,201 @@ function initCastConfirmation(){
     if(!window.confirm('Connect Tubeium to a casting device?')){e.preventDefault();e.stopImmediatePropagation();}
   },true);
 }
-// Bounded phone gestures for the YouTube video surface; never use mouse drags.
-const TUBEIUM_GESTURE_CONTROLS='button,a,input,textarea,select,[role="button"],[role="slider"],[contenteditable],.ytp-chrome-bottom,.ytp-popup,.ytp-settings-menu,.ytp-progress-bar,#uyp-toolbox,#tubeium-right-actions,#tubeium-player-transport';
+// Touch gestures should feel like the YouTube phone player, without stealing
+// ordinary scrolls, clicks, mouse drags, native buttons, timeline or menus.
+const TUBEIUM_GESTURE_CONTROLS='button,a,input,textarea,select,[role="button"],[role="slider"],[contenteditable],.ytp-chrome-bottom,.ytp-chrome-top,.ytp-popup,.ytp-settings-menu,.ytp-progress-bar,.ytp-ad-overlay-container,#uyp-toolbox,#tubeium-right-actions,#tubeium-player-transport,#tubeium-media-navigator';
 let tubeiumGestureSensitivity='normal';
 function tubeiumGestureDirection(dx,dy,shorts,width){
-  const factor=tubeiumGestureSensitivity==='low'?1.35:tubeiumGestureSensitivity==='high'?0.7:1;
-  if(shorts)return Math.abs(dy)>=90*factor&&Math.abs(dy)>=Math.abs(dx)*1.6?(dy<0?1:-1):0;
-  return Math.abs(dx)>=Math.max(90,width*.17)*factor&&Math.abs(dx)>=Math.abs(dy)*1.6?(dx<0?1:-1):0;
+  if(tubeiumGestureSensitivity==='off')return 0;
+  const factor=tubeiumGestureSensitivity==='low'?1.35:tubeiumGestureSensitivity==='high'?0.8:1;
+  // Horizontal watch-page swipes are intentionally not video navigation:
+  // they previously skipped videos during normal seeking/scrolling.
+  if(Math.abs(dy)<Math.max(95,width*.08)*factor||Math.abs(dy)<Math.abs(dx)*1.8)return 0;
+  return dy<0?1:-1; // Up / down: Shorts next/previous or watch fullscreen
 }
 function initTubeiumPhoneGestures(){
   let active=null,lastTap=null,zoomVideo=null,baseTransform='',baseOrigin='',zoom=1;
   let gestureHint=null,hintTimeout=null;
-  function feedback(text,x,y){
-    if(typeof document.createElement!=='function'||!document.body)return;
+  const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
+  function feedback(label,x,y){
+    if(!document.body||typeof document.createElement!=='function')return;
     if(!gestureHint){
       gestureHint=document.createElement('div');gestureHint.id='tubeium-gesture-hint';
       gestureHint.setAttribute('aria-hidden','true');
       Object.assign(gestureHint.style,{position:'fixed',zIndex:'2147483646',pointerEvents:'none',
-        background:'#201b30e8',border:'1px solid #b891f4',color:'#fff',borderRadius:'32px',
-        padding:'12px 17px',font:'700 16px Segoe UI,sans-serif',boxShadow:'0 10px 32px #0009',
-        textAlign:'center',transform:'translate(-50%,-50%)',minWidth:'72px',transition:'opacity .15s'});
+        color:'#fff',background:'#191821cf',border:'1px solid #ffffff40',
+        borderRadius:'24px',padding:'9px 13px',boxShadow:'0 8px 22px #0007',
+        font:'600 14px Segoe UI,sans-serif',transform:'translate(-50%,-50%)',
+        transition:'opacity .18s ease',opacity:'0'});
     }
     const host=document.fullscreenElement?.tagName!=='VIDEO'&&document.fullscreenElement||document.body;
     if(gestureHint.parentElement!==host)host.appendChild(gestureHint);
-    gestureHint.textContent=text;
-    gestureHint.style.left=Math.round(Math.max(50,Math.min(window.innerWidth-50,x||window.innerWidth/2)))+'px';
-    gestureHint.style.top=Math.round(Math.max(72,Math.min(window.innerHeight-48,y||window.innerHeight/2)))+'px';
+    gestureHint.textContent=label;
+    gestureHint.style.left=Math.round(clamp(Number(x)||window.innerWidth/2,55,window.innerWidth-55))+'px';
+    gestureHint.style.top=Math.round(clamp(Number(y)||window.innerHeight/2,56,window.innerHeight-48))+'px';
     gestureHint.style.opacity='1';
     if(hintTimeout&&typeof clearTimeout==='function')clearTimeout(hintTimeout);
-    if(typeof setTimeout==='function')hintTimeout=setTimeout(()=>{if(gestureHint)gestureHint.style.opacity='0';},650);
+    if(typeof setTimeout==='function')hintTimeout=setTimeout(()=>{if(gestureHint)gestureHint.style.opacity='0';},550);
   }
-  const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
-  const resetZoom=()=>{
-    if(zoomVideo){zoomVideo.style.transform=baseTransform;zoomVideo.style.transformOrigin=baseOrigin;}
+  function resetZoom(){
+    if(zoomVideo){
+      zoomVideo.style.transform=baseTransform;
+      zoomVideo.style.transformOrigin=baseOrigin;
+    }
     zoomVideo=null;baseTransform='';baseOrigin='';zoom=1;
-  };
-  const showZoom=(video,amount)=>{
-    if(zoomVideo!==video){resetZoom();zoomVideo=video;baseTransform=video.style.transform||'';baseOrigin=video.style.transformOrigin||'';}
-    zoom=Math.max(1,Math.min(3,Math.round(amount*100)/100));
-    video.style.transform=zoom<=1.01?baseTransform:(baseTransform?baseTransform+' ':'')+'scale('+zoom+')';
-    video.style.transformOrigin=zoom<=1.01?baseOrigin:'center center';
-  };
-  const candidate=target=>{
-    if(!tubeiumTouchMode||!currentVideoId()||adShowing()||!target?.closest||target.closest(TUBEIUM_GESTURE_CONTROLS))return null;
+  }
+  function showZoom(video,amount,point){
+    if(zoomVideo!==video){
+      resetZoom();zoomVideo=video;
+      baseTransform=video.style.transform||'';
+      baseOrigin=video.style.transformOrigin||'';
+    }
+    zoom=clamp(Math.round(amount*100)/100,1,2.5);
+    const rect=video.getBoundingClientRect?.();
+    if(rect?.width>0&&rect?.height>0&&point){
+      const fx=clamp((point.clientX-rect.left)/rect.width*100,0,100);
+      const fy=clamp((point.clientY-rect.top)/rect.height*100,0,100);
+      video.style.transformOrigin=fx.toFixed(1)+'% '+fy.toFixed(1)+'%';
+    }
+    if(zoom<=1.03){resetZoom();return;}
+    video.style.transform=(baseTransform?baseTransform+' ':'')+'scale('+zoom+')';
+  }
+  function candidate(target){
+    if(!tubeiumTouchMode||tubeiumGestureSensitivity==='off'||!currentVideoId()||adShowing()
+      ||!target?.closest||target.closest(TUBEIUM_GESTURE_CONTROLS))return null;
     const player=target.closest('.html5-video-player');
     const video=player?.querySelector('video.html5-main-video')||player?.querySelector('video');
     const rect=player?.getBoundingClientRect();
-    return video&&rect?.width>=180&&rect?.height>=120?{video,rect}:null;
-  };
-  document.addEventListener('touchstart',e=>{
-    if(e.touches.length===1){
-      const data=candidate(e.target);
-      if(!data){active=null;return;}
+    return video&&rect?.width>=190&&rect?.height>=130?{video,rect}:null;
+  }
+  function resetGesture(){
+    active=null;lastTap=null;
+  }
+  document.addEventListener('touchstart',event=>{
+    if(!tubeiumTouchMode||tubeiumGestureSensitivity==='off'){resetGesture();return;}
+    if(event.touches.length===1){
+      const data=candidate(event.target);
+      if(!data){resetGesture();return;}
       if(zoomVideo&&zoomVideo!==data.video)resetZoom();
-      active={...data,id:currentVideoId(),x:e.touches[0].clientX,y:e.touches[0].clientY,at:Date.now(),moved:false,pinch:false};
-    }else if(e.touches.length===2&&active&&active.video?.isConnected){
-      active.pinch=true;active.moved=true;active.pinchAt=Math.max(15,distance(e.touches[0],e.touches[1]));active.pinchZoom=zoom;lastTap=null;
-    }else{active=null;}
+      const finger=event.touches[0];
+      active={...data,id:currentVideoId(),x:finger.clientX,y:finger.clientY,
+        at:Date.now(),moved:false,pinch:false,pinchChanged:false};
+    }else if(event.touches.length===2&&active&&active.video?.isConnected){
+      active.pinch=true;active.moved=true;lastTap=null;
+      active.pinchAt=Math.max(12,distance(event.touches[0],event.touches[1]));
+      active.pinchZoom=zoom;
+    }else resetGesture();
   },{capture:true,passive:true});
-  document.addEventListener('touchmove',e=>{
-    if(!active||active.id!==currentVideoId())return;
-    if(active.pinch&&e.touches.length===2){
-      showZoom(active.video,active.pinchZoom*distance(e.touches[0],e.touches[1])/active.pinchAt);
-      e.preventDefault();e.stopImmediatePropagation();return;
+  document.addEventListener('touchmove',event=>{
+    if(!active||active.id!==currentVideoId()||tubeiumGestureSensitivity==='off')return;
+    if(active.pinch&&event.touches.length===2){
+      const a=event.touches[0],b=event.touches[1];
+      const amount=active.pinchZoom*distance(a,b)/active.pinchAt;
+      if(Math.abs(amount-zoom)>0.045||active.pinchChanged){
+        active.pinchChanged=true;
+        showZoom(active.video,amount,{clientX:(a.clientX+b.clientX)/2,clientY:(a.clientY+b.clientY)/2});
+        if(event.cancelable!==false)event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+      return;
     }
-    if(active.pinch||e.touches.length!==1)return;
-    const dx=e.touches[0].clientX-active.x,dy=e.touches[0].clientY-active.y;
-    if(Math.hypot(dx,dy)>23)active.moved=true;
-    if(tubeiumGestureDirection(dx,dy,location.pathname.startsWith('/shorts/'),active.rect.width)){
-      e.preventDefault();e.stopImmediatePropagation();
+    if(active.pinch||event.touches.length!==1)return;
+    const finger=event.touches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y;
+    if(Math.hypot(dx,dy)>18){active.moved=true;lastTap=null;}
+    // Only claim a deliberate vertical swipe on the video, never horizontal
+    // mouse-like scrolling or a minor shake when trying to tap the timeline.
+    if(tubeiumGestureDirection(dx,dy,location.pathname.startsWith('/shorts/'),active.rect.width)
+      &&Date.now()-active.at<950){
+      if(event.cancelable!==false)event.preventDefault();
+      event.stopImmediatePropagation();
     }
   },{capture:true,passive:false});
-  document.addEventListener('touchend',e=>{
-    if(!active||active.id!==currentVideoId()){active=null;lastTap=null;return;}
-    if(active.pinch){if(e.touches.length===0){if(zoom>1.01){toast('Zoom '+Math.round(zoom*100)+'%');feedback('Zoom '+Math.round(zoom*100)+'%',active.x,active.y);}active=null;}return;}
-    if(e.touches.length||!e.changedTouches?.length)return;
-    const finger=e.changedTouches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y,elapsed=Date.now()-active.at;
-    if(active.moved&&elapsed<950){
-      const direction=tubeiumGestureDirection(dx,dy,location.pathname.startsWith('/shorts/'),active.rect.width);
-      if(direction){e.preventDefault();e.stopImmediatePropagation();lastTap=null;
-        navigateTubeiumVideo(direction);
-        feedback(location.pathname.startsWith('/shorts/')?(direction>0?'↑ Next Short':'↓ Previous Short'):(direction>0?'← Next':'→ Previous'),finger.clientX,finger.clientY);
+  document.addEventListener('touchend',event=>{
+    if(!active||active.id!==currentVideoId()||!tubeiumTouchMode||tubeiumGestureSensitivity==='off'){
+      resetGesture();return;
+    }
+    if(active.pinch){
+      if(event.touches.length===0){
+        if(active.pinchChanged)feedback(zoom<=1.03?'Original size':'Zoom '+Math.round(zoom*100)+'%',active.x,active.y);
+        active=null;
       }
-    }else if(!active.moved&&elapsed<350&&!state.disableDoubleTapSkip){
-      const side=finger.clientX<active.rect.left+active.rect.width*.42?-1:finger.clientX>active.rect.left+active.rect.width*.58?1:0;
+      return;
+    }
+    if(event.touches.length!==0||!event.changedTouches?.length)return;
+    const finger=event.changedTouches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y,elapsed=Date.now()-active.at;
+    const shorts=location.pathname.startsWith('/shorts/');
+    if(active.moved&&elapsed>=65&&elapsed<850){
+      const direction=tubeiumGestureDirection(dx,dy,shorts,active.rect.width);
+      if(direction){
+        let handled=false;
+        if(shorts){
+          // Give YouTube's own Shorts swipe navigation the first chance;
+          // never advance *twice* if it has already changed the Short.
+          const startingId=active.id;
+          const next=()=>{
+            if(currentVideoId()===startingId&&tubeiumTouchMode){
+              if(navigateTubeiumVideo(direction))feedback(direction>0?'Next Short ↑':'Previous Short ↓',finger.clientX,finger.clientY);
+            }
+          };
+          if(typeof setTimeout==='function')setTimeout(next,320);else next();
+          handled=true;
+        }else{
+          const fullscreen=!!document.fullscreenElement;
+          if((direction>0&&!fullscreen)||(direction<0&&fullscreen)){
+            const button=document.querySelector('.ytp-fullscreen-button');
+            if(button?.click){button.click();handled=true;}
+            else if(fullscreen&&document.exitFullscreen){void document.exitFullscreen().catch?.(()=>{});handled=true;}
+            if(handled)feedback(direction>0?'Fullscreen ↑':'Exit fullscreen ↓',finger.clientX,finger.clientY);
+          }
+        }
+        if(handled){
+          if(event.cancelable!==false)event.preventDefault();
+          event.stopImmediatePropagation();
+          lastTap=null;
+        }
+      }
+    }else if(!active.moved&&elapsed<330&&!state.disableDoubleTapSkip){
+      const side=finger.clientX<active.rect.left+active.rect.width*.39?-1:
+        finger.clientX>active.rect.left+active.rect.width*.61?1:0;
       const now=Date.now();
-      if(side&&lastTap?.side===side&&now-lastTap.time<340&&distance(finger,lastTap)<76){
-        const v=active.video,delta=10*side;
-        if(Number.isFinite(v.duration)&&v.duration>0&&Number.isFinite(v.currentTime)){
-          v.currentTime=Math.max(0,Math.min(v.duration,v.currentTime+delta));
-          e.preventDefault();e.stopImmediatePropagation();toast((delta>0?'+':'')+delta+' seconds');
-          feedback((delta>0?'↪ +':'↩ ')+delta+'s',finger.clientX,finger.clientY);
+      if(side&&lastTap?.side===side&&now-lastTap.time<320
+        &&distance(finger,lastTap)<70&&lastTap.id===active.id){
+        const video=active.video,delta=10*side;
+        if(Number.isFinite(video.duration)&&video.duration>0&&Number.isFinite(video.currentTime)){
+          // YouTube may have performed its own seek during the two taps.
+          // Do not stack another 10s on top of a native skip.
+          if(Math.abs(video.currentTime-lastTap.position)<6){
+            video.currentTime=clamp(video.currentTime+delta,0,video.duration);
+            feedback(delta>0?'↷ 10s':'↶ 10s',finger.clientX,finger.clientY);
+          }
+          if(event.cancelable!==false)event.preventDefault();
+          event.stopImmediatePropagation();
         }
         lastTap=null;
-      }else lastTap={side,time:now,clientX:finger.clientX,clientY:finger.clientY};
-    }
+      }else if(side)lastTap={side,time:now,clientX:finger.clientX,clientY:finger.clientY,
+        position:active.video.currentTime,id:active.id};
+      else lastTap=null;
+    }else if(active.moved)lastTap=null;
     active=null;
   },{capture:true,passive:false});
-  document.addEventListener('touchcancel',()=>{active=null;},{capture:true,passive:true});
-  const reset=()=>{active=null;lastTap=null;resetZoom();};
-  document.addEventListener('yt-navigate-finish',reset);window.addEventListener('popstate',reset);
-  ipcRenderer.invoke('tubeium-gesture-sensitivity-get').then(value=>{
-    if(['low','normal','high'].includes(value))tubeiumGestureSensitivity=value;
-  }).catch(()=>{});
-  ipcRenderer.on('tubeium-gesture-sensitivity',(_event,value)=>{
-    if(['low','normal','high'].includes(value))tubeiumGestureSensitivity=value;
+  document.addEventListener('touchcancel',()=>{resetGesture();},{capture:true,passive:true});
+  const reset=()=>{resetGesture();resetZoom();};
+  document.addEventListener('yt-navigate-finish',reset);
+  window.addEventListener('popstate',reset);
+  window.addEventListener('pagehide',reset);
+  function applyGestureSetting(value){
+    if(!['off','low','normal','high'].includes(value))return;
+    tubeiumGestureSensitivity=value;
+    document.documentElement?.classList?.toggle('tubeium-gestures-enabled',value!=='off');
+    if(value==='off')reset();
+  }
+  applyGestureSetting(tubeiumGestureSensitivity);
+  ipcRenderer.invoke('tubeium-gesture-sensitivity-get').then(applyGestureSetting).catch(()=>{});
+  ipcRenderer.on('tubeium-gesture-sensitivity',(_event,value)=>applyGestureSetting(value));
+  window.addEventListener('orientationchange',()=>{
+    resetGesture();positionDownloadDock();refreshTubeiumPlayerOverlays();
   });
-  window.addEventListener('orientationchange',()=>{positionDownloadDock();refreshTubeiumPlayerOverlays();});
 }
 
 function initGestures(){

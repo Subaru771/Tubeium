@@ -27,6 +27,10 @@ assert(ctx.classes.has('tubeium-touch'),'Mouse attachment does not revert touch 
 ctx=createContext(1024,0);
 const coarse=ctx.queries.get('(any-pointer: coarse)');coarse.matches=true;coarse.change();
 assert(ctx.classes.has('tubeium-touch'),'Media query changes activate touch mode');
+ctx.listeners.get('pointerdown')({pointerType:'mouse'});
+assert(!ctx.classes.has('tubeium-touch'),'A mouse click on a hybrid should restore desktop spacing');
+ctx.listeners.get('pointerdown')({pointerType:'touch'});
+assert(ctx.classes.has('tubeium-touch'),'Finger touch restores large targets');
 const pkg=require('../package.json');
 assert(pkg.build.files.includes('src/touch-mode.js'),'Adaptive script must be packaged');
 for(const name of ['settings','downloads','library','offline-player','tab-strip','welcome']){
@@ -36,6 +40,9 @@ for(const name of ['settings','downloads','library','offline-player','tab-strip'
 const preload=read('src/preload.js');
 assert.match(preload,/dock\.append\(box\)/,'Only Download goes below the YouTube video');
 assert.match(preload,/transport\.append\(previousButton,playButton,nextButton,laterButton,toolsButton\)/);
+assert.match(preload,/const transportVisible=!fullscreen&&!!state\.mini/,'Normal touch video must not have a persistent toolbar');
+assert.match(preload,/tubeium-touch\.tubeium-gestures-enabled\.uyp-watch/,'Disable panning only while enhanced gestures are active');
+assert.match(preload,/applyGestureSetting\(value\)/,'Gesture mode should update without restarting YouTube');
 assert.match(preload,/const fullscreen=!!document\.fullscreenElement/);
 assert.match(preload,/dock\.hidden=fullscreen\|\|!videoId\|\|state\.showDownloadButton===false/);
 assert.match(preload,/html\.uyp-fs #tubeium-right-actions/,'Fullscreen hides the Download row');
