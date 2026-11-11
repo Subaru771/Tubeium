@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.16] — 2026-11-11 (Tubeium 1.16)
+
+- Rebuild touch gesture recognition to follow YouTube's familiar double-tap seeking and deliberate swipe up/down fullscreen controls; prevent unexpected horizontal video navigation.
+- On Shorts, let native YouTube swipe navigation run before a guarded Tubeium fallback, reducing duplicate next/previous skips.
+- Improve video-only pinch zoom to 1×–2.5× with focal-point positioning and complete reset when leaving the video.
+- Stop permanently overlaying the five-button Tubeium transport on normal touchscreen videos; retain it in Mini Player. Fullscreen remains native-only.
+- Automatically switch between touch-friendly density after finger/pen input and desktop density after a mouse click on hybrid Windows devices.
+- Add Player → Touch gestures → Off / Low / Normal / High, including an explicit native-only option.
+- Limit touch-action suppression to the video image when enhanced gestures are enabled, leaving YouTube's buttons, timeline and other controls untouched.
+- Expand regression tests for swipe direction, double-tap safety, pinch reset, Shorts fallback, touch-vs-mouse transitions and fullscreen behavior. Physical Windows touch testing remains outstanding.
+
+
 ## [1.0.15] — 2026-11-10 (Tubeium 1.15)
 
 - Hide every Tubeium-added watch-player button in YouTube fullscreen, including the Download action, floating Previous/Play/Next/Watch Later transport, hover Tools and quick navigation.
