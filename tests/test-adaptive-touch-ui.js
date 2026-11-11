@@ -41,6 +41,8 @@ const preload=read('src/preload.js');
 assert.match(preload,/dock\.append\(box\)/,'Only Download goes below the YouTube video');
 assert.match(preload,/transport\.append\(previousButton,playButton,nextButton,laterButton,toolsButton\)/);
 assert.match(preload,/const transportVisible=!fullscreen&&!!state\.mini/,'Normal touch video must not have a persistent toolbar');
+assert.match(preload,/tubeium-touch\.tubeium-gestures-enabled\.uyp-watch/,'Disable panning only while enhanced gestures are active');
+assert.match(preload,/applyGestureSetting\(value\)/,'Gesture mode should update without restarting YouTube');
 assert.match(preload,/const fullscreen=!!document\.fullscreenElement/);
 assert.match(preload,/dock\.hidden=fullscreen\|\|!videoId\|\|state\.showDownloadButton===false/);
 assert.match(preload,/html\.uyp-fs #tubeium-right-actions/,'Fullscreen hides the Download row');

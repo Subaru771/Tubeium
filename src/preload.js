@@ -518,9 +518,12 @@ html.uyp-fs #uyp-playback-diagnostics,html.uyp-mini #uyp-playback-diagnostics{di
 #uyp-quick-nav[data-position=right]{left:auto;right:14px}#uyp-quick-nav[hidden]{display:none!important}#uyp-quick-nav a{padding:8px 12px;color:#e8dfff;text-decoration:none;border-radius:9px}#uyp-quick-nav a:hover{background:#ffffff25}
 html:not(.uyp-watch) #uyp-toolbox,html:not(.uyp-watch) #uyp-dislikes,html.uyp-mini #uyp-dislikes,html.uyp-fs #uyp-dislikes{display:none!important;}
 
-/* Do not disable native touch scrolling globally. Capture gestures only
-   after deliberate movement; YouTube owns native timeline and menus. */
-html.tubeium-touch.uyp-watch .html5-video-player video.html5-main-video{touch-action:pan-y}
+/* Claim gestures only on the video *image*, not YouTube's controls. Disable
+   browser panning there so fullscreen swipes are not cancelled mid-gesture.
+   With Tubeium gestures Off, the page uses YouTube's native touch behavior. */
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch .html5-video-container,
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch video.html5-main-video,
+html.tubeium-touch.tubeium-gestures-enabled.uyp-watch .ytp-cued-thumbnail-overlay{touch-action:none}
 html.tubeium-touch.uyp-watch .html5-video-player{overflow:hidden}
 @media(min-width:850px){
  html.tubeium-touch .html5-video-player .ytp-play-button,
@@ -1855,7 +1858,7 @@ function initTubeiumPhoneGestures(){
               if(navigateTubeiumVideo(direction))feedback(direction>0?'Next Short ↑':'Previous Short ↓',finger.clientX,finger.clientY);
             }
           };
-          if(typeof setTimeout==='function')setTimeout(next,180);else next();
+          if(typeof setTimeout==='function')setTimeout(next,320);else next();
           handled=true;
         }else{
           const fullscreen=!!document.fullscreenElement;
@@ -1901,15 +1904,15 @@ function initTubeiumPhoneGestures(){
   document.addEventListener('yt-navigate-finish',reset);
   window.addEventListener('popstate',reset);
   window.addEventListener('pagehide',reset);
-  ipcRenderer.invoke('tubeium-gesture-sensitivity-get').then(value=>{
-    if(['off','low','normal','high'].includes(value))tubeiumGestureSensitivity=value;
-  }).catch(()=>{});
-  ipcRenderer.on('tubeium-gesture-sensitivity',(_event,value)=>{
-    if(['off','low','normal','high'].includes(value)){
-      tubeiumGestureSensitivity=value;
-      if(value==='off')reset();
-    }
-  });
+  function applyGestureSetting(value){
+    if(!['off','low','normal','high'].includes(value))return;
+    tubeiumGestureSensitivity=value;
+    document.documentElement?.classList?.toggle('tubeium-gestures-enabled',value!=='off');
+    if(value==='off')reset();
+  }
+  applyGestureSetting(tubeiumGestureSensitivity);
+  ipcRenderer.invoke('tubeium-gesture-sensitivity-get').then(applyGestureSetting).catch(()=>{});
+  ipcRenderer.on('tubeium-gesture-sensitivity',(_event,value)=>applyGestureSetting(value));
   window.addEventListener('orientationchange',()=>{
     resetGesture();positionDownloadDock();refreshTubeiumPlayerOverlays();
   });

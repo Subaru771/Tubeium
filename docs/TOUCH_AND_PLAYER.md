@@ -11,9 +11,9 @@
 
 ## Phone gestures
 - **Double-tap** left/right side of a video: seek back/forward 10 seconds (unless *Disable YouTube double-tap seek* is selected).
-- **Horizontal swipe** across a normal video: left = Next, right = Previous, via existing guarded navigation.
-- **Vertical swipe** on Shorts: up = Next, down = Previous, using YouTube's available Shorts controls.
-- **Pinch with two fingers**: zoom just the video from 1× to 3×; pinch inward to reset. Reset on video navigation.
+- **Swipe upward on a regular video:** enter YouTube fullscreen; **swipe downward in fullscreen:** exit. Horizontal watch-page swipes no longer jump unpredictably to another video.
+- **Swipe vertically on Shorts:** give YouTube's native next/previous behavior priority; use Tubeium's guarded navigation only if the page did not advance.
+- **Pinch with two fingers:** zoom just the video from 1× to 2.5×, centered on the fingers; pinch inward to reset. Zoom resets when navigating to a different video.
 - **Rotate your Windows tablet**: Tubeium reflows its controls when Windows changes orientation. The OS owns hardware rotation and rotation lock.
 Gestures do not intercept YouTube player buttons, timeline, menu controls, mouse drags or keyboard. Device/website acceptance testing is required.
 
@@ -22,3 +22,10 @@ Gestures do not intercept YouTube player buttons, timeline, menu controls, mouse
 - Reclaim the Sign-in Help WebContentsView on returning to YouTube; keep the browser pairing service alive until its own completion.
 - Skip repeated video-card DOM scans, profile checks and UI restoration while hidden, restoring when the window becomes visible.
 - Check **Tools > System Diagnostics** for Electron process count and memory working-set size. No measured RAM reduction is claimed before comparable Windows testing.
+
+## Touch controls refinements (v1.0.16)
+- Touchscreen devices start with larger targets. Clicking with a mouse restores normal desktop spacing; touching again instantly returns to tablet density.
+- The five-button transport no longer covers ordinary touchscreen videos. It remains available in Mini Player; fullscreen is native controls only.
+- Player > Touch gestures offers Off (native YouTube only), Low, Normal and High; the selected level is remembered. With Off, Tubeium does not claim touch gestures on the video surface.
+- Native player buttons, scrub bar, popups and input fields are excluded from gesture handling. Single taps remain YouTube-controlled; duplicate 10-second skips are suppressed when YouTube handles them.
+- Live touch testing on Windows tablets is still required; automated simulations cannot establish compatibility with every YouTube layout.
