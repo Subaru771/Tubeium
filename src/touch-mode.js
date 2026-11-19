@@ -48,10 +48,10 @@
   // Keyboard use should never accidentally trigger a touch action or layout.
   // Keep the current density so keyboard shortcuts remain usable on tablets.
   doc.addEventListener('keydown', event => {
-    if (event.key === 'Tab') root.classList.add('tubeium-keyboard-focus');
+    if (event.key === 'Tab') root.classList.toggle('tubeium-keyboard-focus', true);
   }, { passive: true });
   doc.addEventListener('pointerdown', () => {
-    root.classList.remove('tubeium-keyboard-focus');
+    root.classList.toggle('tubeium-keyboard-focus', false);
   }, { passive: true });
 
   update();
