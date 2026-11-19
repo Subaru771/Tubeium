@@ -170,3 +170,18 @@ html.tubeium-touch .sidebar-resizer{display:none}
  html.tubeium-touch .topbar{min-height:64px;height:auto;flex-basis:auto;padding:8px 12px}
  html.tubeium-touch .settings-list{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Touch Overhaul 2.0: preserve the compact settings layout on hybrid PCs. */
+html.tubeium-touch .sidebar nav{scrollbar-width:none;overscroll-behavior-x:contain}
+html.tubeium-touch .sidebar nav::-webkit-scrollbar{display:none}
+html.tubeium-touch .nav-item{scroll-margin-inline:8px}
+html.tubeium-touch .topic-button{padding-block:12px}
+html.tubeium-touch .settings-panel-body{padding-inline:clamp(10px,2.5vw,20px)}
+html.tubeium-touch .topbar button{flex-shrink:0}
+html.tubeium-touch .tools-panel>button{min-height:48px}
+@media(max-width:900px){
+ html.tubeium-touch .sidebar nav{scroll-snap-type:x proximity}
+ html.tubeium-touch .nav-item{scroll-snap-align:start}
+ html.tubeium-touch .topbar{gap:8px}
+ html.tubeium-touch .content{padding:18px 14px}
+}
