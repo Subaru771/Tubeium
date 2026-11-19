@@ -32,6 +32,7 @@
   for (const query of media) query.addEventListener?.('change', update);
   view.addEventListener('resize', update, { passive: true });
   doc.addEventListener('pointerdown', event => {
+    root.classList.toggle('tubeium-keyboard-focus', false);
     if (event.isTrusted === false) return;
     if (event.pointerType === 'touch' || event.pointerType === 'pen') {
       lastInput = event.pointerType;
@@ -49,9 +50,6 @@
   // Keep the current density so keyboard shortcuts remain usable on tablets.
   doc.addEventListener('keydown', event => {
     if (event.key === 'Tab') root.classList.toggle('tubeium-keyboard-focus', true);
-  }, { passive: true });
-  doc.addEventListener('pointerdown', () => {
-    root.classList.toggle('tubeium-keyboard-focus', false);
   }, { passive: true });
 
   update();
