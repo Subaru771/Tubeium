@@ -28,10 +28,10 @@ now+=600;listener.get('keydown')({key:'MediaTrackNext',repeat:true});assert.equa
 ctx.location.pathname='/shorts/abcdefghijk';let selector='';doc.querySelectorAll=s=>{selector=s;return [control];};
 assert.equal(ctx.nextTubeiumVideo(),true);assert.match(selector,/navigation-button-down/);
 console.log('PASS: OS/headphone Next and player button share guarded navigation; play/pause remain YouTube-owned');
-const touchEvents=new Map(),classes=new Set();let refreshed=0;
+const touchEvents=new Map(),classes=new Set();let refreshed=0,touchClock=1000;
 const coarse={matches:false,addEventListener(_name,callback){this.change=callback;}};
 let repositions=0;
-const touchCtx={window:{matchMedia:()=>coarse,innerWidth:700,navigator:{maxTouchPoints:0},addEventListener(){}},document:{documentElement:{classList:{toggle(name,on){on?classes.add(name):classes.delete(name);}},dataset:{}},addEventListener:(name,fn)=>touchEvents.set(name,fn)},toolbar:null,positionDownloadDock(){repositions++;},refreshTubeiumPlayerOverlays(){refreshed++;}};
+const touchCtx={window:{matchMedia:()=>coarse,innerWidth:700,navigator:{maxTouchPoints:0},performance:{now:()=>touchClock},addEventListener(){}},document:{documentElement:{classList:{toggle(name,on){on?classes.add(name):classes.delete(name);}},dataset:{}},addEventListener:(name,fn)=>touchEvents.set(name,fn)},toolbar:null,positionDownloadDock(){repositions++;},refreshTubeiumPlayerOverlays(){refreshed++;}};
 vm.createContext(touchCtx);
 vm.runInContext(src.slice(src.indexOf('let tubeiumTouchMode='),src.indexOf('// ---- Download button ----')),touchCtx);
 touchCtx.initTubeiumTouch();assert(!classes.has('tubeium-touch'));
@@ -41,7 +41,10 @@ assert.equal(vm.runInContext('tubeiumTouchToolsOpen',touchCtx),false,'SPA naviga
 coarse.change({matches:false});assert(classes.has('tubeium-touch'),'Hybrid tablets stay touch-friendly after mouse input');
 touchEvents.get('pointerdown')({pointerType:'pen',target:{closest:()=>null}});assert(classes.has('tubeium-touch'));
 touchEvents.get('pointerdown')({pointerType:'mouse',target:{closest:()=>null}});
-assert(!classes.has('tubeium-touch'),'Mouse click switches hybrid device back to desktop mode');
+assert(classes.has('tubeium-touch'),'Touch-generated mouse click must not collapse tablet targets');
+touchClock+=950;
+touchEvents.get('pointerdown')({pointerType:'mouse',target:{closest:()=>null}});
+assert(!classes.has('tubeium-touch'),'Later real mouse input returns hybrid device to desktop mode');
 touchEvents.get('pointerdown')({pointerType:'touch',target:{closest:()=>null}});
 assert(classes.has('tubeium-touch'),'Finger input restores tablet mode');
 assert(refreshed>=4);assert(repositions>=1,'Touch detection repositions the player controls');assert(classes.has('tubeium-touch-compact'));
