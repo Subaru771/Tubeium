@@ -53,3 +53,13 @@ html.tubeium-touch nav button{min-height:48px;min-width:48px;padding:8px 13px}
 html.tubeium-touch #launcher{width:50px;height:50px}
 html.tubeium-touch #launcher-menu{max-width:calc(100vw - 16px);width:min(320px,calc(100vw - 16px));bottom:54px}
 html.tubeium-touch #launcher-menu>button{min-height:50px;font-size:14px}
+
+/* Touch Overhaul 2.0: horizontally scrollable native navigation for tablets. */
+html.tubeium-touch nav{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;scroll-snap-type:x proximity;gap:6px}
+html.tubeium-touch nav::-webkit-scrollbar{display:none}
+html.tubeium-touch nav button{flex:0 0 auto;scroll-snap-align:start}
+html.tubeium-touch nav .brand{flex:0 0 auto}
+html.tubeium-touch nav .tab-spacer{flex:1 0 6px}
+html.tubeium-touch #launcher-menu>button:active,
+html.tubeium-touch nav button:active{background:#53406e}
+html.tubeium-touch #launcher-menu{overscroll-behavior:contain}
