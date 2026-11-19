@@ -63,3 +63,18 @@ html.tubeium-touch nav .tab-spacer{flex:1 0 6px}
 html.tubeium-touch #launcher-menu>button:active,
 html.tubeium-touch nav button:active{background:#53406e}
 html.tubeium-touch #launcher-menu{overscroll-behavior:contain}
+
+/* A navigation Back button in both the full desktop bar and compact touch/mouse launcher. */
+nav .back-button{background:#30283d;color:#f1e4ff;border:1px solid #655076;
+  border-radius:10px;font-size:13px;font-weight:700;flex:0 0 auto;gap:8px}
+nav .back-button:hover:not(:disabled){background:#473557;border-color:#aa85df}
+.back-button:disabled{opacity:.42;cursor:default}
+#compact-back{position:absolute;right:54px;bottom:0;width:44px;height:44px;
+  border:1px solid #8269aa;border-radius:14px;background:#292235;
+  color:#e9d7ff;font-size:25px;font-weight:700;line-height:1;
+  box-shadow:0 7px 28px #0009;touch-action:manipulation}
+#compact-back:hover:not(:disabled){background:#48365f;border-color:#c39af9}
+#compact-back:focus-visible{outline:2px solid #d5b6ff;outline-offset:2px}
+html.tubeium-touch #compact-back{width:50px;height:50px;right:56px}
+html.tubeium-touch nav .back-button{min-width:48px;min-height:48px;padding:8px 14px}
+@media(max-width:660px){nav #nav-back span{display:none}nav #nav-back{font-size:20px;padding:6px 12px}}
