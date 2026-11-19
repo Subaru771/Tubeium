@@ -32,7 +32,7 @@
   for (const query of media) query.addEventListener?.('change', update);
   view.addEventListener('resize', update, { passive: true });
   doc.addEventListener('pointerdown', event => {
-    if (!event.isTrusted) return;
+    if (event.isTrusted === false) return;
     if (event.pointerType === 'touch' || event.pointerType === 'pen') {
       lastInput = event.pointerType;
       lastTouchAt = view.performance?.now?.() ?? Date.now();
