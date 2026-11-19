@@ -118,3 +118,51 @@ html.tubeium-touch .add-button{min-width:72px}
 html.tubeium-touch .queue-toolbar{align-items:stretch;flex-wrap:wrap}
 html.tubeium-touch .filters{flex-wrap:nowrap;justify-content:flex-start}
 }
+
+/* Touch Overhaul 2.0: larger controls without expanding the mouse layout. */
+html.tubeium-touch .content{max-width:1000px}
+html.tubeium-touch .topbar{min-height:66px;height:auto;padding-block:10px}
+html.tubeium-touch .quiet-action{min-height:48px;padding:11px 14px;font-size:12px}
+html.tubeium-touch .add-panel{border-radius:17px;padding:16px;box-shadow:0 6px 28px #0002}
+html.tubeium-touch #url{min-height:50px;font-size:14px}
+html.tubeium-touch .primary{min-height:50px;font-size:13px}
+html.tubeium-touch .options-line label{font-size:12px;gap:9px}
+html.tubeium-touch .options-line select{font-size:13px;min-height:48px;max-width:100%}
+html.tubeium-touch .queue-toolbar{gap:10px}
+html.tubeium-touch .filters{gap:4px;padding:4px;scrollbar-width:none;overscroll-behavior-x:contain}
+html.tubeium-touch .filters::-webkit-scrollbar{display:none}
+html.tubeium-touch .filters button{min-height:44px;padding:10px 15px;font-size:12px}
+html.tubeium-touch .job{border-radius:16px;padding:16px;gap:14px}
+html.tubeium-touch .job-icon{width:46px;height:46px}
+html.tubeium-touch .job-title{font-size:14px;line-height:1.45;white-space:normal;overflow-wrap:anywhere}
+html.tubeium-touch .job-meta{font-size:12px;gap:7px}
+html.tubeium-touch .meta-pill{font-size:11px;padding:5px 8px}
+html.tubeium-touch .status-line{font-size:12px;gap:12px}
+html.tubeium-touch .bar{height:7px}
+html.tubeium-touch .job-actions button{min-height:48px;padding:11px 14px;font-size:12px}
+html.tubeium-touch .more-actions>summary{width:48px;height:48px}
+html.tubeium-touch .more-menu{width:min(220px,calc(100vw - 40px));top:54px;padding:7px;border-radius:12px}
+html.tubeium-touch .more-menu button{font-size:13px;padding:11px;text-align:left}
+@media(max-width:820px){
+ html.tubeium-touch .content{width:calc(100% - 24px);padding-top:20px}
+ html.tubeium-touch .page-heading{align-items:flex-start;flex-wrap:wrap}
+ html.tubeium-touch .folder-path{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+ html.tubeium-touch .job{grid-template-columns:46px minmax(0,1fr);gap:10px}
+ html.tubeium-touch .job-actions{grid-column:2;justify-content:flex-start;gap:8px}
+ html.tubeium-touch .queue-toolbar{align-items:stretch}
+ html.tubeium-touch .filters{max-width:100%;overflow-x:auto;flex-wrap:nowrap}
+ html.tubeium-touch .filters button{flex:0 0 auto}
+}
+@media(max-width:570px){
+ html.tubeium-touch .topbar{gap:8px;padding-inline:12px}
+ html.tubeium-touch .identity small{display:none}
+ html.tubeium-touch .page-heading h1{font-size:23px}
+ html.tubeium-touch .add-line{flex-wrap:wrap}
+ html.tubeium-touch .url-icon{display:none}
+ html.tubeium-touch #url{flex:1 1 100%}
+ html.tubeium-touch .add-line .primary{flex:1 1 100%}
+ html.tubeium-touch .options-line{margin-left:0;gap:9px}
+ html.tubeium-touch .options-note{flex:1 1 100%;text-align:left}
+ html.tubeium-touch .job-actions{grid-column:1 / -1}
+ html.tubeium-touch .job-actions button{flex:0 0 auto}
+}
