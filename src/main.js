@@ -249,7 +249,7 @@ function welcomeSender(event) {
 // The native tab strip remains visible after switching back to YouTube.
 // Place it at the bottom so Tubeium does not cover YouTube's own navigation.
 const TAB_STRIP_HEIGHT = 52;
-const COLLAPSED_TAB_WIDTH = 48;
+const COLLAPSED_TAB_WIDTH = 112; // Back + launcher, in mouse and touch mode.
 const COLLAPSED_TAB_HEIGHT = 48;
 const TUBEIUM_MENU_WIDTH = 244;
 const TUBEIUM_MENU_HEIGHT = 432;
@@ -291,10 +291,28 @@ function setHelpTabsVisible(value) {
   buildMenu(); // Keep the View checkbox synchronized with the native tab strip.
   return {showHelpTabs: helpTabsVisible};
 }
+function tubeiumCanGoBack() {
+  // Sign-in Help is a local view; Back returns to the underlying YouTube tab.
+  if (activeTubeiumTab === 'welcome') return true;
+  if (!win || win.isDestroyed()) return false;
+  return win.webContents.navigationHistory?.canGoBack?.() === true;
+}
+function tubeiumGoBack() {
+  if (activeTubeiumTab === 'welcome') {
+    showYoutubeTab();
+    return true;
+  }
+  if (!tubeiumCanGoBack()) return false;
+  win.webContents.navigationHistory.goBack();
+  // Native history state is also refreshed on the navigation-completed events.
+  setImmediate(updateTubeiumTabBar);
+  return true;
+}
 function updateTubeiumTabBar() {
   if (tabBarView && !tabBarView.webContents.isDestroyed()) {
     tabBarView.webContents.send('tubeium-tab-state', {tab: activeTubeiumTab, showHelpTabs: helpTabsVisible,
-      menuOpen: tabMenuOpen, showSigninHelpButton: settings.showSigninHelpButton !== false});
+      menuOpen: tabMenuOpen, showSigninHelpButton: settings.showSigninHelpButton !== false,
+      canGoBack: tubeiumCanGoBack()});
   }
 }
 function showYoutubeTab() {
@@ -380,6 +398,11 @@ ipcMain.on('tubeium-tab-switch',(event,tab)=>{
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
   if (tab==='youtube') showYoutubeTab();
   else if (tab==='welcome') openWelcomeTab();
+});
+ipcMain.on('tubeium-tab-back',event=>{
+  if(!trustedTabEvent(event))return;
+  closeTabMenu();
+  tubeiumGoBack();
 });
 ipcMain.on('tubeium-tab-hide', event => {
   if (!tabBarView || tabBarView.webContents.isDestroyed() || event.sender!==tabBarView.webContents) return;
@@ -1028,6 +1051,10 @@ function createWindow() {
   win.webContents.on('will-navigate', (e, url) => {
     if (!route(url)) e.preventDefault();
   });
+  // YouTube is a single-page app. Back availability changes without full reloads.
+  win.webContents.on('did-navigate',updateTubeiumTabBar);
+  win.webContents.on('did-navigate-in-page',updateTubeiumTabBar);
+  win.webContents.on('did-finish-load',updateTubeiumTabBar);
 
   // Remember window size/position
   let timer;
@@ -1291,7 +1318,7 @@ function buildMenu() {
       label: 'Navigate',
       submenu: [
         { label: 'Home', accelerator: 'CmdOrCtrl+H', click: () => win && win.loadURL(START_URL) },
-        { label: 'Back', accelerator: 'Alt+Left', click: () => win && win.webContents.goBack() },
+        { label: 'Back', accelerator: 'Alt+Left', click: tubeiumGoBack },
         { label: 'Forward', accelerator: 'Alt+Right', click: () => win && win.webContents.goForward() },
         { role: 'reload' },
       ],
