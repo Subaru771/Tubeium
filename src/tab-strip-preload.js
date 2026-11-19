@@ -2,6 +2,7 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('tubeiumTabs',Object.freeze({
  select:tab=>{if(tab==='youtube'||tab==='welcome')ipcRenderer.send('tubeium-tab-switch',tab);},
+ back:()=>ipcRenderer.send('tubeium-tab-back'),
  hide:()=>ipcRenderer.send('tubeium-tab-hide'),
  show:()=>ipcRenderer.send('tubeium-tab-show'),
  openSettings:()=>ipcRenderer.send('tubeium-tab-open-settings'),
@@ -12,6 +13,7 @@ contextBridge.exposeInMainWorld('tubeiumTabs',Object.freeze({
    if(state && (state.tab==='youtube'||state.tab==='welcome') &&
      typeof state.showHelpTabs==='boolean' && typeof state.menuOpen==='boolean')
      cb(Object.freeze({tab:state.tab,showHelpTabs:state.showHelpTabs,
-       menuOpen:state.menuOpen,showSigninHelpButton:state.showSigninHelpButton!==false}));
+       menuOpen:state.menuOpen,canGoBack:state.canGoBack===true,
+       showSigninHelpButton:state.showSigninHelpButton!==false}));
  });},
 }));
