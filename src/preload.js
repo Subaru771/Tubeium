@@ -1213,7 +1213,8 @@ function initTubeiumTouch(){
   // Touchscreen PCs may report a fine primary pointer when a mouse is attached.
   // Detect hardware and remember actual finger/pen input across mouse use.
   const queries=['(any-pointer: coarse)','(pointer: coarse)'].map(q=>window.matchMedia?.(q)).filter(Boolean);
-  let lastInput=null,wasCompact=null;
+  let lastInput=null,wasCompact=null,lastTouchAt=-Infinity;
+  const inputClock=()=>window.performance?.now?.() ?? Date.now();
   const setTouch=()=>{
     const hardware=Number(window.navigator?.maxTouchPoints||0)>0||queries.some(q=>q.matches);
     const enabled=lastInput==='touch'||(lastInput===null&&hardware);
@@ -1233,8 +1234,14 @@ function initTubeiumTouch(){
   for(const query of queries)query.addEventListener?.('change',setTouch);
   window.addEventListener?.('resize',setTouch,{passive:true});
   document.addEventListener('pointerdown',event=>{
-    if(event.pointerType==='touch'||event.pointerType==='pen'){lastInput='touch';setTouch();}
-    else if(event.pointerType==='mouse'){lastInput='mouse';setTouch();}
+    if(event.isTrusted===false)return;
+    if(event.pointerType==='touch'||event.pointerType==='pen'){
+      lastInput='touch';lastTouchAt=inputClock();setTouch();
+    }else if(event.pointerType==='mouse'){
+      // Touch hardware sometimes emits synthetic mouse events after a finger tap.
+      // Do not collapse the larger tablet targets during that synthetic click.
+      if(inputClock()-lastTouchAt>=850){lastInput='mouse';setTouch();}
+    }
     if(tubeiumTouchToolsOpen&&!event.target.closest?.('#uyp-toolbox,#tubeium-player-tools')){
       tubeiumTouchToolsOpen=false;
       if(toolbar?.contains(document.activeElement))document.activeElement.blur();
@@ -1733,6 +1740,12 @@ function tubeiumGestureDirection(dx,dy,shorts,width){
   if(Math.abs(dy)<Math.max(95,width*.08)*factor||Math.abs(dy)<Math.abs(dx)*1.8)return 0;
   return dy<0?1:-1; // Up / down: Shorts next/previous or watch fullscreen
 }
+function tubeiumTouchSeekDelta(dx,width){
+  // A deliberate fullscreen horizontal scrub moves at most 90 seconds.
+  // Five-second steps make the on-screen preview readable while dragging.
+  if(!Number.isFinite(dx)||!Number.isFinite(width)||width<190)return 0;
+  return Math.max(-90,Math.min(90,Math.round(dx/Math.max(width,300)*120/5)*5));
+}
 function initTubeiumPhoneGestures(){
   let active=null,lastTap=null,zoomVideo=null,baseTransform='',baseOrigin='',zoom=1;
   let gestureHint=null,hintTimeout=null;
@@ -1800,7 +1813,8 @@ function initTubeiumPhoneGestures(){
       if(zoomVideo&&zoomVideo!==data.video)resetZoom();
       const finger=event.touches[0];
       active={...data,id:currentVideoId(),x:finger.clientX,y:finger.clientY,
-        at:Date.now(),moved:false,pinch:false,pinchChanged:false};
+        at:Date.now(),moved:false,pinch:false,pinchChanged:false,
+        scrub:false,scrubDelta:0};
     }else if(event.touches.length===2&&active&&active.video?.isConnected){
       active.pinch=true;active.moved=true;lastTap=null;
       active.pinchAt=Math.max(12,distance(event.touches[0],event.touches[1]));
@@ -1823,6 +1837,21 @@ function initTubeiumPhoneGestures(){
     if(active.pinch||event.touches.length!==1)return;
     const finger=event.touches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y;
     if(Math.hypot(dx,dy)>18){active.moved=true;lastTap=null;}
+    // Horizontal seeking is fullscreen-only, so ordinary page scrolling and
+    // YouTube Shorts navigation remain fully native.
+    if((active.scrub||(!location.pathname.startsWith('/shorts/')&&!!document.fullscreenElement
+        &&Math.abs(dx)>28&&Math.abs(dx)>Math.abs(dy)*1.6))
+      &&Number.isFinite(active.video.duration)&&active.video.duration>0){
+      active.scrub=true;
+      const delta=tubeiumTouchSeekDelta(dx,active.rect.width);
+      if(delta!==active.scrubDelta){
+        active.scrubDelta=delta;
+        feedback(delta===0?'Seek · 0s':('Seek '+(delta>0?'+':'')+delta+'s'),finger.clientX,finger.clientY);
+      }
+      if(event.cancelable!==false)event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
     // Only claim a deliberate vertical swipe on the video, never horizontal
     // mouse-like scrolling or a minor shake when trying to tap the timeline.
     if(tubeiumGestureDirection(dx,dy,location.pathname.startsWith('/shorts/'),active.rect.width)
@@ -1845,6 +1874,17 @@ function initTubeiumPhoneGestures(){
     if(event.touches.length!==0||!event.changedTouches?.length)return;
     const finger=event.changedTouches[0],dx=finger.clientX-active.x,dy=finger.clientY-active.y,elapsed=Date.now()-active.at;
     const shorts=location.pathname.startsWith('/shorts/');
+    if(active.scrub){
+      const delta=active.scrubDelta;
+      if(Math.abs(delta)>=5&&Number.isFinite(active.video.duration)&&active.video.duration>0){
+        active.video.currentTime=clamp(active.video.currentTime+delta,0,active.video.duration);
+        feedback((delta>0?'↷ +':'↶ ')+delta+'s',finger.clientX,finger.clientY);
+      }
+      if(event.cancelable!==false)event.preventDefault();
+      event.stopImmediatePropagation();
+      active=null;lastTap=null;
+      return;
+    }
     if(active.moved&&elapsed>=65&&elapsed<850){
       const direction=tubeiumGestureDirection(dx,dy,shorts,active.rect.width);
       if(direction){
