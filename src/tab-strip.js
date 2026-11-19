@@ -1,6 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const yt=$('yt'),help=$('help'),launcher=$('launcher'),menu=$('launcher-menu');
+for(const id of ['nav-back','compact-back'])$(id).addEventListener('click',()=>window.tubeiumTabs.back());
 yt.addEventListener('click',()=>window.tubeiumTabs.select('youtube'));
 help.addEventListener('click',()=>window.tubeiumTabs.select('welcome'));
 $('hide-tabs').addEventListener('click',()=>window.tubeiumTabs.hide());
@@ -23,6 +24,9 @@ window.tubeiumTabs.onState(state=>{
   const tab=typeof state==='string'?state:state.tab;
   const collapsed=typeof state==='object' && state.showHelpTabs===false;
   const menuOpen=collapsed && state?.menuOpen===true;
+  const canGoBack=state?.canGoBack===true;
+  $('nav-back').disabled=!canGoBack;
+  $('compact-back').disabled=!canGoBack;
   document.documentElement.classList.toggle('collapsed',collapsed);
   yt.classList.toggle('active',tab==='youtube');
   help.classList.toggle('active',tab==='welcome');
